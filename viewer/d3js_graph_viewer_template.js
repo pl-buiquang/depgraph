@@ -1,16 +1,23 @@
+/**
+ * GraphViewer.js
+ * This part of the library contains functions utilities to create
+ * a viewer frame for a the graph display integration in html dom page
+ * 
+ * Author : Paul Bui-Quang
+ * INRIA
+ */
+
+
 if(typeof jQuery == 'undefined'){
   alert('Viewer : Error. This library needs jQuery!');
 }
 
-
-var gv_mainpanel = "gv-main-panel";
-var gv_chart = "gv-chart";
-var gv_toolbar = "gv-toolbar";
-var gv_toolbar_landing_area = "gv-toolbar-landing-area";
-var gv_debugpanel = "gv-debug-panel";
-var gv_tooltip = "gv-tooltip";
-var gv_altpanel = "gv-alt-panel";
-
+/**
+ * Create a new instance of a viewer
+ * @param container
+ * @param uid
+ * @returns
+ */
 function GraphViewer(container,uid){
   
   if(uid == null){
@@ -33,10 +40,10 @@ function GraphViewer(container,uid){
   var container = this.container = container;
   container.css('display','inline-block');
   
-  var mainpanel = this.mainpanel = this.createDiv(gv_mainpanel,"gv-main-panel");
+  var mainpanel = this.mainpanel = this.createDiv("gv-main-panel","gv-main-panel");
   container.append(mainpanel);
   
-  var chart = this.chart = this.createDiv(gv_chart,"gv-chart");
+  var chart = this.chart = this.createDiv("gv-chart","gv-chart");
   mainpanel.append(chart);
 
   var toolbar = this.toolbar = this.initToolBar();
@@ -44,7 +51,7 @@ function GraphViewer(container,uid){
 
   this.tooltip = this.createToolTipPanel();
   this.tooltip.hide();
-  this.altpanel = this.createDiv(gv_altpanel,"gv-alt-panel");
+  this.altpanel = this.createDiv("gv-alt-panel","gv-alt-panel");
   this.altpanelcontent = this.createDiv("alt-panel-content","alt-panel-content");
   
   this.ajaxLoader = this.createDiv('ajax-loader','ajax-loader');
@@ -94,6 +101,14 @@ function GraphViewer(container,uid){
 
 GraphViewer.instances = [];
 
+/**
+ * Retrieve the viewer instance from :
+ * - id of a div
+ * - svg element
+ * - jquery div selection
+ * @param fromdiv
+ * @returns
+ */
 GraphViewer.getInstance = function(fromdiv){
   var id = "";
   if(GraphViewer.prototype.isPrototypeOf(fromdiv)){
@@ -122,9 +137,12 @@ GraphViewer.getInstance = function(fromdiv){
 /**                   Builders                             */
 /***********************************************************/
 
+/**
+ * init the toolbar
+ */
 GraphViewer.prototype.initToolBar = function(){
-  var landing_area = this.toolbar_landing_area = this.createDiv(gv_toolbar_landing_area,gv_toolbar_landing_area);
-  var toolbar = this.createDiv(gv_toolbar, gv_toolbar);
+  var landing_area = this.toolbar_landing_area = this.createDiv("gv-toolbar-landing-area","gv-toolbar-landing-area");
+  var toolbar = this.createDiv("gv-toolbar", "gv-toolbar");
   landing_area.append(toolbar);
   this.mainpanel.append(this.toolbar_landing_area);
   // use colorbox for fullscreen mode
@@ -132,8 +150,12 @@ GraphViewer.prototype.initToolBar = function(){
   return toolbar;
 };
 
+/**
+ * create the debug panel
+ * @returns
+ */
 GraphViewer.prototype.createDebugPanel = function(){
-  var debugpanel = this.debugpanel = this.createDiv(gv_debugpanel,"gv-debug-panel");
+  var debugpanel = this.debugpanel = this.createDiv("gv-debug-panel","gv-debug-panel");
   this.debugpanelinfo = this.createDiv("debug-panel-info","debug-panel-info");
   debugpanel.append(this.debugpanelinfo);
   var slider = this.createDiv("debug-panel-slider","debug-panel-slider slider-button slide-up");
@@ -164,13 +186,21 @@ GraphViewer.prototype.createDebugPanel = function(){
   return debugpanel;
 };
 
+/**
+ * append msg to the debug log panel
+ * @param msg
+ */
 GraphViewer.prototype.debugLog = function(msg){
   this.debugpanelcontent.append(msg + '<br/>');
 };
 
+/**
+ * create tooltip panel
+ * @returns
+ */
 GraphViewer.prototype.createToolTipPanel = function(){
   var me = this;
-  this.tooltip = this.createDiv(gv_tooltip,"gv-tooltip");
+  this.tooltip = this.createDiv("gv-tooltip","gv-tooltip");
   var maincontainer = jQuery('<div style="display:inline-block;"></div>');
   this.tooltip.append(maincontainer);
   this.tooltipExitButton = this.createDiv('tooltip-exit-button','tooltip-exit-button');
@@ -185,6 +215,11 @@ GraphViewer.prototype.createToolTipPanel = function(){
   return this.tooltip;
 };
 
+/**
+ * append the viewer uid to the id of an element
+ * @param id
+ * @returns
+ */
 GraphViewer.prototype.appendOwnID = function(id){
   if(id.endsWith(this.uid)){
     return id;
@@ -193,6 +228,11 @@ GraphViewer.prototype.appendOwnID = function(id){
   }
 };
 
+/**
+ * create a wrapper that will allow (un/)folding of the viewer
+ * @param title
+ * @returns
+ */
 GraphViewer.prototype.addWrapper = function(title){
   var me = this;
   var elt = this.wrapper = me.createElement("a", 'gv-wrapper','gv-wrapper');
@@ -205,6 +245,12 @@ GraphViewer.prototype.addWrapper = function(title){
   return elt;
 };
 
+/**
+ * create a div with the viewer id appended
+ * @param id
+ * @param classes
+ * @returns
+ */
 GraphViewer.prototype.createDiv = function(id,classes){
   return this.createElement('div',id,classes);
 };
@@ -222,7 +268,9 @@ GraphViewer.prototype.createElement = function(eltname,id,classes){
 /**                   Modes / Modifiers                    */
 /***********************************************************/
 
-
+/**
+ * set up the debug panel proper height according to the viewer height
+ */
 GraphViewer.prototype.adjustDebugHeight = function(){
   var height = this.mainpanel.height() - this.toolbar.height();
   this.debugpanel.css('height',height);
@@ -230,6 +278,10 @@ GraphViewer.prototype.adjustDebugHeight = function(){
   this.debugpanel.css('bottom',-height+20);
 };
 
+/**
+ * adjust height to the content of the viewer
+ * @param marginBottom
+ */
 GraphViewer.prototype.shrinkHeightToContent = function(marginBottom){
   if(marginBottom == null){
     marginBottom=0;
@@ -240,6 +292,10 @@ GraphViewer.prototype.shrinkHeightToContent = function(marginBottom){
   this.setHeight(transform.translate[1]+bbox.y+bbox.height+marginBottom);
 };
 
+/**
+ * adjust width to the content of the viewer
+ * @param marginRight
+ */
 GraphViewer.prototype.shrinkWidthToContent = function(marginRight){
   if(marginRight == null){
     marginRight=0;
@@ -250,6 +306,11 @@ GraphViewer.prototype.shrinkWidthToContent = function(marginRight){
   this.setWidth(transform.translate[0]+bbox.x+bbox.width+marginLeft);
 };
 
+/**
+ * adjust width and height to the content of the viewer
+ * @param marginRight
+ * @param marginBottom
+ */
 GraphViewer.prototype.shrinkToContent = function(marginRight,marginBottom){
   if(marginBottom == null){
     marginBottom=0;
@@ -267,18 +328,20 @@ GraphViewer.prototype.shrinkToContent = function(marginRight,marginBottom){
   this.setSize(newWidth,transform.translate[1]+bbox.y+bbox.height+marginBottom);
 };
 
-
-GraphViewer.prototype.setContainer = function(){
-  if(this.container != null){
-    this.container.remove(this.appendOwnID(gv_mainpanel));
-  }
-};
-
+/**
+ * set width and height of the viewer
+ * @param width
+ * @param height
+ */
 GraphViewer.prototype.setSize = function(width,height){
   this.setWidth(width);
   this.setHeight(height);
 };
 
+/**
+ * remove toolbar, debugpanel and tooltip
+ * @param value
+ */
 GraphViewer.prototype.setImageMode = function(value){
   if(value == null){
     value = true;
@@ -297,12 +360,19 @@ GraphViewer.prototype.setImageMode = function(value){
   this.margin.bottom = this.basemargin + ((this.imagemode)?0:20);
 };
 
+/**
+ * remove border of the viewer
+ */
 GraphViewer.prototype.noBorders = function(){
   if(this.imagemode){
     this.mainpanel.css("border","none");
   }
 };
 
+/**
+ * switch on/off the debug mode (display or not the debug panel)
+ * @param value
+ */
 GraphViewer.prototype.debugMode = function(value){
   if(value == null){
     value = true;
@@ -315,12 +385,20 @@ GraphViewer.prototype.debugMode = function(value){
   }
 };
 
+/**
+ * set the width of the viewer
+ * @param width
+ */
 GraphViewer.prototype.setWidth = function(width){
   this._width = width;
   this.mainpanel.css('width',width);
   this.ajaxLoader.width(width);
 };
 
+/**
+ * set the height of the viewer
+ * @param height
+ */
 GraphViewer.prototype.setHeight = function(height){
   this._height = height;
   this.mainpanel.css('height',height);
@@ -333,6 +411,10 @@ GraphViewer.prototype.setHeight = function(height){
   }
 };
 
+/**
+ * enable or disable the toolbar auto hiding
+ * @param value
+ */
 GraphViewer.prototype.setFixedToolbar = function(value){
   if(value == null){
     value = true;
@@ -349,7 +431,9 @@ GraphViewer.prototype.setFixedToolbar = function(value){
 /**                    ToolBar                             */
 /***********************************************************/
 
-
+/**
+ * add the fullscreen mode button to the toolbar
+ */
 GraphViewer.prototype.addFullScreenButton = function(){
   if(!this.allowFullScreen){
     return;
@@ -360,15 +444,29 @@ GraphViewer.prototype.addFullScreenButton = function(){
   }
 };
 
+/**
+ * returns true if found a toolbar button with the name 'name'
+ * @param name
+ * @returns {Boolean}
+ */
 GraphViewer.prototype.existToolbarButton = function(name){
   return jQuery('#button-'+this.appendOwnID(name)).length > 0;
 };
 
-
+/**
+ * return the div element corresponding to the tool bar button with name 'name'
+ * @param name
+ * @returns
+ */
 GraphViewer.prototype.getToolbarButton = function(name){
   return jQuery('#button-'+this.appendOwnID(name));
 };
 
+/**
+ * set toolbar buttons from a array definition of buttons
+ * 0 : name, 1 : callback on click, 2: position (left or right), 3 : style (css classes)
+ * @param definition
+ */
 GraphViewer.prototype.setToolbarButtons = function(definition){
   this.tmpLeft = [];
   definition.forEach(function(item,index){
@@ -384,17 +482,33 @@ GraphViewer.prototype.setToolbarButtons = function(definition){
   this.tmpLeft = null;
 };
 
+/**
+ * remove all toolbar buttons
+ */
 GraphViewer.prototype.resetToolbarButtons = function(){
-  var children = jQuery("#"+this.appendOwnID(gv_toolbar)).children();
+  var children = jQuery("#"+this.appendOwnID("gv-toolbar")).children();
   children.remove();
   this.addFullScreenButton();
 };
 
+/**
+ * add a button to the toolbar
+ * the button is a div that will be put either on left, or right side of the toolbar
+ * @param elt
+ * @param position
+ */
 GraphViewer.prototype.addToolbarElement = function(elt,position){
   elt.css('float',position);
-  jQuery("#"+this.appendOwnID(gv_toolbar)).append(elt);
+  jQuery("#"+this.appendOwnID("gv-toolbar")).append(elt);
 };
 
+/**
+ * create and add a button to the toolbar from minimal information
+ * @param name
+ * @param callback
+ * @param position
+ * @param style
+ */
 GraphViewer.prototype.addToolbarButton = function(name,callback,position,style){
   var text = '';
   if(style == null){
@@ -410,13 +524,20 @@ GraphViewer.prototype.addToolbarButton = function(name,callback,position,style){
   var button='<div id="button-'+this.appendOwnID(name)+'" title="'+name+'" class="'+style+' tab '+position+'">'+text+'</div>';
   button = jQuery(button);
   button.click(callback);
-  jQuery("#"+this.appendOwnID(gv_toolbar)).append(button);
+  jQuery("#"+this.appendOwnID("gv-toolbar")).append(button);
 };
 
+/**
+ * remove a toolbar button given its name
+ * @param name
+ */
 GraphViewer.prototype.removeToolbarButton = function(name){
   jQuery('#button-'+this.appendOwnID(name)).remove();
 };
 
+/**
+ * create a dropdown menu given items that compose the menu
+ */
 function createDropDownMenu(name,items){
   var div = jQuery('<div class="gv-menu"><div class="gv-menu-header"></div><div class="gv-menu-body"></div></div>');
   var header = jQuery('.gv-menu-header',div);
@@ -508,38 +629,30 @@ GraphViewer.prototype.hideToolTip = function(){
 /***********************************************************/
 /**                      Misc                              */
 /***********************************************************/
-
-function createDropDownMenu(name,items){
-  var div = jQuery('<div class="gv-menu"><div class="gv-menu-header"></div><div class="gv-menu-body"></div></div>');
-  var header = jQuery('.gv-menu-header',div);
-  var body = jQuery('.gv-menu-body',div);
-  body.hide();
-  header.html(name);
-  for(i in items){
-    body.append('<div onclick="'+items[i]+'">'+i+'</div>');
-  }
-  div.hover(
-      function(event){jQuery('.gv-menu-body',event.currentTarget).show();},
-      function(event){jQuery('.gv-menu-body',event.currentTarget).hide();}
-  );
-  return div;
-}
-
+/**
+ * show an ajax throbber
+ */
 GraphViewer.prototype.ajaxStart = function(){
   this.ajaxLoader.show();
 };
 
+/**
+ * hide the ajax throbber
+ */
 GraphViewer.prototype.ajaxFinished = function(){
   this.ajaxLoader.hide();
 };
 
+/**
+ * init full screen mode callbacks
+ */
 GraphViewer.prototype.initFullscreenMode = function(){
   var graphviewer = this;
   var button = jQuery('#button-fullscreen'+this.appendOwnID(''));
   button.colorbox(
       {
         inline:true,
-        href:'#'+gv_mainpanel+graphviewer.appendOwnID(''),
+        href:'#'+"gv-main-panel"+graphviewer.appendOwnID(''),
         width:'95%',
         height:'95%',
         onLoad:function(){

@@ -1,19 +1,36 @@
+/**
+ * DepGraph.js
+ * This part of the library contains the function
+ * for displaying a graph.
+ * It comes along with a default editing mode.
+ * 
+ * 
+ * Author : Paul Bui-Quang
+ * INRIA
+ */
+
 if(typeof jQuery == 'undefined'){
   alert('DepGraph : Error. This library needs jQuery!');
 }
 
 /**
- * 
- * @param viewer
- * @param json_data
+ * Create a new instance of a graph
+ * @param viewer The viewer in which the graph will be displayed
+ * @param json_data The graph data in json
  * @param options
  * 
- * @returns
+ * 1. set attributes
+ * 2. set and preprocess data
+ * 3. backup data
+ * 4. create svg layout
+ * 5. build the graph from the current data
+ * 6. apply post processing
+ * 7. set viewer additional settings
+ * 8. instanciate edit object
  */
 function DepGraph(viewer, json_data, options) {
   DepGraph.instances[viewer.uid] = this;
   this.viewer = viewer;
-  //viewer.setImageMode(true);
   this.options = options;
 
   this.callbacks = new Object();
@@ -29,10 +46,12 @@ function DepGraph(viewer, json_data, options) {
   this.viewerSettings();
   
   this.editObject = new EditObject(this);
-  /*this.vis.selectAll('g.word').on("click.bits",this.test0);
-  this.vis.selectAll('g.link').on("click.bits",this.test0);*/
 }
 
+/**
+ * Set up viewer callbacks and settings :
+ * - callback when fullscreen open and close
+ */
 DepGraph.prototype.viewerSettings = function(){
   this.viewer.callbacks.fullscreen.oncomplete.push({
     method:this.rescale,
@@ -46,6 +65,11 @@ DepGraph.prototype.viewerSettings = function(){
   );
 };
 
+/**
+ * Center the graph within its container (used when in fullscreen mode).
+ * If container is smaller than the content graph, graph position is set in accordance with
+ * margins parameters (see #style)
+ */
 DepGraph.prototype.rescale = function(){
   var chart = this.viewer.chart;
   var chartBBox = chart[0].getBoundingClientRect();
@@ -59,17 +83,37 @@ DepGraph.prototype.rescale = function(){
       (y-visBBox.y)+") scale(1)");
 };
 
+/**
+ * Switch on or off the highlight on mouseover (link and words)
+ */
+DepGraph.prototype.autoHighLightOnMouseOver = function(value){
+  if(value==null || value){
+    this.vis.selectAll('g.link').on("mouseover.autohighlight",function(){highlightLink(this, true); });
+    this.vis.selectAll('g.link').on("mouseout.autohighlight",function(){highlightLink(this, false); });
+    this.vis.selectAll('g.word').on("mouseover.autohighlight",function(){highlightWord(this, true); });
+    this.vis.selectAll('g.word').on("mouseout.autohighlight",function(){highlightWord(this, false); });
+  }else{
+    this.vis.selectAll('g.link').on("mouseover.autohighlight",null);
+    this.vis.selectAll('g.link').on("mouseout.autohighlight",null);
+    this.vis.selectAll('g.word').on("mouseover.autohighlight",null);
+    this.vis.selectAll('g.word').on("mouseout.autohighlight",null);
 
-DepGraph.prototype.autoHighLightOnMouseOver = function(){
-  var me = this;
-  this.vis.selectAll('g.link').on("mouseover",function(){highlightLink(this, true); });
-  this.vis.selectAll('g.link').on("mouseout",function(){highlightLink(this, false); });
-  this.vis.selectAll('g.word').on("mouseover",function(){highlightWord(this, true); });
-  this.vis.selectAll('g.word').on("mouseout",function(){highlightWord(this, false); });
+  }
 };
 
+/**
+ * Static variable containing all instances of depgraphs on the page (keyed by their viewer uid)
+ */
 DepGraph.instances = [];
 
+/**
+ * Retrieve the depgraph instance from :
+ * - id of a div
+ * - svg element
+ * - jquery div selection
+ * @param fromdiv
+ * @returns
+ */
 DepGraph.getInstance = function(fromdiv) {
   if (DepGraph.prototype.isPrototypeOf(fromdiv)) {
     return fromdiv;
@@ -87,11 +131,19 @@ DepGraph.getInstance = function(fromdiv) {
   return null;
 };
 
+/**
+ * Initial set up and preprocess of graph data
+ * @param json_data
+ */
 DepGraph.prototype.setData = function(json_data){
   this.data = json_data;
   this.prepareData();
 };
 
+/**
+ * Reset data and run immediatly an update
+ * @param json_data
+ */
 DepGraph.prototype.resetData = function(json_data){
   this.setData(json_data);
   this.createLayout();
@@ -103,13 +155,20 @@ DepGraph.prototype.resetData = function(json_data){
   this.editObject.init();
 };
 
+/**
+ * Clean added data (used for graph svg layout creation)
+ * TODO(paul) clean other added data (#id)
+ */
 DepGraph.prototype.cleanData = function(){
   var links = this.vis.selectAll("g.link");
   this.resetLinksProperties(links);
 };
 
 /**
- * Fill all requiered values to data with default/auto-generated values
+ * - Fill all requiered values to data with default/auto-generated values
+ * - resolve json references (@)
+ * - set up #id and #position, reset #properties
+ * TODO(paul) validate data => set error message if failed validation
  */
 DepGraph.prototype.prepareData = function() {
   // Resolve references
@@ -186,13 +245,13 @@ DepGraph.prototype.prepareData = function() {
   chunkStyle['border-size']=chunkStyle['border-size']?chunkStyle['border-size']:'1px';
 };
 
+
 /**
- * Verify that data contains no errors Called in prepareData
+ * Apply post processing to the graph :
+ * - set the graph position according to margin global style
+ * - apply viewer view mode (shrinkToContent is default)
+ * TODO(paul) : add parameter or attributes to depgraph in order to control which view mode to apply
  */
-DepGraph.prototype.validateData = function() {
-
-};
-
 DepGraph.prototype.postProcesses = function(){
   var visBBox = this.vis.node().getBBox();
   this.vis.attr("transform","translate(" + 
@@ -203,8 +262,9 @@ DepGraph.prototype.postProcesses = function(){
 };
 
 /**
- * Parse the data and construct the svg, adding element according to data
- * specification
+ * (Re-)Create the svg element, apply background color, enter svg definitions, and attach some
+ * events handler
+ * TODO(paul) : refactor this function
  */
 DepGraph.prototype.createLayout = function() {
   if(this.svg != null){
@@ -225,17 +285,35 @@ DepGraph.prototype.createLayout = function() {
   //this.svg.call(d3.behavior.zoom().on("zoom", this.redraw));
   
   var me = this;
+  
+  d3.select(this.viewer.chart[0]).on('click.focus'+me.viewer.uid,function(e){
+    depgraphActive = '-' + me.viewer.uid;alert('dee');
+    });
+  
+  d3.select(document).on('click.unfocus',function(e){
+    alert('dd');
+    });
+
+  
   d3.select(document).on('keydown.move'+me.viewer.uid,function(e){
     var translateSpeed = 10;
-    if(d3.event.keyCode==37){ // left
-      me.translateGraph(-translateSpeed,0);
-    }else if(d3.event.keyCode==39){ // right
-      me.translateGraph(translateSpeed,0);
+    if(depgraphActive != null){
+      var depgraph = DepGraph.getInstance(depgraphActive);
+      if(d3.event.keyCode==37){ // left
+        depgraph.translateGraph(-translateSpeed,0);
+      }else if(d3.event.keyCode==39){ // right
+        depgraph.translateGraph(translateSpeed,0);
+      }
     }
   });
   
 };
 
+/**
+ * translate the graph relative to parameters x and y
+ * @param x
+ * @param y
+ */
 DepGraph.prototype.translateGraph = function(x,y){
   var me = DepGraph.getInstance(this);
   var previousValues = getTransformValues(me.vis); 
@@ -243,6 +321,9 @@ DepGraph.prototype.translateGraph = function(x,y){
       "translate(" + (previousValues.translate[0]+x) + "," + (previousValues.translate[1]+y) + ")" + " scale("+previousValues.scale[0]+")");
 };
 
+/**
+ * Redraw the graph...
+ */
 DepGraph.prototype.redraw = function(){
   var me = DepGraph.getInstance(this.parentNode);
   var previousValues = getTransformValues(me.vis); 
@@ -250,6 +331,9 @@ DepGraph.prototype.redraw = function(){
       "translate(" + d3.event.translate[0] + "," + previousValues.translate[1] + ")" + " scale("+d3.event.scale+")");
 };
 
+/**
+ * Read data and construct the graph layout (update and init)
+ */
 DepGraph.prototype.update = function(){
   
   var chunks;
@@ -266,11 +350,9 @@ DepGraph.prototype.update = function(){
   var words_exit = words.exit();
   words_exit.remove();
   words.each(setWordMaterials);
-  //words.each(setWordProperties);
   
   if(this.data.graph.chunks!=null){
     chunks_enter.each(setChunkMaterials);
-    //chunks.each(setChunkProperties);
   }
 
   var links = this.links = this.vis.selectAll("g.link")
@@ -281,10 +363,14 @@ DepGraph.prototype.update = function(){
   this.resetLinksProperties(links);
   this.preprocessLinksPosition(links);
   links.each(setLinkMaterials);
-  //links.each(setLinkProperties);
     
 };
 
+/**
+ * Insert a word from its data and update the graph 
+ * @param word
+ * @param position
+ */
 DepGraph.prototype.insertWord = function(word,position){
   if(word['#id']==null){
     word['#id'] = this.id++;
@@ -300,6 +386,10 @@ DepGraph.prototype.insertWord = function(word,position){
   this.postProcesses();
 };
 
+/**
+ * Add a link and update the graph
+ * @param link
+ */
 DepGraph.prototype.addLink = function(link) {
   if(link['#id']==null){
     link['#id'] = this.id++;
@@ -309,10 +399,20 @@ DepGraph.prototype.addLink = function(link) {
   this.postProcesses();
 };
 
+/**
+ * Add a chunk and update the graph
+ * TODO(paul) : add chunk implementation
+ * @param chunk
+ */
 DepGraph.prototype.addChunk = function(chunk) {
   
 };
 
+/**
+ * Remove a word by its #id and perform update
+ * @param id
+ * @returns list of obsolete links data that were removed during the process
+ */
 DepGraph.prototype.removeWord = function(id){
   var affectedLinks = [];
   var index = this.getWordIndexById(id);
@@ -343,6 +443,11 @@ DepGraph.prototype.removeWord = function(id){
   return affectedLinks;
 };
 
+/**
+ * Remove a link by its #id and perform graph update
+ * @param id
+ * @returns {Boolean} true if success
+ */
 DepGraph.prototype.removeLink = function(id){
   var index = this.getLinkIndexById(id);
   if(index == null){
@@ -354,11 +459,22 @@ DepGraph.prototype.removeLink = function(id){
   return true;
 };
 
+/**
+ * Remove a chunk by its #id an perform graph update
+ * @param id
+ * @returns the list of deleted obsolete links
+ * TODO(paul) à implémenter
+ */
 DepGraph.prototype.removeChunk = function(id){
   
 };
 
-DepGraph.prototype.getWordByPosition = function(position){
+/**
+ * Search and returns a word by its position
+ * @param position
+ * @returns a word svg element
+ */
+DepGraph.prototype.getWordNodeByPosition = function(position){
   var nodes = this.vis.selectAll('g.word');
   for(var i = 0; i<nodes[0].length; i++){
     if(nodes[0][i].__data__['#position'] == position)
@@ -367,6 +483,11 @@ DepGraph.prototype.getWordByPosition = function(position){
   return null;
 };
 
+/**
+ * Search and returns a word by its original id (id)
+ * @param id
+ * @returns a word svg element
+ */
 DepGraph.prototype.getWordNodeByOriginalId = function(id){
   var nodes = this.vis.selectAll('g.word');
   for(var i = 0; i<nodes[0].length; i++){
@@ -375,7 +496,12 @@ DepGraph.prototype.getWordNodeByOriginalId = function(id){
   }
 };
 
-DepGraph.prototype.getChunkByOriginalId = function(id){
+/**
+ * Search and return a chunk by its original id (id)
+ * @param id
+ * @returns a chunk svg element
+ */
+DepGraph.prototype.getChunkNodeByOriginalId = function(id){
   var nodes = this.vis.selectAll('g.chunk');
   for(var i = 0; i<nodes[0].length; i++){
     if(nodes[0][i].__data__['id'] == id)
@@ -383,6 +509,11 @@ DepGraph.prototype.getChunkByOriginalId = function(id){
   }
 };
 
+/**
+ * Search and return a word by its #id
+ * @param id
+ * @returns a word svg element
+ */
 DepGraph.prototype.getWordNodeById = function(id){
   var nodes = this.vis.selectAll('g.word');
   for(var i = 0; i<nodes[0].length; i++){
@@ -391,6 +522,11 @@ DepGraph.prototype.getWordNodeById = function(id){
   }
 };
 
+/**
+ * Search and return a word index from its #id
+ * @param id
+ * @returns the index of the word in the words data list
+ */
 DepGraph.prototype.getWordIndexById = function(id){
   for(var i in this.data.graph.words){
     if(this.data.graph.words[i]['#id'] == id){
@@ -399,6 +535,11 @@ DepGraph.prototype.getWordIndexById = function(id){
   }
 };
 
+/**
+ * Search and return a link by its #id
+ * @param id
+ * @returns the link
+ */
 DepGraph.prototype.getLinkById = function(id){
   for(var i in this.data.graph.links){
     if(this.data.graph.links[i]['#id'] == id){
@@ -407,6 +548,11 @@ DepGraph.prototype.getLinkById = function(id){
   }
 };
 
+/**
+ * Search and return a link index by its #id
+ * @param id
+ * @returns the link index in the links data list
+ */
 DepGraph.prototype.getLinkIndexById = function(id){
   for(var i in this.data.graph.links){
     if(this.data.graph.links[i]['#id'] == id){
@@ -415,6 +561,12 @@ DepGraph.prototype.getLinkIndexById = function(id){
   }
 };
 
+/**
+ * Search and return a link by its original id (id), provided there is one set.
+ * (Original id for link is not required)
+ * @param id
+ * @returns a link in the links data list
+ */
 DepGraph.prototype.getLinkIndexByOriginalId = function(id){
   for(var i in this.data.graph.links){
     if(this.data.graph.links[i].id == id){
@@ -423,6 +575,11 @@ DepGraph.prototype.getLinkIndexByOriginalId = function(id){
   }
 };
 
+/**
+ * Search and return an object (link, word or chunk) by its #id
+ * @param id
+ * @returns an object data from the links,words or chunks data list
+ */
 DepGraph.prototype.getObjectById = function(id){
   for(var i in this.data.graph.words){
     if(this.data.graph.words[i]['#id'] == id){
@@ -441,19 +598,19 @@ DepGraph.prototype.getObjectById = function(id){
   }
 };
 
-DepGraph.prototype.getOrignialIDs = function(type){
-  if(type != 'words' && type != 'links'){
-    this.viewer.debugLog('called getOriginalIDs with incorrect parameter (possible values are "links" or "words"): ' + type);
-    return null;
-  }
-  var list = [];
-  for(var i in this.data.graph[type]){
-    list.push(this.data.graph[type][i].id);
-  }
-  return list;
+/**
+ * Search and return an object node (link node, word node or chunk node) by its #id
+ * @param id
+ * @returns an object svg element from the links,words or chunks nodes selections
+ */
+DepGraph.prototype.getObjectNodeFromObject = function(obj){
+  //TODO (check object type (isALink, isAChunk, isAWord, else) then search in corresponding
+  // lists the #id
 };
 
-
+/**
+ * return the style of an svg element, looking in data.#style, or a default value or null 
+ */
 function getStyleElement(elt,property,defaultValue){
   if(elt.__data__['#style']!=null && elt.__data__['#style'][property] != null){
     return elt.__data__['#style'][property];
@@ -461,6 +618,13 @@ function getStyleElement(elt,property,defaultValue){
   return defaultValue;
 }
 
+/**
+ * get style class method for svg element
+ * return a property searching for embed style, or class style or a default value or null
+ * @param property
+ * @param defaultValue
+ * @returns
+ */
 SVGElement.prototype.getStyle = function(property,defaultValue){
   var me = DepGraph.getInstance(this);
   if(this.__data__['#style']!=null && this.__data__['#style'][property] != null){
@@ -477,6 +641,9 @@ SVGElement.prototype.getStyle = function(property,defaultValue){
   }
 };
 
+/**
+ * set a property style in data.#style
+ */
 function setStyle(element,property,value){
   if(element.__data__['#style'] == null){
     element.__data__['#style'] = {};
@@ -488,6 +655,9 @@ function setStyle(element,property,value){
 /**                   Layout Creation                      **/
 /************************************************************/
 
+/**
+ * set up or update a node svg element (style, content and position) for a word data
+ */
 function setWordMaterials(d,i){
   var node = d3.select(this);
   var elt = node.node();
@@ -546,7 +716,7 @@ function setWordMaterials(d,i){
   .style('stroke-width',1);
   
   var me = DepGraph.getInstance(this);
-  var previousSibling = me.getWordByPosition(node.datum()['#position']-1);
+  var previousSibling = me.getWordNodeByPosition(node.datum()['#position']-1);
   var margin = elt.getStyle('margin');
   if(previousSibling != null){
     var transform = getTransformValues(d3.select(previousSibling));
@@ -564,6 +734,10 @@ function setWordMaterials(d,i){
   node.node().components = {text:text,label:label,rect:rect,sublabels:sublabels};
 }
 
+/**
+ * set up or update a node svg element (style, content and position) for a chunk data
+ * TODO(paul) update not implemented. Recreation of new chunk ev time!
+ */
 function setChunkMaterials(d,i){
   var node = d3.select(this);
   var me = DepGraph.getInstance(node.node());
@@ -650,6 +824,9 @@ function setChunkMaterials(d,i){
   setGroupPosition(node,min.x-removeUnit(margin.left),min.y-removeUnit(margin.top));
 }
 
+/**
+ * set up or update a node svg element (style, content and position) for a link data
+ */
 function setLinkMaterials(d,i){
   var node = d3.select(this);
   var me = DepGraph.getInstance(this);
@@ -753,6 +930,10 @@ function setLinkMaterials(d,i){
   elt.components = {highlightPath:highlightPath,path:path,label:text};
 }
 
+/**
+ * switch highlight property of a link node
+ * (permanently or not <=> set highlighted = true or false in data or not)
+ */
 function highlightLink(link,value,permanent){
   if(link.selected || (!permanent && link.getStyle('highlighted',false))){
     return;
@@ -774,6 +955,10 @@ function highlightLink(link,value,permanent){
   }
 }
 
+/**
+ * switch highlight property of a word node
+ * (permanently or not <=> set highlighted = true or false in data or not)
+ */
 function highlightWord(word,value,permanent){
   if(word.selected || (!permanent && word.getStyle('highlighted',false))){
     return;
@@ -787,6 +972,10 @@ function highlightWord(word,value,permanent){
   .style('fill',value?'yellow':'transparent');
 }
 
+/**
+ * switch highlight property of an object node (chunk, link or word) 
+ * (permanently or not <=> set highlighted = true or false in data or not)
+ */
 function highlightObject(object,value,permanent){
   if(object.classList != null && object.classList.length > 0){
     var klass = object.classList[0];
@@ -798,10 +987,16 @@ function highlightObject(object,value,permanent){
   }
 }
 
+/**
+ * return if object is permanently highlighted
+ */
 function isObjectPermanentHighlighted(object){
   return object.getStyle('highlighted',false);
 }
 
+/**
+ * compute the proper highlighting color for a hex color (otherwise, the color is yellow)
+ */
 function getHighlightColor(color){
   if(color == '#000000' || color.slice(0, 1) != '#')
     return 'yellow';
@@ -815,31 +1010,9 @@ function getHighlightColor(color){
   return rgbToHex(rgb.r,rgb.g,rgb.b);
 }
 
-function setWordProperties(d,i){
-  
-}
-
-function setChunkProperties(d,i){
-  
-}
-
-function setLinkProperties(d,i){
-  
-}
-
-function getWordBBox(node){
-  var bbox = {height:0,x:0,y:0,width:0};
-  for(var i=0;i<node.childNodes.length;i++){
-    var elt = node.childNodes[i];
-    var eltBBox = elt.getBBox();
-    bbox.x = (bbox.x<eltBBox.x)?bbox.x:eltBBox.x;
-    bbox.y = (bbox.y<eltBBox.y)?bbox.y:eltBBox.y;
-    bbox.height += eltBBox.height;
-    bbox.width = (bbox.width>eltBBox.width)?bbox.width:eltBBox.width;
-  }
-  return bbox;
-}
-
+/**
+ * set up svg needed definitions
+ */
 DepGraph.prototype.setSVGDefs = function(){
   this.defs = this.svg.append("defs");
   this.defs.append('marker')
@@ -856,16 +1029,34 @@ DepGraph.prototype.setSVGDefs = function(){
       .attr('fill','inherit');
 };
 
-function isOutside(position,properties){
+/************************************************************/
+/**                      Crossing Algo                     **/
+/************************************************************/
+
+/**
+ * returns true if a node (word or chunk) is outside a frame defined by a link set of properties,
+ * false otherwise
+ */
+function isOutside(object,properties){
   // factor 2, in order to take into account left and right in the positions
-  return getNodePosition(position)*2< properties.min*2 || getNodePosition(position)*2> properties.max*2;
+  return getNodePosition(object)*2< properties.min*2 || getNodePosition(object)*2> properties.max*2;
 }
 
-function isInside(position,properties){
+/**
+ * returns true if a node (word or chunk) is inside a frame defined by a link set of properties,
+ * false otherwise
+ */
+function isInside(object,properties){
   // factor 2, in order to take into account left and right in the positions
-  return getNodePosition(position)*2> properties.min*2 && getNodePosition(position)*2< properties.max*2;
+  return getNodePosition(object)*2> properties.min*2 && getNodePosition(object)*2< properties.max*2;
 }
 
+/**
+ * returns true if two link cross each other, false otherwise
+ * @param link1
+ * @param link2
+ * @returns {Boolean}
+ */
 DepGraph.prototype.crossed = function(link1,link2){
   var p1 = this.getLinkProperties(link1);
   var p2= this.getLinkProperties(link2);
@@ -873,6 +1064,10 @@ DepGraph.prototype.crossed = function(link1,link2){
     || (isInside(p1.nodeEnd,p2) && isOutside(p1.nodeStart,p2));
 };
 
+/**
+ * set up the links position and strate (height of the edge and "innerness")
+ * @param links
+ */
 DepGraph.prototype.preprocessLinksPosition = function(links){
   // factor 2, in order to take into account left and right in the positions
   this.sortLinksByLength(links[0]);
@@ -972,7 +1167,10 @@ DepGraph.prototype.preprocessLinksPosition = function(links){
   }
 };
 
-
+/**
+ * sort the links by length..
+ * @param links
+ */
 DepGraph.prototype.sortLinksByLength = function(links){
   var me = this;
   links.sort(function(a,b){
@@ -980,17 +1178,24 @@ DepGraph.prototype.sortLinksByLength = function(links){
   });
 };
 
+/**
+ * lazy load the computed properties of a link.
+ * Those properties are used to compute the position of the links in order
+ * to minimize crossing
+ * @param link
+ * @returns the properties object
+ */
 DepGraph.prototype.getLinkProperties = function(link){
   var d = link.__data__;
   if(d['#properties'] == null){
     var properties = new Object();
     properties.nodeStart = this.getWordNodeByOriginalId(d.source);
     if(properties.nodeStart == null){
-      properties.nodeStart = this.getChunkByOriginalId(d.source);
+      properties.nodeStart = this.getChunkNodeByOriginalId(d.source);
     }
     properties.nodeEnd = this.getWordNodeByOriginalId(d.target);
     if(properties.nodeEnd == null){
-      properties.nodeEnd = this.getChunkByOriginalId(d.target);
+      properties.nodeEnd = this.getChunkNodeByOriginalId(d.target);
     }
     if(getNodePosition(properties.nodeStart)<getNodePosition(properties.nodeEnd)){
       properties.min = getNodePosition(properties.nodeStart);
@@ -1012,13 +1217,23 @@ DepGraph.prototype.getLinkProperties = function(link){
   return d['#properties'];
 };
 
+/**
+ * Reset the properties of all links
+ * @param links
+ */
 DepGraph.prototype.resetLinksProperties = function(links){
   links.each(function(d,i){
     d['#properties'] = null;
   });
 };
 
-
+/**
+ * Returns the position of the node (word or chunk).
+ * For the non trivial case of chunk, the node in middle of the chunk
+ * is taken for the reference positon in the computing of links positionning
+ * @param node
+ * @returns integer (position of the node)
+ */
 function getNodePosition(node){
   if(node.__data__['#position']!=null)
     return node.__data__['#position'];
@@ -1030,38 +1245,15 @@ function getNodePosition(node){
   }
 }
 
-function setWordPosition(){
-
-}
-
-function setLinkPosition(d,i){
-
-}
-
-function setWordCallbacks(node){
-  var me = DepGraph.getInstance(node.node());
-  node.on("click",me.callbacks.wordClick);
-}
-
-
 /************************************************************/
 /**                      Edition                           **/
 /************************************************************/
 
-EditObject.prototype.dataChanged = function(){
-  if(this.actionsLog.length == 0){
-    return false;
-  }
-  else{
-    if(this.currentPtr == this.lastSavedPtr){
-      return true;
-    }else{
-      return false;
-    }
-  }
-};
-
-
+/**
+ * Object handling event callbacks and misc attributes for editing purpose
+ * @param depgraph
+ * @returns {EditObject}
+ */
 function EditObject(depgraph){
   this.depgraph = depgraph; // reference to the graph
   
@@ -1090,7 +1282,7 @@ function EditObject(depgraph){
           addWordSettings(depgraph,element[0],1);
         },
         'Delete':function(depgraph,element){
-          var word = clone(element[0]);
+          var word = clone(element[0].__data__);
           var affectedLinks = removeWord(depgraph,element[0].__data__['#id']);
           depgraph.editObject.previousSelectedObject = null;
           return {baseAction:'wordRemoval',word:word,affectedLinks:affectedLinks};
@@ -1120,6 +1312,28 @@ function EditObject(depgraph){
   this.addEditMode(this.defaultMode);
 }
 
+/**
+ * returns true if data is different from original 
+ * difference is computed by watching if edit actions has been logged
+ * and if the current pointer on the action is equal to the pointer of the last saved state
+ */
+EditObject.prototype.dataChanged = function(){
+  if(this.actionsLog.length == 0){
+    return false;
+  }
+  else{
+    if(this.currentPtr == this.lastSavedPtr){
+      return true;
+    }else{
+      return false;
+    }
+  }
+};
+
+/**
+ * Enable or disable the edit mode
+ * @param value
+ */
 EditObject.prototype.setEditMode = function(value){
   var me = this;
 
@@ -1162,8 +1376,9 @@ EditObject.prototype.setEditMode = function(value){
 };
 
 
-
-
+/**
+ * init the toolbar with the current edit mode
+ */
 EditObject.prototype.initToolbar = function(){
   var depgraph = this.depgraph;
   depgraph.viewer.resetToolbarButtons();
@@ -1191,6 +1406,9 @@ EditObject.prototype.initToolbar = function(){
     depgraph.viewer.getToolbarButton('redo').hide();
   }*/
   
+  /**
+   * switch on/off the sub edit mode : highlight mode
+   */
   function highlightmode(){
     var me = depgraph.editObject;
     me.highlightMode = !me.highlightMode;
@@ -1201,7 +1419,9 @@ EditObject.prototype.initToolbar = function(){
     }
   }
   
-  
+  /**
+   * call the current editmode save callback
+   */
   function save(){
     var me = depgraph.editObject;
     if(me.mode[me.editMode].save != null){
@@ -1209,6 +1429,9 @@ EditObject.prototype.initToolbar = function(){
     }
   }
   
+  /**
+   * call the current editmode undo callback
+   */
   function undo(){
     var me = depgraph.editObject;
     if(depgraph.editObject.currentPtr == 0){
@@ -1225,6 +1448,9 @@ EditObject.prototype.initToolbar = function(){
     me.updateSaveState();
   }
   
+  /**
+   * call the current editmode redo callback
+   */
   function redo(){
     var me = depgraph.editObject;
     depgraph.editObject.currentPtr++;
@@ -1240,6 +1466,10 @@ EditObject.prototype.initToolbar = function(){
     // TODO !!!!!!!! Change callback so that work (every callbacks should be on the form func(depgraph,params))
   }
   
+  /**
+   * export the data
+   * TODO(paul) add callback to handle the action of this function
+   */
   function exportData(){
     var coords = this.getBoundingClientRect();
     var point = {x:coords.left,y:coords.top + coords.height + 2};
@@ -1270,10 +1500,16 @@ EditObject.prototype.initToolbar = function(){
   }
 };
 
+/**
+ * set the need the save icon to display a unsaved state
+ */
 EditObject.prototype.setNeedToSave = function(){
   this.depgraph.viewer.getToolbarButton('save').removeClass('saved').addClass('save');
 };
 
+/**
+ * update the save state depending on the last saved pointer and the current pointer in the actions log
+ */
 EditObject.prototype.updateSaveState =function(){
   if(this.lastSavedPtr == this.currentPtr){
     this.depgraph.viewer.getToolbarButton('save').removeClass('save').addClass('saved');
@@ -1282,6 +1518,9 @@ EditObject.prototype.updateSaveState =function(){
   }
 };
 
+/**
+ * init the edit object according to the current edit mode
+ */
 EditObject.prototype.init = function(){
   var depgraph = this.depgraph;
 
@@ -1343,27 +1582,8 @@ EditObject.prototype.init = function(){
     }
     jQuery('.chunk',this.depgraph.vis.node()).contextMenu('chunk-context-menu', def);
   }
+
   
-  
-/*  jQuery('.link',this.depgraph.vis.node()).contextMenu('link-context-menu', {
-    'Show Infos': {
-        click: function(element) {  // element is the jquery obj clicked on when context menu launched
-          showToolTip(depgraph,element);
-        },
-        klass: "menu-item-1" // a custom css class for this menu item (usable for styling)
-    },
-   }
-  );
-  
-  jQuery('.word',this.depgraph.vis.node()).contextMenu('word-context-menu', {
-    'Show Infos': {
-        click: function(element) {  // element is the jquery obj clicked on when context menu launched
-          showToolTip(depgraph,element);
-        },
-        klass: "menu-item-1" // a custom css class for this menu item (usable for styling)
-    },
-   });
-  */
   function onContextClick(object_type,menu,object){
     var me = depgraph.editObject;
     var menu = menu.menu;
@@ -1406,10 +1626,21 @@ EditObject.prototype.init = function(){
   }
 };
 
+/**
+ * add an edit mode
+ * @param mode
+ */
 EditObject.prototype.addEditMode = function(mode){
   this.mode[mode.name] = mode;
 };
 
+/**
+ * push an action to the action log
+ * the action must contain sufficient information for the undo/redo callback of the edit mode to
+ * perform rollback actions
+ * if the rollbackdata isn't set, the action won't be registered
+ * @param action
+ */
 EditObject.prototype.pushAction = function(action){
   if(action.rollbackdata != null && this.mode[action.mode].undo != null){
     this.depgraph.viewer.getToolbarButton('redo').hide();
@@ -1420,6 +1651,9 @@ EditObject.prototype.pushAction = function(action){
   }
 };
 
+/**
+ * clear current selection
+ */
 EditObject.prototype.clearSelection = function(){
   if(this.previousSelectedObject != null){
     try {
@@ -1432,13 +1666,28 @@ EditObject.prototype.clearSelection = function(){
   }
 };
 
+/**
+ * select an object node (word, chunk or link)
+ * @param obj
+ */
 EditObject.prototype.selectObject =function(obj){
+  if(this.previousSelectedObject == obj){
+    this.clearSelection();
+    return;
+  }
   this.clearSelection();
   this.previousSelectedObject = obj;
   highlightObject(this.previousSelectedObject,true);
   obj.selected = true;
 };
 
+/**
+ * change attributes of a object (link, chunk or word)
+ * push the change in the action log
+ * @param obj
+ * @param attrs
+ * @param pushAction
+ */
 EditObject.prototype.changeAttributes = function(obj,attrs,pushAction){
   var backup = clone(obj);
   var oldAttrs = [];
@@ -1452,6 +1701,13 @@ EditObject.prototype.changeAttributes = function(obj,attrs,pushAction){
   }
 };
 
+/**
+ * return a reference of a value from a path in an object
+ * @param obj
+ * @param path
+ * @param value
+ * @returns
+ */
 function setAttrPath(obj,path,value){
   var pathComponents = path.split('/');
   var attr = obj;
@@ -1472,6 +1728,11 @@ function setAttrPath(obj,path,value){
   return oldVal;
 }
 
+/**
+ * select an object node word, link or chunk)
+ * @param depgraph
+ * @param params
+ */
 function selectObject(depgraph,params){
   if(depgraph.editObject.highlightMode){
     var value = !isObjectPermanentHighlighted(this);
@@ -1480,6 +1741,11 @@ function selectObject(depgraph,params){
   depgraph.editObject.selectObject(this);
 };
 
+/**
+ * undo callback for the default edit mode
+ * @param depgraph
+ * @param rollbackdata
+ */
 function defaultUndo(depgraph,rollbackdata){
   if(rollbackdata.baseAction == 'linkRemoval'){
     var link = rollbackdata.link;
@@ -1493,6 +1759,15 @@ function defaultUndo(depgraph,rollbackdata){
   }else if(rollbackdata.baseAction == 'wordRemoval'){
     var word = rollbackdata.word;
     addWord(depgraph,word);
+    if(rollbackdata.affectedLinks!=null){
+      for(var i=0;i<rollbackdata.affectedLinks.length;i++){
+        var link = rollbackdata.affectedLinks[i];
+        var source = depgraph.getWordNodeByOriginalId(link['source']);
+        var target = depgraph.getWordNodeByOriginalId(link['target']);
+        link.color = link['#style']['link-color']?link['#style']['link-color']:depgraph.data.graph['#link-style']['link-color'];
+        addLink(depgraph,source,target,link.label,link.color,link['#id']);
+      }
+    }
   }else if(rollbackdata.baseAction == 'changeAttr'){
     var id = rollbackdata.obj['#id'];
     var obj = depgraph.getObjectById(id);
@@ -1502,9 +1777,21 @@ function defaultUndo(depgraph,rollbackdata){
   }
 }
 
+/**
+ * redo callback for the default edit mode
+ * TODO(paul) implement this
+ * @param depgraph
+ * @param actionData
+ */
 function defaultRedo(depgraph,actionData){
 }
 
+/**
+ * key down handler callback for the default edit mode
+ * @param depgraph
+ * @param params
+ * @returns
+ */
 function editKeyDownDefault (depgraph,params){
   if(params.keyCode == 46){
     if(depgraph.editObject.previousSelectedObject!= null){
@@ -1516,12 +1803,22 @@ function editKeyDownDefault (depgraph,params){
         if(success){
           return {baseAction:'linkRemoval',link:link};
         }
+      }else if(isAWord(depgraph.editObject.previousSelectedObject)){
+        var word = clone(depgraph.editObject.previousSelectedObject.__data__);
+        var affectedLinks = removeWord(depgraph,depgraph.editObject.previousSelectedObject.__data__['#id']);
+        depgraph.editObject.previousSelectedObject = null;
+        return {baseAction:'wordRemoval',word:word,affectedLinks:affectedLinks};
       }
     }
   }
 
 }
 
+/**
+ * show edit properties panel for an object node (word, link or chunk)
+ * @param depgraph
+ * @param obj
+ */
 function showToolTip(depgraph,obj){
   var coords = depgraph.viewer.screenCoordsForElt(obj[0]);
   var point = {x:(coords.ne.x + coords.nw.x)/2,y:coords.nw.y};
@@ -1531,7 +1828,13 @@ function showToolTip(depgraph,obj){
   depgraph.viewer.showTooltip(point);
 }
 
-
+/**
+ * fill in the edit properties panel for a link object
+ * @param depgraph
+ * @param editDiv
+ * @param linkData
+ * @returns
+ */
 function populateLinkEditPanel(depgraph,editDiv,linkData){
   var color = (linkData['#style']!= null && linkData['#style']['link-color']!=null)?linkData['#style']['link-color']:depgraph.data.graph['#link-style']['link-color'];
   editDiv += '<tr><td>label</td><td><input type="text" name="label" value="'+linkData.label+'"></td></tr>';
@@ -1541,6 +1844,13 @@ function populateLinkEditPanel(depgraph,editDiv,linkData){
   return editDiv;
 }
 
+/**
+ * fill in the edit properties panel for a word object 
+ * @param depgraph
+ * @param editDiv
+ * @param wordData
+ * @returns
+ */
 function populateWordEditPanel(depgraph,editDiv,wordData){
   editDiv += '<tr><td>label</td><td><input type="text" name="label" value="'+wordData.label+'"></td></tr>';
   for(var i =0 ;i< wordData.sublabel.length ; i++){
@@ -1549,12 +1859,23 @@ function populateWordEditPanel(depgraph,editDiv,wordData){
   return editDiv;
 }
 
-
+/**
+ * simple color picker form
+ * @param name
+ * @param defaultColor
+ * @returns {String}
+ */
 function simpleColorPicker(name,defaultColor){
   var colorPicker = '<table><tr><td><input type="text" name="'+name+'" value="'+defaultColor+'" onkeydown="jQuery(jQuery(jQuery(this).parent().parent().children()[1]).children()[0]).css(\'background-color\',this.value+String.fromCharCode(event.keyCode));"></td><td><div style="display:inline-block; width:30px; height:30px; background-color:'+defaultColor+';"></div></td></tr></table>';
   return colorPicker;
 }
 
+/**
+ * return a form of list of words
+ * @param depgraph
+ * @param selectedOriginalId
+ * @returns {String}
+ */
 function getOptionsListWords(depgraph,selectedOriginalId){
   var optionList = '<select>';
   for(var i in depgraph.data.graph.words){
@@ -1569,6 +1890,12 @@ function getOptionsListWords(depgraph,selectedOriginalId){
   return optionList;
 }
 
+/**
+ * create the form allowing edition of properties of an object (word, link or chunk)
+ * @param depgraph
+ * @param obj
+ * @returns
+ */
 function createEditPanel(depgraph,obj){
   var data = obj.__data__;
   var klass = '';
@@ -1612,6 +1939,10 @@ function createEditPanel(depgraph,obj){
   return jdiv;
 }
 
+/**
+ * save the properties entered in the edit properties panel of an object
+ * update the graph
+ */
 function saveProperties(){
   var type = this.id.substring(0,this.id.indexOf('-'));
   var depgraph = DepGraph.getInstance(this);
@@ -1631,6 +1962,11 @@ function saveProperties(){
   viewer.hideToolTip();
 }
 
+/**
+ * save the properties for a link
+ * @param depgraph
+ * @param form
+ */
 function saveLinkProperties(depgraph,form){
   var link = depgraph.getLinkById(form.attr('ref'));
   var rows = form[0].rows;
@@ -1655,6 +1991,11 @@ function saveLinkProperties(depgraph,form){
   depgraph.editObject.changeAttributes(link,attrs,true);
 }
 
+/**
+ * save the properties for a word
+ * @param depgraph
+ * @param form
+ */
 function saveWordProperties(depgraph,form){
   var word = depgraph.getWordNodeById(form.attr('ref')).__data__;
   var rows = form[0].rows;
@@ -1675,23 +2016,11 @@ function saveWordProperties(depgraph,form){
   depgraph.editObject.changeAttributes(word,attrs,true);
 }
 
-function addField(name,datum){
-  if(name.substr(0,1) == '#'){
-    if(name != '#data' && name!='#style'){
-      return '';
-    }
-  }
-  var field = '<tr><td>' + name + ' :</td>';
-  if(typeof datum == 'string'){
-    field += '<td><input type="text" name="'+name+'" value="'+datum+'">';
-  }else{
-    for(item in datum){
-      field += addField(item,datum[item]);
-    }
-  }
-  return field;
-}
-
+/**
+ * on word click callback for default edit mode
+ * @param depgraph
+ * @param params
+ */
 function addLinkClick(depgraph,params){
   if(depgraph.editObject.previousSelectedObject == null || isALink(depgraph.editObject.previousSelectedObject)){
     selectObject.call(this,depgraph,params);
@@ -1705,6 +2034,13 @@ function addLinkClick(depgraph,params){
   }
 }
 
+/**
+ * open a link creation panel
+ * @param depgraph
+ * @param obj1
+ * @param obj2
+ * @param params
+ */
 function addLinkSettings(depgraph,obj1,obj2,params){
   var coords = depgraph.viewer.screenCoordsForElt(obj2);
   var point = {x:(coords.ne.x + coords.nw.x)/2,y:coords.nw.y};
@@ -1732,13 +2068,26 @@ function addLinkSettings(depgraph,obj1,obj2,params){
   depgraph.viewer.showTooltip(point);
 }
 
+/**
+ * add a word
+ * @param depgraph
+ * @param wordData
+ * @returns
+ */
 function addWord(depgraph,wordData){
   var position = wordData['#position'];
   depgraph.insertWord(wordData,position);
   depgraph.editObject.init();
   depgraph.autoHighLightOnMouseOver();
+  return clone(wordData);
 }
 
+/**
+ * open a word creation panel
+ * @param depgraph
+ * @param element
+ * @param offset
+ */
 function addWordSettings(depgraph,element,offset){
   var coords = depgraph.viewer.screenCoordsForElt(element);
   var point = {x:(coords.ne.x + coords.nw.x)/2,y:coords.nw.y};
@@ -1753,6 +2102,10 @@ function addWordSettings(depgraph,element,offset){
   
   jQuery('#word-settings'+depgraph.viewer.appendOwnID('')).click(function(){
     var value = this.parentNode.parentNode.parentNode.childNodes[0].childNodes[1].childNodes[0].value;
+    if(value==null || value ==''){
+      alert('you must fill all required fields');
+      return;
+    }
     var wordData = {label:value,'#position':element.__data__['#position']+offset};
     var word = addWord(depgraph,wordData);
     var action = {baseAction:'wordAddition',addedWord:word};
@@ -1764,11 +2117,27 @@ function addWordSettings(depgraph,element,offset){
   depgraph.viewer.showTooltip(point);
 }
 
+/**
+ * remove a word
+ * @param depgraph
+ * @param id
+ * @returns
+ */
 function removeWord(depgraph,id){
   var result = depgraph.removeWord(id);
   return result;
 }
 
+/**
+ * add a link
+ * @param depgraph
+ * @param d1
+ * @param d2
+ * @param label
+ * @param color
+ * @param id
+ * @returns {___link1}
+ */
 function addLink(depgraph,d1,d2,label,color,id){
   if(color == null){
     color = 'black';
@@ -1790,6 +2159,12 @@ function addLink(depgraph,d1,d2,label,color,id){
   return link;
 }
 
+/**
+ * remove a link
+ * @param depgraph
+ * @param id
+ * @returns
+ */
 function removeLink(depgraph,id){
   var result = depgraph.removeLink(id);
   return result;
@@ -1799,25 +2174,31 @@ function isALink(obj){
   return obj.__data__.target != null && obj.__data__.source != null;
 }
 
+function isAWord(obj){
+  return obj.__data__['#position'] != null;
+}
 
+function isAChunk(obj){
+  return obj.elements != null;
+}
 
 /************************************************************/
 /**                      Utils                             **/
 /************************************************************/
 
+/**
+ * clone an object
+ */
 function clone(obj) {
-  // Handle the 3 simple types, and null or undefined
   if (null == obj || "object" != typeof obj)
     return obj;
 
-  // Handle Date
   if (obj instanceof Date) {
     var copy = new Date();
     copy.setTime(obj.getTime());
     return copy;
   }
 
-  // Handle Array
   if (obj instanceof Array) {
     var copy = [];
     for ( var i = 0, len = obj.length; i < len; i++) {
@@ -1826,7 +2207,6 @@ function clone(obj) {
     return copy;
   }
 
-  // Handle Object
   if (obj instanceof Object) {
     var copy = {};
     for ( var attr in obj) {
@@ -1848,12 +2228,22 @@ function setGroupPosition(node,x,y){
   node.attr("transform","translate("+x+","+y+")");
 };
 
+/**
+ * center a node in x in reference of an other
+ * @param node
+ * @param refNode
+ */
 function center(node,refNode){
   var refbbox = refNode.node().getBBox();
   var bbox = node.node().getBBox();
   node.attr('x',-bbox.width/2+refbbox.width/2);
 }
 
+/**
+ * get the transform value of a  g svg element
+ * @param elt
+ * @returns {Object}
+ */
 function getTransformValues(elt){
   var value = elt.attr("transform");
   var pairRegex = /(\w+)\((.*?)\)/g;
@@ -1871,6 +2261,13 @@ function getTransformValues(elt){
   return result;
 }
 
+/**
+ * resolve the references in a json object
+ * the references are su objects id starting with a refPrefix 
+ * (eg. '@15' for a object of id 15 and using '@' as a refPrefix  
+ * @param obj
+ * @param refPrefix
+ */
 function JSONresolveReferences(obj,refPrefix){
   var refids = [];
   var queue = [];
@@ -1911,6 +2308,11 @@ function JSONresolveReferences(obj,refPrefix){
   }
 };
 
+/**
+ * remove the unit 'px' from a string an returns the number as a float number
+ * @param value
+ * @returns
+ */
 function removeUnit(value){
   var regex_px = /(-*)(\d+\.*\d*)px/;
   var match = regex_px.exec(value);
@@ -1921,6 +2323,10 @@ function removeUnit(value){
   return parseFloat(value);
 }
 
+/**
+ * add multiple arguments (number or string with units) and returns their sum in a string appended by 'px'
+ * @returns {String}
+ */
 function addPxs(){
   var sum = 0;
   for(var i=0; i<arguments.length;i++){
@@ -1933,7 +2339,6 @@ function addPxs(){
 /************************************************************/
 /**                      Colors                            **/
 /************************************************************/
-
 
 function rgbToHex(r, g, b) {
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);

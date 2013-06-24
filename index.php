@@ -1,6 +1,6 @@
 <?php
 
-require_once "depview/depgraph_formats.inc";
+require_once "depgraph_formats.inc";
 
 $depgraphdata = "1	Jean	Jean	N	NPP	n=s|g=m	2	suj	_	_
 2	aime	aimer	V	V	n=s|p=3|m=i|t=p	0	root	_	_
