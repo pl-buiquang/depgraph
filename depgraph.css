@@ -1,3 +1,10 @@
+/**
+* DepGraph.css
+* The style definition (mainly for the viewer)
+* 
+* Author : Paul Bui-Quang
+* INRIA
+*/
 @CHARSET "UTF-8";
 
 a.gv-wrapper{
@@ -388,3 +395,4 @@ path.link {
   stroke: #ccc;
   stroke-width: 1.5px;
 }
+

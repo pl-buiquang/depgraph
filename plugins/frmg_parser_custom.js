@@ -1,3 +1,5 @@
+(function(depgraphlib, $, undefined){
+
 function generateTooltipContent(word){
   var me = DepGraph.getInstance(word);
   var d = word.__data__;
@@ -57,7 +59,7 @@ function save_default(depgraph){
   });
 }
 
-function FRMGEditMode(urlFRMGServer){
+depgraphlib.FRMGEditMode = function(urlFRMGServer){
   this.mode = {
       name : 'frmg',
       onWordSelect : showAltOnNodeClick,
@@ -296,5 +298,5 @@ function FRMGEditMode(urlFRMGServer){
   
 }
 
-
+}(window.depgraphlib = window.depgraphlib || {}, jQuery));
 
