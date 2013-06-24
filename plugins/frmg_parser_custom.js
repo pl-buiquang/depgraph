@@ -1,21 +1,7 @@
 (function(depgraphlib, $, undefined){
 
-function generateTooltipContent(word){
-  var me = DepGraph.getInstance(word);
-  var d = word.__data__;
-  
-  var title = me.viewer.createElement("h1",d['#id']);
-  var infos = new Array();
-  for(data in d['#data']){
-    var div = me.viewer.createDiv(data);
-    div.append();
-    d['#data'][data];
-  }
-  
-}
-
-function showRefs(){
-  var me = DepGraph.getInstance(this);
+  depgraphlib.showRefs = function(){
+  var me = depgraphlib.DepGraph.getInstance(this);
   var coords = this.getBoundingClientRect();
   var point = {x:coords.left,y:coords.top + coords.height + 2};
   var div ='<div>Reference Infos : <br>';
@@ -28,7 +14,7 @@ function showRefs(){
   me.viewer.tooltipExitButton.show();
   me.viewer.showTooltip(point);
 
-}
+};
 
 function fix_missing_a_closing_tag(link){
   if(link.indexOf('</a>', link.length - 4) !== -1){
@@ -38,7 +24,7 @@ function fix_missing_a_closing_tag(link){
   }
 }
 
-function save_default(depgraph){
+depgraphlib.save_default = function(depgraph){
   depgraph.cleanData();
   jQuery.ajax({
     type: 'POST', 
@@ -57,17 +43,17 @@ function save_default(depgraph){
       alert(textStatus);
     }
   });
-}
+};
 
 depgraphlib.FRMGEditMode = function(urlFRMGServer){
   this.mode = {
       name : 'frmg',
       onWordSelect : showAltOnNodeClick,
       onLinkSelect : selectAlternative,
-      onChunkSelect : selectObject,
+      onChunkSelect : depgraphlib.selectObject,
       onWordContext : {
         'Show Infos': function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
-          showToolTip(depgraph,element);
+          depgraphlib.showToolTip(depgraph,element);
         },
         'HighLight' : function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
           processhighlightmode(depgraph,element);
@@ -75,7 +61,7 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
       },
       onLinkContext : {
         'Show Infos': function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
-          showToolTip(depgraph,element);
+          depgraphlib.showToolTip(depgraph,element);
         },
         'HighLight' : function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
           processhighlightmode(depgraph,element);
@@ -112,7 +98,7 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
   }
   
   function showAltOnNodeClick(depgraph,params){
-    if(depgraph.editObject.previousSelectedObject != null && !isALink(depgraph.editObject.previousSelectedObject)){
+    if(depgraph.editObject.previousSelectedObject != null && !depgraphlib.isALink(depgraph.editObject.previousSelectedObject)){
       hideAltLinks(depgraph,depgraph.editObject.previousSelectedObject);
     }
     
@@ -141,7 +127,7 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
   function editKeyDownFRMG (depgraph,params){
     if(params.keyCode == 46){
       if(depgraph.editObject.previousSelectedObject!= null){
-        if(isALink(depgraph.editObject.previousSelectedObject)){
+        if(depgraphlib.isALink(depgraph.editObject.previousSelectedObject)){
           var params = removeLinkForNewData(depgraph,depgraph.sentence,depgraph.editObject.previousSelectedObject.__data__);
           return {baseAction:'removeEdge',previousParams:getPreviousParams(depgraph),currentParams:params};
         }
@@ -150,7 +136,7 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
   }
 
   function selectAlternative(depgraph,params){
-    if(depgraph.editObject.previousSelectedObject != null && !isALink(depgraph.editObject.previousSelectedObject)){
+    if(depgraph.editObject.previousSelectedObject != null && !depgraphlib.isALink(depgraph.editObject.previousSelectedObject)){
       hideAltLinks(depgraph,depgraph.editObject.previousSelectedObject);
     }
     
@@ -158,7 +144,7 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
       return;
     }
     
-    if(isALink(this) && true == this.__data__['#data'].virtual){
+    if(depgraphlib.isALink(this) && true == this.__data__['#data'].virtual){
       var params = "";
       for(id  in this.__data__['ref_ids']){
         params += "eid=" + this.__data__['ref_ids'][id] + "&+8000";
@@ -181,7 +167,7 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
   function processhighlightmode(depgraph,currentobj){
     if(depgraph.editObject.highlightMode){
       depgraph.editObject.clearSelection();
-      var value = !isObjectPermanentHighlighted(currentobj);
+      var value = !depgraphlib.isObjectPermanentHighlighted(currentobj);
       highlightObject(currentobj,value,true);
       
       if(depgraph.editObject.mode[depgraph.editObject.editMode].highlightInfos == null){
@@ -296,7 +282,7 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
   }
 
   
-}
+};
 
 }(window.depgraphlib = window.depgraphlib || {}, jQuery));
 

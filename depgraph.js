@@ -1021,13 +1021,13 @@ if(typeof jQuery == 'undefined'){
     var me = this;
     
     d3.select(this.viewer.chart[0]).on('click.focus'+me.viewer.uid,function(e){
-      depgraphActive = '-' + me.viewer.uid;
+      depgraphlib.depgraphActive = '-' + me.viewer.uid;
       });
     
     d3.select(document).on('keydown.move'+me.viewer.uid,function(e){
       var translateSpeed = 10;
-      if(depgraphActive != null){
-        var depgraph = depgraphlib.DepGraph.getInstance(depgraphActive);
+      if(depgraphlib.depgraphActive){
+        var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.depgraphActive);
         if(d3.event.keyCode==37){ // left
           depgraph.translateGraph(-translateSpeed,0);
         }else if(d3.event.keyCode==39){ // right
@@ -1721,6 +1721,10 @@ if(typeof jQuery == 'undefined'){
    */
   function isObjectPermanentHighlighted(object){
     return object.getStyle('highlighted',false);
+  }
+  
+  depgraphlib.isObjectPermanentHighlighted = function(object){
+    return isObjectPermanentHighlighted(object);
   }
 
   /**
@@ -2469,6 +2473,8 @@ if(typeof jQuery == 'undefined'){
     }
     depgraph.editObject.selectObject(this);
   };
+  
+  depgraphlib.selectObject = function(depgraph,params){return selectObject(depgraph,params);};
 
   /**
    * undo callback for the default edit mode
@@ -2556,6 +2562,8 @@ if(typeof jQuery == 'undefined'){
     depgraph.viewer.tooltipExitButton.show();
     depgraph.viewer.showTooltip(point);
   }
+  
+  depgraphlib.showToolTip = function(depgraph,obj){return showTooltip(depgraph,obj);};
 
   /**
    * fill in the edit properties panel for a link object
@@ -2902,14 +2910,26 @@ if(typeof jQuery == 'undefined'){
   function isALink(obj){
     return obj.__data__.target != null && obj.__data__.source != null;
   }
+  
+  depgraphlib.isALink = function(obj){
+    return isALink(obj);
+  };
 
   function isAWord(obj){
     return obj.__data__['#position'] != null;
   }
 
+  depgraphlib.isAWord = function(obj){
+    return isAWord(obj);
+  };
+  
   function isAChunk(obj){
     return obj.elements != null;
   }
+
+  depgraphlib.isAChunk = function(obj){
+    return isAChunk(obj);
+  };
 
   /************************************************************/
   /**                      Utils                             **/
@@ -3051,6 +3071,11 @@ if(typeof jQuery == 'undefined'){
     }
     return parseFloat(value);
   }
+  
+  /**
+   * for external use
+   */
+  depgraphlib.removeUnit = function(value){return removeUnit(value);};
 
   /**
    * add multiple arguments (number or string with units) and returns their sum in a string appended by 'px'
