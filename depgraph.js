@@ -8,11 +8,12 @@
  * Author : Paul Bui-Quang
  * INRIA
  */
-if(typeof jQuery == 'undefined'){
-  alert('DepGraph : Error. This library needs jQuery!');
-}
-
 (function(depgraphlib, $, undefined){
+
+  if(typeof jQuery == 'undefined'){
+    alert('DepGraph : Error. This library needs jQuery!');
+  }
+
   /**
    * GraphViewer.js
    * This part of the library contains functions utilities to create
@@ -1715,6 +1716,10 @@ if(typeof jQuery == 'undefined'){
       }
     }
   }
+  
+  depgraphlib.highlightObject = function(object,value,permanent){
+    return highlightObject(object,value,permanent);
+  };
 
   /**
    * return if object is permanently highlighted
@@ -1725,7 +1730,7 @@ if(typeof jQuery == 'undefined'){
   
   depgraphlib.isObjectPermanentHighlighted = function(object){
     return isObjectPermanentHighlighted(object);
-  }
+  };
 
   /**
    * compute the proper highlighting color for a hex color (otherwise, the color is yellow)
@@ -2090,13 +2095,13 @@ if(typeof jQuery == 'undefined'){
     
     if(value){
       window.onbeforeunload = function (e) {
+        
         var message = "Changes made to the graph are not saved. If you leave this page all modifications will be lost.";
         e = e || window.event;
         // For IE and Firefox
         if (e) {
           e.returnValue = message;
         }
-
         // For Safari
         return message;
       };
@@ -2563,7 +2568,7 @@ if(typeof jQuery == 'undefined'){
     depgraph.viewer.showTooltip(point);
   }
   
-  depgraphlib.showToolTip = function(depgraph,obj){return showTooltip(depgraph,obj);};
+  depgraphlib.showToolTip = function(depgraph,obj){return showToolTip(depgraph,obj);};
 
   /**
    * fill in the edit properties panel for a link object
@@ -3152,8 +3157,6 @@ if(typeof jQuery == 'undefined'){
 
     return {r:Math.floor(r * 255),g: Math.floor(g * 255),b: Math.floor(b * 255)};
   }
-  
-  
   
 }(window.depgraphlib = window.depgraphlib || {}, jQuery));
 

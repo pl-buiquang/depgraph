@@ -168,7 +168,7 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
     if(depgraph.editObject.highlightMode){
       depgraph.editObject.clearSelection();
       var value = !depgraphlib.isObjectPermanentHighlighted(currentobj);
-      highlightObject(currentobj,value,true);
+      depgraphlib.highlightObject(currentobj,value,true);
       
       if(depgraph.editObject.mode[depgraph.editObject.editMode].highlightInfos == null){
         depgraph.editObject.mode[depgraph.editObject.editMode].highlightInfos = depgraph.data.graph.highlighting?depgraph.data.graph.highlighting:[];
