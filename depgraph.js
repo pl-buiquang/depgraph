@@ -300,7 +300,7 @@
     var vis = d3.select(this.chart.children()[0]).select('g');
     var bbox = vis.node().getBBox();
     var transform = getTransformValues(vis);
-    this.setHeight(transform.translate[1]+bbox.y+bbox.height+marginBottom);
+    this.setHeight(transform.translate[1]+bbox.y*transform.scale[0]+bbox.height*transform.scale[0]+marginBottom*transform.scale[0]);
   };
 
   /**
@@ -751,7 +751,11 @@
    * Create a new instance of a graph
    * @param viewer The viewer in which the graph will be displayed
    * @param json_data The graph data in json
-   * @param options
+   * @param options :
+   * uid : id
+   * viewmode : streched | cropped | full
+   * viewsize : auto/null (for full viewmode) | width (in px or %) 
+   * 
    * 
    * 1. set attributes
    * 2. set and preprocess data
@@ -789,12 +793,12 @@
    */
   depgraphlib.DepGraph.prototype.viewerSettings = function(){
     this.viewer.callbacks.fullscreen.oncomplete.push({
-      method:this.rescale,
+      method:this.centerGraph,
       caller:this
       }
     );
     this.viewer.callbacks.fullscreen.onclose.push({
-      method:this.rescale,
+      method:this.centerGraph,
       caller:this
       }
     );
@@ -805,17 +809,18 @@
    * If container is smaller than the content graph, graph position is set in accordance with
    * margins parameters (see #style)
    */
-  depgraphlib.DepGraph.prototype.rescale = function(){
+  depgraphlib.DepGraph.prototype.centerGraph = function(){
     var chart = this.viewer.chart;
     var chartBBox = chart[0].getBoundingClientRect();
     var visBBox = this.vis.node().getBBox();
+    var previousValues = getTransformValues(this.vis);
     var x  = (chartBBox.width-visBBox.width)/2;
     var y = (chartBBox.height-visBBox.height)/2;
     y = y>0?y:removeUnit(this.data.graph['#style'].margin.top);
     x = x>0?x:removeUnit(this.data.graph['#style'].margin.left);
     this.vis.attr("transform","translate(" + 
         (x-visBBox.x) + "," + 
-        (y-visBBox.y)+") scale(1)");
+        (y-visBBox.y)+") scale("+previousValues.scale[0]+")");
   };
 
   /**
@@ -850,20 +855,24 @@
    * @returns
    */
   depgraphlib.DepGraph.getInstance = function(fromdiv) {
-    if (depgraphlib.DepGraph.prototype.isPrototypeOf(fromdiv)) {
-      return fromdiv;
-    } else if (fromdiv.ownerSVGElement != null) {
-      fromdiv = fromdiv.ownerSVGElement.parentNode.id;
-    } else if (typeof fromdiv == 'object' && fromdiv.id != null) {
-      fromdiv = fromdiv.id;
-    }
+    if(fromdiv){
+      if (depgraphlib.DepGraph.prototype.isPrototypeOf(fromdiv)) {
+        return fromdiv;
+      } else if (fromdiv.ownerSVGElement != null) {
+        fromdiv = fromdiv.ownerSVGElement.parentNode.id;
+      } else if(fromdiv.nodeName && fromdiv.nodeName == 'svg'){
+        fromdiv = fromdiv.parentNode.id;
+      } else if (typeof fromdiv == 'object' && fromdiv.id != null) {
+        fromdiv = fromdiv.id;
+      }
 
-    regex = /.*-(\w+)/;
-    var match = regex.exec(fromdiv);
-    if (match != null) {
-      return depgraphlib.DepGraph.instances[match[1]];
+      regex = /.*-(\w+)/;
+      var match = regex.exec(fromdiv);
+      if (match != null) {
+        return depgraphlib.DepGraph.instances[match[1]];
+      }
+      return null;
     }
-    return null;
   };
 
   /**
@@ -992,10 +1001,118 @@
     this.vis.attr("transform","translate(" + 
         (removeUnit(this.data.graph['#style'].margin.left)-visBBox.x) + "," + 
         (removeUnit(this.data.graph['#style'].margin.top)-visBBox.y)+") scale(1)");
-    this.viewer.shrinkToContent(removeUnit(this.data.graph['#style']['margin'].right),removeUnit(this.data.graph['#style']['margin'].bottom)+20);
-
+    
+    this.setViewMode();
   };
 
+  /**
+   * Set the view mode (full | strechted | cropped)
+   * Apply viewer mode and add scrollbar or proper scale if necessary
+   * 
+   * For values in %, make sure that the container wrapping the viewer is displayed as block and a size is set.
+   */
+  depgraphlib.DepGraph.prototype.setViewMode = function(){
+    if(this.options.viewmode && this.options.viewmode != 'full'){
+      this.viewer.shrinkHeightToContent(removeUnit(this.data.graph['#style']['margin'].bottom)+20);
+      if(!this.options.viewsize){
+        alert('options.viewsize not defined, using 600px as default value');
+        this.options.viewsize = '600px';
+      }
+      this.viewer.setWidth(this.options.viewsize);
+      if(this.options.viewmode == 'cropped'){
+        this.createScrollBar();
+      }else {// if(this.options.viewmode == 'stretched'){
+        var visBBox = this.vis.node().getBBox();
+        var scale = this.viewer.chart.width() / (visBBox.width + removeUnit(this.data.graph['#style']['margin'].right)*2);
+        this.scale(scale);
+        this.viewer.shrinkHeightToContent(removeUnit(this.data.graph['#style']['margin'].bottom)+20);
+      }
+    }else{
+      this.viewer.shrinkToContent(removeUnit(this.data.graph['#style']['margin'].right),removeUnit(this.data.graph['#style']['margin'].bottom)+20);
+    }
+  };
+  
+  /**
+   * Create the scrollbar and set up the callbacks for scrolling the view
+   */
+  depgraphlib.DepGraph.prototype.createScrollBar = function(){
+    var me = this;
+
+    var graphBBox = this.vis.node().getBBox();
+    var graphWidth = graphBBox.width + 2*removeUnit(this.data.graph['#style']['margin'].right); 
+    var viewerWidth = this.viewer.mainpanel.width();
+    
+    if(graphWidth > viewerWidth){
+      var scrollBarWidth = 2*viewerWidth - graphWidth;
+      this.scrollbar = this.svg.append('rect').classed('scrollbar',true);
+      this.scrollbar.attr('x',0)
+      .attr('y',this.viewer.mainpanel.height()-10)
+      .attr('rx',1)
+      .attr('ry',1)
+      .attr('width',scrollBarWidth)
+      .attr('height',5)
+      .style('stroke',"grey")
+      .style('fill',"lightgrey")
+      .style('stroke-width',1)
+      .__info__ = {maxX:viewerWidth - scrollBarWidth};
+
+      this.scrollMouseSelected = null;
+      
+      this.scrollbar.on('mousedown',function(e){
+        var depgraph = depgraphlib.DepGraph.getInstance(this);
+        depgraphlib.depgraphActive = '-' + depgraph.viewer.uid;
+        depgraph.scrollMouseSelected = d3.event.clientX;
+        d3.event.preventDefault ? d3.event.preventDefault() : d3.event.returnValue = false;
+      });
+      
+      d3.select(document).on('click.focus',function(e){
+        var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget);
+        if(depgraph){
+          depgraphlib.depgraphActive = '-' + depgraph.viewer.uid;
+        }else{
+          depgraphlib.depgraphActive = null;
+        }
+      });
+      
+      d3.select(document).on('wheel.scrollbar',function(e){
+        var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.depgraphActive);
+        if(depgraph && depgraph.scrollbar){
+          depgraph.translateGraph(3*d3.event.deltaY,0);
+          d3.event.preventDefault ? d3.event.preventDefault() : d3.event.returnValue = false;
+        }
+      });
+      
+      d3.select(document).on('mousemove.scrollbar'+me.viewer.uid,function(e){
+        var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.depgraphActive);
+        if(depgraph && (depgraph.scrollMouseSelected || depgraph.scrollMouseSelected === 0)){
+          var xoffset = d3.event.clientX - depgraph.scrollMouseSelected;
+          depgraph.translateGraph(xoffset,0);
+          depgraph.scrollMouseSelected = d3.event.clientX;
+        }
+      });
+      
+      d3.select(document).on('mouseup.scrollbar'+me.viewer.uid,function(e){
+        var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.depgraphActive);
+        if(depgraph){
+          depgraph.scrollMouseSelected = null;
+        }
+      });
+      
+    }
+    
+    d3.select(document).on('keydown.move'+me.viewer.uid,function(e){
+      var translateSpeed = 10;
+      if(depgraphlib.depgraphActive){
+        var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.depgraphActive);
+        if(d3.event.keyCode==37){ // left
+          depgraph.translateGraph(-translateSpeed,0);
+        }else if(d3.event.keyCode==39){ // right
+          depgraph.translateGraph(translateSpeed,0);
+        }
+      }
+    });
+  };
+  
   /**
    * (Re-)Create the svg element, apply background color, enter svg definitions, and attach some
    * events handler
@@ -1016,29 +1133,16 @@
     this.vis = this.svg.append("g").attr("transform","translate(" + 
         removeUnit(this.data.graph['#style'].margin.left) + "," + 
         removeUnit(this.data.graph['#style'].margin.top)+") scale(1)");
-    
-    //this.svg.call(d3.behavior.zoom().on("zoom", this.redraw));
-    
-    var me = this;
-    
-    d3.select(this.viewer.chart[0]).on('click.focus'+me.viewer.uid,function(e){
-      depgraphlib.depgraphActive = '-' + me.viewer.uid;
-      });
-    
-    d3.select(document).on('keydown.move'+me.viewer.uid,function(e){
-      var translateSpeed = 10;
-      if(depgraphlib.depgraphActive){
-        var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.depgraphActive);
-        if(d3.event.keyCode==37){ // left
-          depgraph.translateGraph(-translateSpeed,0);
-        }else if(d3.event.keyCode==39){ // right
-          depgraph.translateGraph(translateSpeed,0);
-        }
-      }
-    });
-    
   };
 
+  
+  depgraphlib.DepGraph.prototype.scale = function(scale){
+    var me = depgraphlib.DepGraph.getInstance(this);
+    var previousValues = getTransformValues(me.vis);
+    me.vis.attr("transform",
+        "translate(" + (previousValues.translate[0])*scale + "," + (previousValues.translate[1])*scale + ")" + " scale("+scale+")");
+  };
+  
   /**
    * translate the graph relative to parameters x and y
    * @param x
@@ -1046,19 +1150,21 @@
    */
   depgraphlib.DepGraph.prototype.translateGraph = function(x,y){
     var me = depgraphlib.DepGraph.getInstance(this);
-    var previousValues = getTransformValues(me.vis); 
+    var previousValues = getTransformValues(me.vis);
+    
+    if(me.scrollbar){
+      var sx = parseFloat(me.scrollbar.attr('x'));
+      if(me.scrollbar.__info__.maxX < (sx + x)){
+        x = me.scrollbar.__info__.maxX - sx;
+      }else if(sx + x < 0){
+        x = -sx;
+      }
+      me.scrollbar.attr('x',sx+x);
+    }
+    
     me.vis.attr("transform",
-        "translate(" + (previousValues.translate[0]+x) + "," + (previousValues.translate[1]+y) + ")" + " scale("+previousValues.scale[0]+")");
-  };
-
-  /**
-   * Redraw the graph...
-   */
-  depgraphlib.DepGraph.prototype.redraw = function(){
-    var me = depgraphlib.DepGraph.getInstance(this.parentNode);
-    var previousValues = getTransformValues(me.vis); 
-    me.vis.attr("transform",
-        "translate(" + d3.event.translate[0] + "," + previousValues.translate[1] + ")" + " scale("+d3.event.scale+")");
+        "translate(" + (previousValues.translate[0]-x) + "," + (previousValues.translate[1]-y) + ")" + " scale("+previousValues.scale[0]+")");
+    
   };
 
   /**
@@ -1093,7 +1199,7 @@
     this.resetLinksProperties(links);
     this.preprocessLinksPosition(links);
     links.each(setLinkMaterials);
-      
+    
   };
 
   /**
@@ -1574,6 +1680,7 @@
     var oriented = elt.getStyle('oriented');
     var align = elt.getStyle('align');
     var highlighted = elt.getStyle('highlighted',false);
+    var strokeDasharray = elt.getStyle('stroke-dasharray','none');
 
     // Positionning
     var hdir = (getNodePosition(p.nodeEnd)-getNodePosition(p.nodeStart)>0)?1:-1;
@@ -1638,6 +1745,7 @@
     path
       .attr('d',"M "+x0+","+y0+" v "+v0+" a 5 5 0 0 "+laf0+" "+hdir*arcSize+" "+(-vdir*arcSize)+" h "+h+" a 5 5 0 0 "+laf1+" "+hdir*arcSize+" "+vdir*arcSize+" v "+v1)
       .attr('stroke',linkColor)
+      .attr('stroke-dasharray',strokeDasharray)
       .attr('stroke-width',linkSize)
       .attr('fill','none');
     if(oriented){
