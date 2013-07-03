@@ -1,6 +1,6 @@
 <?php
 
-//module_load_include("inc", "mgwiki","mgwiki.utils");
+module_load_include("inc", "mgwiki","mgwiki.utils");
 
 /*********************************************************/
 /*                    depgraph                           */

@@ -17,13 +17,20 @@
   };
   
   depgraphlib.DepGraph.prototype.exportPng = function(){
-    var svg = this.getExportableSVG();
-    var svg_xml = (new XMLSerializer).serializeToString(svg);
+    var svgBBox = this.svg.node().getBBox();
+    this.svg.attr('width',svgBBox.width);
+    this.svg.attr('height',svgBBox.height);
+    var svg_xml = (new XMLSerializer).serializeToString(this.svg.node());
 
     var form = document.getElementById("export_png");
+    if(!form){
+      document.write('<form id="export_png" method="post" action="plugins/export.php" target="_blank">'+
+          '<input type="hidden" name="data" value="" />'+
+          '</form>');
+      form = document.getElementById("export_png");
+    }
     form['data'].value = svg_xml ;
     form.submit();
-    
   };
   
   

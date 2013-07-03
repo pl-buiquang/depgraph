@@ -2391,6 +2391,7 @@
       }*/
       div += 'Export Format : '
         + '<select name="type">'
+      +'<option value="png">png</option>'
       +'<option value="json" selected>json</option>'
       +'<option value="depxml">depxml</option>'
       +'<option value="dep2pict">dep2pict</option>'
@@ -2403,13 +2404,35 @@
       jQuery('#export-data'+depgraph.viewer.appendOwnID('')).click(function(){
         var select = jQuery('select',this.parentNode);
         var format = select[0].options[select[0].selectedIndex].value;
-        window.open('edit/export/'+format);
+        if(format == 'png'){
+          exportPng();
+        }else{
+          window.open('edit/export/'+format);
+        }
         depgraph.viewer.hideToolTip();
       });
       
       depgraph.viewer.tooltipExitButton.show();
       depgraph.viewer.showTooltip(point);
     }
+    
+    function exportPng(){
+      var svgBBox = depgraph.svg.node().getBBox();
+      depgraph.svg.attr('width',svgBBox.width);
+      depgraph.svg.attr('height',svgBBox.height);
+      var svg_xml = (new XMLSerializer).serializeToString(depgraph.svg.node());
+
+      var form = document.getElementById("export_png");
+      if(!form){
+        depgraph.viewer.chart.append('<form id="export_png" method="post" action="edit/export/png" target="_blank">'+
+            '<input type="hidden" name="data" value="" />'+
+            '</form>');
+        form = document.getElementById("export_png");
+      }
+      form['data'].value = svg_xml ;
+      form.submit();
+    };
+
   };
 
   /**
