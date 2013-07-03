@@ -351,48 +351,9 @@ background: linear-gradient(#ffffff, #EDEDED);
     background: -moz-linear-gradient(center top , #0078A5, #00ADEE) repeat scroll 0 0 transparent;
     color: #80BED6;
 }
-
- .sni-title{
- 
- }
  
  .debug-panel-content h1, .debug-panel-content h2{
  border-bottom:1px solid black;
  }
  
- .sni-title h1{
- margin :0px;
  
- }
- 
- .sni-guards{
- }
- 
- .sni-features{
-   background-color:#DFE0F3;
- }
- 
-.node circle {
-  cursor: pointer;
-  fill: #ffffff;
-  stroke: white;
-  stroke-width: 1px;
-}
-
-.node rect {
-  cursor: pointer;
-  stroke: steelblue;
-  stroke-width: 1.5px;
-}
-
-.node text {
-  font: 10px sans-serif;
-  cursor:pointer;
-}
-
-path.link {
-  fill: none;
-  stroke: #ccc;
-  stroke-width: 1.5px;
-}
-
