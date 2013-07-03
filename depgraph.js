@@ -43,6 +43,10 @@
     this._width = "100%";
     this.basemargin = 10;
     this.margin = {top:100,left:0,right:0,bottom:10};
+    
+    if(depgraphlib.GraphViewer.instances[uid]){
+      uid += "_";
+    }
     var uid = this.uid = uid; // uid
     
     if(typeof container == 'string'){ // check if jquery selection or id. id must be prepend a '#'!
@@ -450,7 +454,7 @@
       return;
     }
     if(typeof this.container.colorbox != 'undefined'){
-      this.addToolbarButton('fullscreen',null,'right','fullscreen');
+      this.addToolbarButton('fullscreen',null,'right','fullscreen','View in fullscreen');
       this.initFullscreenMode();
     }
   };
@@ -484,11 +488,11 @@
       if(item[2] == 'left'){
         this.tmpLeft.push(item);
       }else{
-        this.addToolbarButton(item[0], item[1], item[2], item[3]);
+        this.addToolbarButton(item[0], item[1], item[2], item[3], item[4]);
       }
     },this);
     this.tmpLeft.forEach(function(item,index){
-      this.addToolbarButton(item[0], item[1], item[2], item[3]);
+      this.addToolbarButton(item[0], item[1], item[2], item[3], item[4]);
     },this);
     this.tmpLeft = null;
   };
@@ -520,7 +524,7 @@
    * @param position
    * @param style
    */
-  depgraphlib.GraphViewer.prototype.addToolbarButton = function(name,callback,position,style){
+  depgraphlib.GraphViewer.prototype.addToolbarButton = function(name,callback,position,style,tooltip){
     var text = '';
     if(style == null){
       style = 'button white';
@@ -532,7 +536,7 @@
       position = 'left';
     }
     
-    var button='<div id="button-'+this.appendOwnID(name)+'" title="'+name+'" class="'+style+' tab '+position+'">'+text+'</div>';
+    var button='<div id="button-'+this.appendOwnID(name)+'" title="'+(tooltip || name)+'" class="'+style+' tab '+position+'">'+text+'</div>';
     button = jQuery(button);
     button.click(callback);
     jQuery("#"+this.appendOwnID("gv-toolbar")).append(button);
@@ -548,24 +552,35 @@
 
   /**
    * create a dropdown menu given items that compose the menu
+   * items is an object of objects with at least the property 'cb' defining the callback when the item
+   * is clicked.
    */
-  function createDropDownMenu(name,items){
+  depgraphlib.createDropDownMenu = function(name,items,autoslidedown,tooltip){
     var div = jQuery('<div class="gv-menu"><div class="gv-menu-header"></div><div class="gv-menu-body"></div></div>');
     var header = jQuery('.gv-menu-header',div);
     var body = jQuery('.gv-menu-body',div);
     body.hide();
     header.html(name);
+    header.attr('title',tooltip||name);
     for(i in items){
       var item = jQuery('<div>'+i+'</div>');
+      item.attr('title',items[i].tt || i);
       body.append(item);
-      jQuery(item).click(items[i]);
+      jQuery(item).click(items[i].cb);
     }
-    div.hover(
-        function(event){jQuery('.gv-menu-body',event.currentTarget).slideDown();},
-        function(event){jQuery('.gv-menu-body',event.currentTarget).slideUp();}
-    );
+    if(autoslidedown === false){
+      jQuery('.gv-menu-header',div).click(function(event){jQuery('.gv-menu-body',event.currentTarget.parentNode).slideDown();});
+      jQuery(div).mouseleave(function(event){
+        jQuery('.gv-menu-body',event.currentTarget).slideUp();
+        });
+    }else{
+      div.hover(
+          function(event){jQuery('.gv-menu-body',event.currentTarget).slideDown();},
+          function(event){jQuery('.gv-menu-body',event.currentTarget).slideUp();}
+      );
+    }
     return div;
-  }
+  };
 
   /***********************************************************/
   /**                   Alt Content                          */
@@ -624,11 +639,20 @@
     me.tooltip.draggable('destroy');
   };
 
-  depgraphlib.GraphViewer.prototype.showTooltip = function(position){
+  depgraphlib.GraphViewer.prototype.showTooltip = function(position,permanent){
     var me = depgraphlib.GraphViewer.getInstance(this);
     me.tooltip.css('left',position.x);
     me.tooltip.css('top',position.y);
     me.tooltip.show();
+    
+    if(!permanent){
+      d3.select(document).on('click.tooltip_'+me.uid,function(e){
+        if(!jQuery.contains( me.tooltip[0], d3.event.originalTarget )){
+          alert('auto closing due to event');
+          //me.tooltip.hide();
+        }
+      });
+    }
   };
 
   depgraphlib.GraphViewer.prototype.hideToolTip = function(){
@@ -1127,12 +1151,14 @@
     .attr("width", "100%").attr("height", "100%");
     
     this.viewer.chart.css('background-color',this.data.graph['#style']['background-color']);
+    this.svg.append('rect').attr('width','100%').attr('height','100%').style('fill',this.data.graph['#style']['background-color']);
     
     this.setSVGDefs();
     
     this.vis = this.svg.append("g").attr("transform","translate(" + 
         removeUnit(this.data.graph['#style'].margin.left) + "," + 
         removeUnit(this.data.graph['#style'].margin.top)+") scale(1)");
+    
   };
 
   
@@ -1535,7 +1561,7 @@
       }
     }
     
-    var highlight = 'transparent';
+    var highlight = 'none';
     if(d.selected != null || elt.getStyle('highlighted',false)){
       highlight = 'yellow';
     }
@@ -1682,6 +1708,13 @@
     var highlighted = elt.getStyle('highlighted',false);
     var strokeDasharray = elt.getStyle('stroke-dasharray','none');
 
+    // for origin arcs (nodestart == null)
+    var originArc = false;
+    if(!p.nodeStart){
+      p.nodeStart = p.nodeEnd;
+      originArc = true;
+    }
+    
     // Positionning
     var hdir = (getNodePosition(p.nodeEnd)-getNodePosition(p.nodeStart)>0)?1:-1;
     var vdir = (p.strate>0)?1:-1;
@@ -1725,33 +1758,40 @@
     var height = 15;
     var strateOffset = 30;
     var v0 = -vdir*height-strateOffset*p.strate;//-SchunkCase;
+    if(originArc){
+      v0 = -vdir*height-strateOffset*vdir*me.maxLinksStrate;
+    }
     var v1 = -(v0+y0-y1);//vdir*height+strateOffset*p.strate+EchunkCase+SchunkCase;
     var laf0 = (1+hdir*vdir)/2;
     var laf1 = (1+hdir*vdir)/2;
-    var color1 = linkColor;
     var color2 = "transparent";
     if(highlighted){
       color2 = getHighlightColor(linkColor);
-      /*color1 = color2;
-      color2 = linkColor;*/
     }
     var highlightPath = elt.components!= null ? elt.components.highlightPath : node.append('path');
-    highlightPath
-    .attr('d',"M "+x0+","+y0+" v "+v0+" a 5 5 0 0 "+laf0+" "+hdir*arcSize+" "+(-vdir*arcSize)+" h "+h+" a 5 5 0 0 "+laf1+" "+hdir*arcSize+" "+vdir*arcSize+" v "+v1)
-    .attr('stroke',color2)
+    var path = elt.components != null ? elt.components.path : node.append('path');
+    if(originArc){
+      highlightPath
+      .attr('d',"M "+x0+","+(y0+v0)+" v "+(-v0));
+      path
+      .attr('d',"M "+x0+","+(y0+v0)+" v "+(-v0));
+    }else{
+      highlightPath
+      .attr('d',"M "+x0+","+y0+" v "+v0+" a 5 5 0 0 "+laf0+" "+hdir*arcSize+" "+(-vdir*arcSize)+" h "+h+" a 5 5 0 0 "+laf1+" "+hdir*arcSize+" "+vdir*arcSize+" v "+v1);
+      path
+      .attr('d',"M "+x0+","+y0+" v "+v0+" a 5 5 0 0 "+laf0+" "+hdir*arcSize+" "+(-vdir*arcSize)+" h "+h+" a 5 5 0 0 "+laf1+" "+hdir*arcSize+" "+vdir*arcSize+" v "+v1);
+    }
+    highlightPath.attr('stroke',color2)
     .attr('stroke-width',removeUnit(linkSize)+3)
     .attr('fill','none');
-    var path = elt.components != null ? elt.components.path : node.append('path');
-    path
-      .attr('d',"M "+x0+","+y0+" v "+v0+" a 5 5 0 0 "+laf0+" "+hdir*arcSize+" "+(-vdir*arcSize)+" h "+h+" a 5 5 0 0 "+laf1+" "+hdir*arcSize+" "+vdir*arcSize+" v "+v1)
-      .attr('stroke',linkColor)
+    path.attr('stroke',linkColor)
       .attr('stroke-dasharray',strokeDasharray)
       .attr('stroke-width',linkSize)
       .attr('fill','none');
     if(oriented){
       path.attr('marker-end','url(#'+me.viewer.appendOwnID('arrow')+')');
     }
-
+    
     // Label
     var text = elt.components != null ? elt.components.label : node.append('text');
     text
@@ -1807,7 +1847,7 @@
     } 
     
     word.components.rect
-    .style('fill',value?'yellow':'transparent');
+    .style('fill',value?'yellow':'none');
   }
 
   /**
@@ -1871,8 +1911,7 @@
       .attr('markerWidth','3')
       .attr('markerHeight','3')
       .append('polyline')
-        .attr('points','0,0 10,5 0,10 1,5')
-        .attr('fill','inherit');
+        .attr('points','0,0 10,5 0,10 1,5');
   };
 
   /************************************************************/
@@ -1915,6 +1954,7 @@
    * @param links
    */
   depgraphlib.DepGraph.prototype.preprocessLinksPosition = function(links){
+    var me = this;
     // factor 2, in order to take into account left and right in the positions
     this.sortLinksByLength(links[0]);
     var n = links[0].length;
@@ -1942,7 +1982,6 @@
           }
         }
         if(crossing!=null){ // if there is something
-          var p2 = this.getLinkProperties(crossing);
           if(this.crossed(link,crossing)){ // real crossing
             k=-1;
             while(true){
@@ -1952,6 +1991,7 @@
                   table[k][j]=link;
                 }
                 p.strate = k; // set the strate
+                setMaxStrate(k);
                 break;
               }
               var dcrossing = null;
@@ -1968,6 +2008,7 @@
                   table[k][j]=link;
                 }
                 p.strate = k;
+                setMaxStrate(k);
                 break;
               }
             }
@@ -1980,6 +2021,7 @@
             table[k][j]=link;
           }
           p.strate = k; // set the strate
+          setMaxStrate(k);
           break;
         }
       }
@@ -2011,6 +2053,11 @@
         }
       }
     }
+    
+    function setMaxStrate(strate){
+      var absStrate = Math.abs(strate);
+      me.maxLinksStrate = (me.maxLinksStrate<absStrate)?absStrate:me.maxLinksStrate;
+    };
   };
 
   /**
@@ -2057,6 +2104,9 @@
       properties.offsetXmin = 0;
       properties.strate = 0;
       properties.length = properties.max-properties.min;
+      if(!properties.nodeStart){ // for orign arc to be processed first in anti crossing algo
+        properties.length = 0;
+      }
       properties.outer=0;
       d['#properties'] = properties;
     }
@@ -2071,6 +2121,7 @@
     links.each(function(d,i){
       d['#properties'] = null;
     });
+    this.maxLinksStrate = 0;
   };
 
   /**
@@ -2078,16 +2129,20 @@
    * For the non trivial case of chunk, the node in middle of the chunk
    * is taken for the reference positon in the computing of links positionning
    * @param node
-   * @returns integer (position of the node)
+   * @returns integer (position of the node or -1 if origin : [node = null])
    */
   function getNodePosition(node){
-    if(node.__data__['#position']!=null)
-      return node.__data__['#position'];
-    else{ // we are dealing with a chunk
-      var me = depgraphlib.DepGraph.getInstance(node);
-      var middle = Math.floor(node.__data__['elements'].length/2);
-      var middleNode = me.getWordNodeByOriginalId(node.__data__['elements'][middle]);
-      return middleNode.__data__['#position'];
+    if(node){
+      if(node.__data__['#position']!=null)
+        return node.__data__['#position'];
+      else{ // we are dealing with a chunk
+        var me = depgraphlib.DepGraph.getInstance(node);
+        var middle = Math.floor(node.__data__['elements'].length/2);
+        var middleNode = me.getWordNodeByOriginalId(node.__data__['elements'][middle]);
+        return middleNode.__data__['#position'];
+      }
+    }else{
+      return -1;
     }
   }
 
@@ -2218,6 +2273,14 @@
     }
     this.init();
     this.initToolbar();
+    
+  };
+  
+  /**
+   * Append a toolbar button allowing user to choose an edit mode among those registered
+   * TODO(paul) : a implémenter 
+   */
+  depgraphlib.EditObject.prototype.addEditModeSwitcher = function(){
     
   };
 
@@ -3080,6 +3143,8 @@
 
     throw new Error("Unable to copy obj! Its type isn't supported.");
   }
+  
+  depgraphlib.clone = clone;
 
   /**
    * Set the position for a d3 selection of an SVGElement

@@ -14,6 +14,7 @@
 
 <!-- DepGraph Plugins js -->
 <script type="text/javascript" src="plugins/frmg_parser_custom.js"></script>
+<script type="text/javascript" src="plugins/export_png.js"></script>
 
 <!-- Lib includes css -->
 <link rel="stylesheet" media="screen" type="text/css"
@@ -86,10 +87,14 @@ href="depgraph.css" />
     BROWN -> BOLD { label="red edge"; color=red; bottom; }
  
 }';
+
     echo dep2pict2depGraph($data);
   ?>;
-  var depGraph = new depgraphlib.DepGraph(jQuery("#graph-container"),json_data,{viewmode:'streched',viewsize:'500px'});
-  depGraph.viewer.setImageMode(true);
+  var depGraph = new depgraphlib.DepGraph(jQuery("#graph-container"),json_data,{uid:1,viewmode:'streched',viewsize:'500px'});
+  //depGraph.viewer.setImageMode(true);
+  var switchmodebuttontest = depgraphlib.createDropDownMenu('test',{'test1':{'cb':function(){alert('test1');}},'test2':{'cb':function(){alert('test2');},'tt':'Execute the test2 function.'}},false);
+  depGraph.viewer.addToolbarElement(switchmodebuttontest,'left');
+  depGraph.addExportFeature();
   </script>
 <div id="graph-container2"></div>
 <script>
@@ -132,6 +137,8 @@ href="depgraph.css" />
 }
  
 [EDGES] { 
+w2-> w4 {label ="cross";}
+ 0 -> w3 {label = "origin";}
  GN2 -> w7 {label = "SUJ_V"; }
  w8 -> w7 {label = "SUJ_V"; }
  w7 -> w9 {label = "AUX_V"; }
@@ -142,8 +149,9 @@ href="depgraph.css" />
 }';
     echo dep2pict2depGraph($data);
   ?>;
-  var depGraph = new depgraphlib.DepGraph(jQuery("#graph-container2"),json_data,{viewmode:'cropped',viewsize:'600px'});
-  depGraph.viewer.setImageMode(true);
+  var depGraph = new depgraphlib.DepGraph(jQuery("#graph-container2"),json_data,{uid:1,viewmode:'full',viewsize:'600px'});
+  //depGraph.viewer.setImageMode(true);
+  depGraph.addExportFeature();
   </script>
 </body>
 </html>

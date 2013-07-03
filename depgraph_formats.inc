@@ -251,17 +251,19 @@ function parseObjects($data){
     foreach ($objects as $object){
       $params = array();
       $item = &$bundle[];
-      preg_match_all("/\s*(.*?)(;|$)/m", $object[2], $params, PREG_SET_ORDER);
+      preg_match_all('/(.*?)\s*(=\s*("(.*?)"|.*?))?\s*(;|$)/m', $object[2], $params, PREG_SET_ORDER);
       if($object[1]!=""){
         $item['id'] = trim($object[1]);
       }
       foreach($params as $param){
-        $multiple = array();
-        if(preg_match('/\s*(.*?)=(.*)/', $param[1], $multiple)){
-          attributeTranslate($item,trim($multiple[1]),trim($multiple[2]," \""));
-        }else{
-          attributeTranslate($item,trim($param[1]),true);
+        $param[1] = trim($param[1]);
+        if($param[1] == ""){
+          continue;
         }
+        $param[4] = trim($param[4]);
+        $param[3] = trim($param[3]);
+        $param[4]=($param[4]=="")?(($param[3]!="")?$param[3]:true):$param[4];
+        attributeTranslate($item,trim($param[1]),trim($param[4]));
       }
     }
     
