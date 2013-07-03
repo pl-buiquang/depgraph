@@ -643,16 +643,19 @@
     var me = depgraphlib.GraphViewer.getInstance(this);
     me.tooltip.css('left',position.x);
     me.tooltip.css('top',position.y);
-    me.tooltip.show();
+
+    me.tooltipCreationBug = true;
     
     if(!permanent){
       d3.select(document).on('click.tooltip_'+me.uid,function(e){
-        if(!jQuery.contains( me.tooltip[0], d3.event.originalTarget )){
-          alert('auto closing due to event');
-          //me.tooltip.hide();
+        if(!me.tooltipCreationBug && !jQuery.contains( me.tooltip[0], d3.event.originalTarget )){
+          me.tooltip.hide();
         }
+        delete me.tooltipCreationBug;
       });
     }
+    
+    me.tooltip.show();
   };
 
   depgraphlib.GraphViewer.prototype.hideToolTip = function(){
