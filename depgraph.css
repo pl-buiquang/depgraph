@@ -114,7 +114,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b3000000', e
  }
  
  .gv-menu{
- position:fixed;
+ position:absolute;
   background:#8A92A9  ;
  border-right:1px solid #888888;
  
