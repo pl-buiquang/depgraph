@@ -1071,6 +1071,11 @@
     
     if(graphWidth > viewerWidth){
       var scrollBarWidth = 2*viewerWidth - graphWidth;
+      var k = 1;
+      if(scrollBarWidth<=0){
+        scrollBarWidth = 20;
+        k = (graphWidth-viewerWidth)/(viewerWidth-scrollBarWidth);
+      }
       this.scrollbar = this.svg.append('rect').classed('scrollbar',true);
       this.scrollbar.attr('x',0)
       .attr('y',this.viewer.mainpanel.height()-10)
@@ -1081,7 +1086,7 @@
       .style('stroke',"grey")
       .style('fill',"lightgrey")
       .style('stroke-width',1)
-      .__info__ = {maxX:viewerWidth - scrollBarWidth};
+      .__info__ = {maxX:viewerWidth - scrollBarWidth,k:k};
 
       this.scrollMouseSelected = null;
       
@@ -1113,6 +1118,9 @@
         var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.depgraphActive);
         if(depgraph && (depgraph.scrollMouseSelected || depgraph.scrollMouseSelected === 0)){
           var xoffset = d3.event.clientX - depgraph.scrollMouseSelected;
+          if(depgraph.scrollbar){
+            xoffset = xoffset * depgraph.scrollbar.__info__.k; 
+          }
           depgraph.translateGraph(xoffset,0);
           depgraph.scrollMouseSelected = d3.event.clientX;
         }
@@ -1183,12 +1191,14 @@
     
     if(me.scrollbar){
       var sx = parseFloat(me.scrollbar.attr('x'));
-      if(me.scrollbar.__info__.maxX < (sx + x)){
-        x = me.scrollbar.__info__.maxX - sx;
-      }else if(sx + x < 0){
-        x = -sx;
+      var kx = x / me.scrollbar.__info__.k;
+      if(me.scrollbar.__info__.maxX < (sx + kx)){
+        kx = me.scrollbar.__info__.maxX - sx;
+      }else if(sx + kx < 0){
+        kx = -sx;
       }
-      me.scrollbar.attr('x',sx+x);
+      x = me.scrollbar.__info__.k*kx;
+      me.scrollbar.attr('x',sx+kx);
     }
     
     me.vis.attr("transform",
