@@ -1154,7 +1154,7 @@
     .attr("width", "100%").attr("height", "100%");
     
     this.viewer.chart.css('background-color',this.data.graph['#style']['background-color']);
-    this.svg.append('rect').attr('width','100%').attr('height','100%').style('fill',this.data.graph['#style']['background-color']);
+    this.svg.append('rect').classed('export_bg',true).attr('width','0').attr('height','0').style('fill',this.data.graph['#style']['background-color']);
     
     this.setSVGDefs();
     
@@ -2417,6 +2417,7 @@
     }
     
     function exportPng(){
+      d3.select('rect.export_bg').attr('width','100%').attr('height','100%');
       var svgBBox = depgraph.svg.node().getBBox();
       depgraph.svg.attr('width',svgBBox.width);
       depgraph.svg.attr('height',svgBBox.height);
@@ -2431,6 +2432,7 @@
       }
       form['data'].value = svg_xml ;
       form.submit();
+      d3.select('rect.export_bg').attr('width','0').attr('height','0');
     };
 
   };
