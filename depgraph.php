@@ -941,8 +941,7 @@ class DepGraph{
   /**
    * Returns the img/html of the graph
    */
-  function getHTMLImage(){
-    $targetdir = "tmp";
+  function getHTMLImage($targetdir = 'tmp'){
     $uid = uniqid();
     $svg_file = $targetdir."/svg_img_" . $uid;
     $svg_source = $this->html->saveXML($this->svg);
