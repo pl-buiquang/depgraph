@@ -185,6 +185,14 @@ class DepGraph{
     $margin = $this->data['graph']['#style']['margin'];
     $transform = 'translate('.removeUnit($margin['left']).','.(removeUnit($margin['top'])+$this->absMaxLinkStrate*40).') scale(1)';
     $this->vis->setAttribute('transform', $transform);
+    $bbox = $this->computeApproximateBBox();
+    $this->svg->setAttribute("width", $bbox['width'].'px');
+    $this->svg->setAttribute("height", $bbox['height'].'px');
+    $this->setStyleAttr($this->chart, "width", $bbox['width'].'px');
+    $this->setStyleAttr($this->chart, "height", $bbox['height'].'px');
+    $this->setStyleAttr($this->chart, "display", 'block');
+    $this->setStyleAttr($this->root, "display", 'block');
+    $this->setStyleAttr($this->chart, "border", '1px solid black');
   }
   
   /**
@@ -927,13 +935,25 @@ class DepGraph{
    * @return string
    */
   function getHTML(){
-    $bbox = $this->computeApproximateBBox();
-    $this->setStyleAttr($this->chart, "width", $bbox['width'].'px');
-    $this->setStyleAttr($this->chart, "height", $bbox['height'].'px');
-    $this->setStyleAttr($this->chart, "display", 'block');
-    $this->setStyleAttr($this->root, "display", 'block');
-    $this->setStyleAttr($this->chart, "border", '1px solid black');
     return $this->html->saveHTML(); 
+  }
+
+  /**
+   * Returns the img/html of the graph
+   */
+  function getHTMLImage(){
+    $targetdir = "tmp";
+    $uid = uniqid();
+    $svg_file = $targetdir."/svg_img_" . $uid;
+    $svg_source = $this->html->saveXML($this->svg);
+    
+    file_put_contents($svg_file, $svg_source);
+    $output = $targetdir."/png_image_".$uid.".png";
+    $cmd = 'rsvg-convert '.$svg_file.' -o '.$output;
+    
+    shell_exec($cmd);
+    
+    return '<img src="'.$output.'">';    
   }
   
 }

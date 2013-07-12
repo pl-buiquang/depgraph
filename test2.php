@@ -140,13 +140,13 @@ w2-> w4 {label ="cross";}
 $data = json_decode(dep2pict2depGraph($data1),true);
 
 $graph1 = new DepGraph($data,null);
-$html1 = $graph1->getHTML();
+$html1 = $graph1->getHTMLImage();
 echo $html1;
 
 $data = json_decode(dep2pict2depGraph($data2),true);
 
 $graph2 = new DepGraph($data,null);
-$html2 = $graph2->getHTML();
+$html2 = $graph2->getHTMLImage();
 echo $html2;
 ?>
 </body>
