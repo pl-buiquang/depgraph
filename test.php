@@ -1,3 +1,6 @@
+<?php 
+header( 'Location: /depgraph/test2.php' ) ;
+?>
 <!DOCTYPE html> 
 <html>
 <head>
