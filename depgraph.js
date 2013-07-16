@@ -1983,6 +1983,7 @@
             table[k][j]=link;
           }
           p.strate = k;
+          setMaxStrate(k);
           break;
         }
         var crossing = null;
