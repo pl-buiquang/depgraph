@@ -76,8 +76,10 @@ class DepGraph{
       $link['#properties'] = null;
     }
     
-    foreach($this->data['graph']['chunks'] as &$chunk){
-      $chunk['#id'] = $this->id++;
+    if(isset($this->data['graph']['chunks'])){
+      foreach($this->data['graph']['chunks'] as &$chunk){
+        $chunk['#id'] = $this->id++;
+      }
     }
     
     $this->data['graph']['#style'] = isset($this->data['graph']['#style'])?$this->data['graph']['#style']:array();
@@ -165,14 +167,18 @@ class DepGraph{
    */
   function update(){
 
-    $this->prepareChunks();
+    if(isset($this->data['graph']['chunks'])){
+      $this->prepareChunks();
+    }
     
     foreach($this->data['graph']['words'] as &$word){
       $this->createWord($word);
     }
     
-    foreach($this->data['graph']['chunks'] as &$chunk){
-      $this->createChunk($chunk);
+    if(isset($this->data['graph']['chunks'])){
+      foreach($this->data['graph']['chunks'] as &$chunk){
+        $this->createChunk($chunk);
+      }
     }
     
     $this->preprocessLinksPosition();
@@ -183,9 +189,11 @@ class DepGraph{
   
   function postProcesses(){
     $margin = $this->data['graph']['#style']['margin'];
-    $transform = 'translate('.removeUnit($margin['left']).','.(removeUnit($margin['top'])+$this->absMaxLinkStrate*40).') scale(1)';
+    $transform = 'translate('.removeUnit($margin['left']).','.(removeUnit($margin['top'])+removeUnit($margin['bottom'])+$this->absMaxLinkStrate*40).') scale(1)';
     $this->vis->setAttribute('transform', $transform);
     $bbox = $this->computeApproximateBBox();
+    $this->width = $bbox['width'];
+    $this->height = $bbox['height'];
     $this->svg->setAttribute("width", $bbox['width'].'px');
     $this->svg->setAttribute("height", $bbox['height'].'px');
     $this->setStyleAttr($this->chart, "width", $bbox['width'].'px');
@@ -727,6 +735,7 @@ class DepGraph{
             $table[$k][$j]=$link;
           }
           $p['strate'] = $k;
+          $this->setMaxStrate($k);
           break;
         }
         $crossing = null;
@@ -917,9 +926,11 @@ class DepGraph{
     $chunkMargins = count($this->data['graph']['#chunk-style']['margin'])*(removeUnit($chunkMargin['left'])+removeUnit($chunkMargin['right']));
     $totalBBox['width']+=$chunkMargins;
     
-    $height = $this->wordHeight; 
-    foreach($this->data['graph']['chunks'] as $chunk){
-      $height = ($heigth<$chunk['#bbox']['height'])?$chunk['#bbox']['height']:$height;
+    $height = $this->wordHeight;
+    if(isset($this->data['graph']['chunks'])){
+      foreach($this->data['graph']['chunks'] as $chunk){
+        $height = ($heigth<$chunk['#bbox']['height'])?$chunk['#bbox']['height']:$height;
+      }
     }
     
     $globalMargins = $this->data['graph']['#style']['margin'];
@@ -941,8 +952,8 @@ class DepGraph{
   /**
    * Returns the img/html of the graph
    */
-  function getHTMLImage($targetdir = 'tmp'){
-    $uid = uniqid();
+  function getHTMLImage($targetdir = 'tmp',$uid=null,$urlprepend = ''){
+    $uid = $uid?$uid:uniqid();
     $svg_file = $targetdir."/svg_img_" . $uid;
     $svg_source = $this->html->saveXML($this->svg);
     
@@ -952,7 +963,7 @@ class DepGraph{
     
     shell_exec($cmd);
     
-    return '<img src="'.$output.'">';    
+    return '<img src="'.$urlprepend.$output.'" width="'.$this->width.'" height="'.$this->height.'">';    
   }
   
 }

@@ -7,6 +7,30 @@
 */
 @CHARSET "UTF-8";
 
+
+#graph-sidebar{
+ 
+}
+
+#graph-sidebar ul li{
+ margin:0;
+ padding:0;
+}
+
+#graph-star{
+ background:#ffffff url('img/star-icon.png') no-repeat right top;
+}
+
+#graph-reload{
+ background:#ffffff url('img/Button-Load-icon.png') no-repeat right top;
+}
+
+#graph-delete{
+ background:#ffffff url('img/close-icon.png') no-repeat right top;
+}
+
+
+
 a.gv-wrapper{
  text-decoration:underline;
  cursor:pointer;
