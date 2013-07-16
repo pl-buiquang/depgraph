@@ -727,6 +727,7 @@ class DepGraph{
             $table[$k][$j]=$link;
           }
           $p['strate'] = $k;
+          $this->setMaxStrate($k);
           break;
         }
         $crossing = null;
@@ -941,7 +942,7 @@ class DepGraph{
   /**
    * Returns the img/html of the graph
    */
-  function getHTMLImage($targetdir = 'tmp'){
+  function getHTMLImage($targetdir = 'tmp',$urlprepend = ''){
     $uid = uniqid();
     $svg_file = $targetdir."/svg_img_" . $uid;
     $svg_source = $this->html->saveXML($this->svg);
@@ -952,7 +953,7 @@ class DepGraph{
     
     shell_exec($cmd);
     
-    return '<img src="'.$output.'">';    
+    return '<img src="'.$urlprepend.$output.'">';    
   }
   
 }
