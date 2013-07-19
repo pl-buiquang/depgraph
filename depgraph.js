@@ -100,6 +100,7 @@
           var me = depgraphlib.GraphViewer.getInstance(this);
           if(!me.fixedToolbar){
             me.toolbar.slideDown(100);
+            me.mainpanel.css("border","1px solid grey");
             //me.toolbar.show();
           }
         },
@@ -107,6 +108,7 @@
           var me = depgraphlib.GraphViewer.getInstance(this);
           if(!me.fixedToolbar){
             me.toolbar.slideUp(100);
+            me.mainpanel.css("border","none");
             //me.toolbar.hide();
           }
         }
@@ -379,9 +381,7 @@
    * remove border of the viewer
    */
   depgraphlib.GraphViewer.prototype.noBorders = function(){
-    if(this.imagemode){
       this.mainpanel.css("border","none");
-    }
   };
 
   /**
@@ -723,6 +723,7 @@
     elt.parent().animate({bottom:'0px'});
     elt.removeClass('slide-up');
     elt.addClass('slide-down');
+    this.mainpanel.css("border","1px solid grey");
   }
 
   function debugSlideDown(){
@@ -731,6 +732,7 @@
     debugpanel.animate({bottom:(-debugpanel.height()+20)+'px'});
     elt.removeClass('slide-down');
     elt.addClass('slide-up');
+    this.mainpanel.css("border","none");
   }
 
   function toggleSlider(){
@@ -814,6 +816,11 @@
     this.editObject = new depgraphlib.EditObject(this);
   };
 
+  depgraphlib.DepGraph.prototype.getOriginalUID = function(){
+    return this.viewer.uid.replace(/_*$/g, '');
+  };
+  
+  
   /**
    * Set up viewer callbacks and settings :
    * - callback when fullscreen open and close
@@ -2225,7 +2232,7 @@
     };
     
     this.addEditMode(this.defaultMode);
-  }
+  };
 
   /**
    * returns true if data is different from original 
@@ -2233,11 +2240,14 @@
    * and if the current pointer on the action is equal to the pointer of the last saved state
    */
   depgraphlib.EditObject.prototype.dataChanged = function(){
+    if(this.needToSaveState){
+      return true;
+    }
     if(this.actionsLog.length == 0){
       return false;
     }
     else{
-      if(this.currentPtr == this.lastSavedPtr){
+      if(this.currentPtr != this.lastSavedPtr){
         return true;
       }else{
         return false;
@@ -2269,9 +2279,14 @@
     }
     
     this.editMode = value;
+    this.needToSaveState = false;
     
     if(value){
       window.onbeforeunload = function (e) {
+        
+        if(!me.dataChanged()){
+          return;
+        }
         
         var message = "Changes made to the graph are not saved. If you leave this page all modifications will be lost.";
         e = e || window.event;
@@ -2452,14 +2467,15 @@
    * set the need the save icon to display a unsaved state
    */
   depgraphlib.EditObject.prototype.setNeedToSave = function(){
-    this.depgraph.viewer.getToolbarButton('save').removeClass('saved').addClass('save');
+    this.needToSaveState = true;
+    this.updateSaveState();
   };
 
   /**
    * update the save state depending on the last saved pointer and the current pointer in the actions log
    */
   depgraphlib.EditObject.prototype.updateSaveState =function(){
-    if(this.lastSavedPtr == this.currentPtr){
+    if(this.lastSavedPtr == this.currentPtr && !this.needToSaveState){
       this.depgraph.viewer.getToolbarButton('save').removeClass('save').addClass('saved');
     }else{
       this.depgraph.viewer.getToolbarButton('save').removeClass('saved').addClass('save');

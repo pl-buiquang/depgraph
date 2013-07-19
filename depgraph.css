@@ -8,25 +8,49 @@
 @CHARSET "UTF-8";
 
 
-#graph-sidebar{
- 
-}
 
-#graph-sidebar ul li{
+.graph-sidebar ul{
  margin:0;
  padding:0;
+ list-style:none;
 }
 
-#graph-star{
+.graph-sidebar li{
+ margin-bottom:20px;
+}
+
+
+.graph-star-on{
+ cursor:pointer;
+ display:block;
+ width:32px;
+ height:32px;
  background:#ffffff url('img/star-icon.png') no-repeat right top;
 }
 
-#graph-reload{
- background:#ffffff url('img/Button-Load-icon.png') no-repeat right top;
+.graph-star-off{
+ cursor:pointer;
+ display:block;
+ width:32px;
+ height:32px;
+ background:#ffffff url('img/star-off-icon.png') no-repeat right top;
 }
 
-#graph-delete{
+
+.graph-reload{
+ cursor:pointer;
+ background:#ffffff url('img/Button-Load-icon.png') no-repeat right top;
+ display:block;
+ width:32px;
+ height:32px;
+}
+
+.graph-delete{
+ cursor:pointer;
  background:#ffffff url('img/close-icon.png') no-repeat right top;
+ display:block;
+ width:32px;
+ height:32px;
 }
 
 

@@ -37,6 +37,7 @@ depgraphlib.save_default = function(depgraph){
     dataType : 'json',
     success: function(data, textStatus, jqXHR) {
       depgraph.editObject.lastSavedPtr = depgraph.editObject.currentPtr;
+      depgraph.editObject.needToSaveState = false;
       depgraph.editObject.updateSaveState();
     },
     error: function(jqXHR, textStatus, errorThrown) {
@@ -89,6 +90,7 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
       dataType : 'json',
       success: function(data, textStatus, jqXHR) {
         depgraph.editObject.lastSavedPtr = depgraph.editObject.currentPtr;
+        depgraph.editObject.needToSaveState = false;
         depgraph.editObject.updateSaveState();
       },
       error: function(jqXHR, textStatus, errorThrown) {
@@ -239,6 +241,8 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
       }
     });
   }
+  
+  depgraphlib.getNewData = getNewData;
 
   function showAltLinks(depgraph,node){
     for(link in node.__data__['#data']['alternatives']){

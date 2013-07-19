@@ -1,6 +1,8 @@
 <?php
 
-//module_load_include("inc", "mgwiki","mgwiki.utils");
+if(function_exists('module_load_include')){
+  module_load_include("inc", "mgwiki","mgwiki.utils");
+}
 
 /*********************************************************/
 /*                    depgraph                           */
@@ -96,27 +98,31 @@ function conll2depGraph($data){
 }
 
 function depGraph2conll($data){
+  if(is_string($data)){
+    $data = json_decode($data,true);
+  }
+  
   $ref_ids = array();
   $lines = array();
   foreach($data['graph']['words'] as $word){
     $line = &$lines[];
     $ref_ids[$word['id']] = &$line;
     $line = array();
-    $line[0]=$word['id'];
-    $line[1]=$word['label'];
-    $line[2]=$word['lemma'];
-    $line[3]=$word['cpos'];
-    $line[4]=$word['pos'];
-    $line[5]= conllFeatures($word['feat']);
+    $line[0]=isset($word['id'])?$word['id']:'_';
+    $line[1]=isset($word['label'])?$word['label']:'_';
+    $line[2]=isset($word['lemma'])?$word['lemma']:'_';
+    $line[3]=isset($word['cpos'])?$word['cpos']:'_';
+    $line[4]=isset($word['pos'])?$word['pos']:'_';
+    $line[5]=isset($word['feat'])?conllFeatures($word['feat']):'_';
   }
   foreach($data['graph']['links'] as $link){
     if($link['target']==0 || (isset($ref_ids[$link['target']]) && $ref_ids[$link['target']]!=null)){
       $line = &$ref_ids[$link['target']];
       if(isset($line[6]) && $line[6] != null){ // case append
-        $line[6] .= '|' . $link['target'];
+        $line[6] .= '|' . $link['source'];
         $line[7] .= '|' . $link['label'];
       }else{ // case create
-        $line[6] = $link['target'];
+        $line[6] = $link['source'];
         $line[7] = $link['label'];
       }
     }else{
@@ -124,9 +130,9 @@ function depGraph2conll($data){
     }
   }
   foreach($lines as &$line){
-    $line = implode('\t',$line);
+    $line = implode("\t",$line);
   }
-  return implode('\n',$lines);
+  return implode("\n",$lines);
 }
 
 
@@ -382,7 +388,7 @@ function depXML2depGraph($xml_data){
   if(is_string($xml_data)){
     $xml_data = new SimpleXMLElement($xml_data);    
   }
-  if(isset($xml_data['options'])){
+  if(isset($xml_data['options']) && $xml_data['options'] != ''){
     $graph['options'] = (string) $xml_data['options'];
     if(!isset($graph['#style'])){
       $graph['#style'] = array();
