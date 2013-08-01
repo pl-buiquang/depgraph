@@ -9,10 +9,7 @@
   + 'Back Links : ' + me.refs
   +'</div>';
   div = jQuery(div);
-  me.viewer.loadTooltipContent(div);
-  me.viewer.lockTooltip();
-  me.viewer.tooltipExitButton.show();
-  me.viewer.showTooltip(point);
+  me.viewer.createBox({closeButton:true,position:point}).setContent(div).open();
 
 };
 
@@ -23,6 +20,22 @@ function fix_missing_a_closing_tag(link){
     return link + '</a>';
   }
 }
+
+
+
+/**
+ * Append a toolbar button allowing user to choose an edit mode among those registered
+ * TODO(paul) : a implémenter 
+ */
+depgraphlib.EditObject.prototype.addEditModeSwitcher = function(){
+  var me = this;
+  this.depgraph.viewer.addToolbarButton('Custom Edit Mode',function(){
+    var r=confirm("You will not be able to get back to frmg edit mode, are you sure you want to edit manually the graph?");
+    if (r==true){
+      me.setEditMode('default');
+    }
+  },'left');
+};
 
 depgraphlib.save_default = function(depgraph){
   depgraph.cleanData();
@@ -54,7 +67,7 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
       onChunkSelect : depgraphlib.selectObject,
       onWordContext : {
         'Show Infos': function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
-          depgraphlib.showToolTip(depgraph,element);
+          depgraphlib.showEditPanel(depgraph,element);
         },
         'HighLight' : function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
           processhighlightmode(depgraph,element);
@@ -62,7 +75,7 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
       },
       onLinkContext : {
         'Show Infos': function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
-          depgraphlib.showToolTip(depgraph,element);
+          depgraphlib.showEditPanel(depgraph,element);
         },
         'HighLight' : function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
           processhighlightmode(depgraph,element);

@@ -116,7 +116,7 @@
     
   };
 
-  depgraphlib.GraphViewer.instances = [];
+  depgraphlib.GraphViewer.instances = depgraphlib.GraphViewer.instances || [];
 
   /**
    * Retrieve the viewer instance from :
@@ -369,9 +369,9 @@
       this.debugpanel.detach();
       this.tooltip.detach();
     }else{
-      mainpanel.append(this.toolbar);
-      mainpanel.append(this.debugpanel);
-      mainpanel.append(this.tooltip);
+      this.mainpanel.append(this.toolbar);
+      this.mainpanel.append(this.debugpanel);
+      this.mainpanel.append(this.tooltip);
     }
     this.margin.top = this.chart.height()/10 + this.basemargin + ((this.imagemode)?0:20);
     this.margin.bottom = this.basemargin + ((this.imagemode)?0:20);
@@ -619,6 +619,151 @@
   };
 
   /***********************************************************/
+  /**                   Quick Windows                        */
+  /***********************************************************/
+  
+  /**
+   * Create a new box and bind it with the viewer
+   * @see Box for parameters description
+   * @return the new box created
+   */
+  depgraphlib.GraphViewer.prototype.createBox = function(options){
+    options.viewer = this;
+    return new depgraphlib.Box(options);
+  };
+  
+  /**
+   * Box class
+   * @param id the id of the box window
+   * @param options the options for the box are : 
+   * {draggable : bool, 
+   * position : {float,float}, 
+   * title : string, # displat a title
+   * closeButton : bool # true display a close button,
+   * autodestroy : bool # destroy the box when click away
+   * } 
+   * @param viewer [optional] a viewer to bind the box with
+   * @returns {depgraphlib.Box}
+   */
+  depgraphlib.Box = function(options){
+    var me = this;
+    
+    if(options.viewer != null){
+      depgraphlib.Box.instances.push(this);
+      this.viewer = options.viewer;
+    }
+    
+    this.object = jQuery('<div class="depgraphlib-box"><div class="depgraphlib-box-header"></div><div class="depgraphlib-box-content"></div><div class="depgraphlib-box-footer"></div></div>');
+
+    if(options.id){
+      this.object.attr('id',options.id);
+    }
+
+    if(options.closeButton){
+      var tooltipExitButton = jQuery('<div class="tooltip-exit-button"/>');
+      tooltipExitButton.css('float','right');
+      tooltipExitButton.css('display','block');
+      tooltipExitButton.click(function(){me.close(true);});
+      jQuery('.depgraphlib-box-header',this.object).append(tooltipExitButton);
+    }
+    
+    if(options.position){
+      this.object.css('top',options.position.y);
+      this.object.css('left',options.position.x);
+    }
+    
+    
+    if(options.draggable){
+      this.object.draggable();
+    }
+    
+    if(options.autodestroy){
+      this.tooltipCreationBug = true;
+      d3.select(document).on('click.box_'+depgraphlib.Box.instances.length,function(e){
+        if(!me.tooltipCreationBug && !jQuery.contains( me.object[0], d3.event.originalTarget )){
+          me.destroy();
+        }
+        delete me.tooltipCreationBug;
+      });
+    }
+    
+    
+    jQuery('body').append(this.object);
+    
+    return this;
+  };
+  
+  depgraphlib.Box.prototype.setContent = function(content){
+    var boxcontent = jQuery('.depgraphlib-box-content',this.object);
+    boxcontent.html(content.html());
+    return this;
+  };
+  
+  depgraphlib.Box.prototype.setHeader = function(content){
+    return this;
+  };
+  
+  depgraphlib.Box.prototype.setFooter = function(content){
+    return this;
+  };
+
+  /**
+   * Instances of boxes
+   */
+  depgraphlib.Box.instances = depgraphlib.Box.instances || [];
+
+  depgraphlib.Box.prototype.open = function(position){
+    if(position){
+      this.object.css('top',position.y);
+      this.object.css('left',position.x);
+    }
+    this.object.show();
+    return this;
+  };
+  
+  /**
+   * 
+   * @param raw if true, returns the dom element, else the jquery selection
+   * @return the dom object corresponding to this box (jquery object or dom element depending of parameter)
+   */
+  depgraphlib.Box.prototype.getDOM = function(raw){
+    if(raw){
+      return this.dom;
+    }
+    else{
+      return this.object;
+    }
+  };
+  
+  depgraphlib.Box.getBox = function(elt){
+    for(var i=0; i< depgraphlib.Box.instances.length; ++i){
+      if(jQuery.contains( depgraphlib.Box.instances[i], elt)){
+        return depgraphlib.Box.instances[i];
+      }
+    }
+  };
+  
+  /**
+   * Close the window
+   * @param destroy if true, destroy the window, else just hide it
+   */
+  depgraphlib.Box.prototype.close = function(destroy){
+    if(destroy){
+      this.destroy();
+    }else{
+      this.object.hide();
+    }
+  };
+  
+  
+  /**
+   * Close and destroy the window
+   */
+  depgraphlib.Box.prototype.destroy = function(){
+    this.object.remove();
+  };
+  
+  /***********************************************************/
   /**                   ToolTip                              */
   /***********************************************************/
 
@@ -631,30 +776,12 @@
       div = divid;
     }
     me.tooltipContainer.html(div.html());
-    me.tooltip.draggable();
   };
 
-  depgraphlib.GraphViewer.prototype.lockTooltip = function(){
-    var me = depgraphlib.GraphViewer.getInstance(this);
-    me.tooltip.draggable('destroy');
-  };
-
-  depgraphlib.GraphViewer.prototype.showTooltip = function(position,permanent){
+  depgraphlib.GraphViewer.prototype.showTooltip = function(position){
     var me = depgraphlib.GraphViewer.getInstance(this);
     me.tooltip.css('left',position.x);
     me.tooltip.css('top',position.y);
-
-    me.tooltipCreationBug = true;
-    
-    if(!permanent){
-      d3.select(document).on('click.tooltip_'+me.uid,function(e){
-        if(!me.tooltipCreationBug && !jQuery.contains( me.tooltip[0], d3.event.originalTarget )){
-          me.tooltip.hide();
-        }
-        delete me.tooltipCreationBug;
-      });
-    }
-    
     me.tooltip.show();
   };
 
@@ -697,9 +824,9 @@
             graphviewer.removeToolbarButton('fullscreen');
             graphviewer.mainpanel.width('99%');
             graphviewer.mainpanel.height('99%');
-            graphviewer.adjustDebugHeight();
           },
           onComplete:function(){
+            graphviewer.adjustDebugHeight();
             executeCallbacks(graphviewer.callbacks.fullscreen.oncomplete);
           },
           onClosed:function(){
@@ -720,19 +847,21 @@
 
   function debugSlideUp(){
     var elt = jQuery(this);
+    var viewer = depgraphlib.GraphViewer.getInstance(elt[0].id);
     elt.parent().animate({bottom:'0px'});
     elt.removeClass('slide-up');
     elt.addClass('slide-down');
-    this.mainpanel.css("border","1px solid grey");
+    viewer.mainpanel.css("border","1px solid grey");
   }
 
   function debugSlideDown(){
     var elt = jQuery(this);
+    var viewer = depgraphlib.GraphViewer.getInstance(elt[0].id);
     var debugpanel = elt.parent();
     debugpanel.animate({bottom:(-debugpanel.height()+20)+'px'});
     elt.removeClass('slide-down');
     elt.addClass('slide-up');
-    this.mainpanel.css("border","none");
+    viewer.mainpanel.css("border","none");
   }
 
   function toggleSlider(){
@@ -878,7 +1007,7 @@
   /**
    * Static variable containing all instances of depgraphs on the page (keyed by their viewer uid)
    */
-  depgraphlib.DepGraph.instances = [];
+  depgraphlib.DepGraph.instances = depgraphlib.DepGraph.instances || [];
 
   /**
    * Retrieve the depgraph instance from :
@@ -1530,7 +1659,12 @@
     if(element.__data__['#style'] == null){
       element.__data__['#style'] = {};
     }
-    element.__data__['#style'][property] = value;
+    if(value){
+      element.__data__['#style'][property] = value;
+    }else{
+      delete element.__data__['#style'][property];
+    }
+    
   }
 
   /************************************************************/
@@ -2195,7 +2329,7 @@
         onChunkSelect : selectObject,
         onWordContext : {
           'Show Infos': function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
-            showToolTip(depgraph,element);
+            showEditPanel(depgraph,element);
           },
           'Add Node to the left':function(depgraph,element){
             addWordSettings(depgraph,element[0],0);
@@ -2212,7 +2346,7 @@
         },
         onLinkContext : {
           'Show Infos': function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
-            showToolTip(depgraph,element);
+            showEditPanel(depgraph,element);
           },
           'Delete' : function(depgraph,element){
             var link = clone(element[0]);
@@ -2304,15 +2438,6 @@
     this.initToolbar();
     
   };
-  
-  /**
-   * Append a toolbar button allowing user to choose an edit mode among those registered
-   * TODO(paul) : a implémenter 
-   */
-  depgraphlib.EditObject.prototype.addEditModeSwitcher = function(){
-    
-  };
-
 
   /**
    * init the toolbar with the current edit mode
@@ -2425,8 +2550,8 @@
       +'</select><br/>'
       +'<input id="export-data'+depgraph.viewer.appendOwnID('')+'"  type="button" value="Export"></div>';
       div = jQuery(div);
-      depgraph.viewer.loadTooltipContent(div);
-      depgraph.viewer.lockTooltip();
+      var box = depgraph.viewer.createBox({closeButton:true,autodestroy:true});
+      box.setContent(jQuery(div));
       jQuery('#export-data'+depgraph.viewer.appendOwnID('')).click(function(){
         var select = jQuery('select',this.parentNode);
         var format = select[0].options[select[0].selectedIndex].value;
@@ -2435,11 +2560,10 @@
         }else{
           window.open('edit/export/'+format);
         }
-        depgraph.viewer.hideToolTip();
+        box.destroy();
       });
       
-      depgraph.viewer.tooltipExitButton.show();
-      depgraph.viewer.showTooltip(point);
+      box.open(point);
     }
     
     function exportPng(){
@@ -2546,6 +2670,20 @@
       }
       jQuery('.chunk',this.depgraph.vis.node()).contextMenu('chunk-context-menu', def);
     }
+    
+    jQuery(this.depgraph.svg.node()).contextMenu('main-menu', {
+      'add word' : {
+        menu:'add word',
+        click:function(obj){
+          var coords = depgraph.viewer.screenCoordsForElt(obj[0]);
+          var point = {x:(coords.ne.x + coords.nw.x)/2,y:coords.nw.y};
+          var div = jQuery(addWordPanel(depgraph));
+          
+          depgraph.viewer.createBox({closeButton:true,draggable:true}).setContent(div).open(point);
+        } 
+      }
+    }
+    );
 
     
     function onContextClick(object_type,menu,object){
@@ -2701,6 +2839,8 @@
     if(depgraph.editObject.highlightMode){
       var value = !isObjectPermanentHighlighted(this);
       highlightObject(this,value,true);
+      depgraph.editObject.setNeedToSave();
+      return;
     }
     depgraph.editObject.selectObject(this);
   };
@@ -2785,16 +2925,14 @@
    * @param depgraph
    * @param obj
    */
-  function showToolTip(depgraph,obj){
+  function showEditPanel(depgraph,obj){
     var coords = depgraph.viewer.screenCoordsForElt(obj[0]);
     var point = {x:(coords.ne.x + coords.nw.x)/2,y:coords.nw.y};
     var div = createEditPanel(depgraph,obj[0]);
-    depgraph.viewer.loadTooltipContent(div);
-    depgraph.viewer.tooltipExitButton.show();
-    depgraph.viewer.showTooltip(point);
+    depgraph.viewer.createBox({closeButton:true,draggable:true}).setContent(div).open(point);
   }
   
-  depgraphlib.showToolTip = function(depgraph,obj){return showToolTip(depgraph,obj);};
+  depgraphlib.showEditPanel = function(depgraph,obj){return showEditPanel(depgraph,obj);};
 
   /**
    * fill in the edit properties panel for a link object
@@ -2846,7 +2984,7 @@
    */
   function getOptionsListWords(depgraph,selectedOriginalId){
     var optionList = '<select>';
-    for(var i in depgraph.data.graph.words){
+    for(var i=0;i<depgraph.data.graph.words.length;i++){
       var wordData = depgraph.data.graph.words[i];
       optionList += '<option value="'+wordData.id+'" ';
       optionList += ((wordData.id==selectedOriginalId)?'selected="true"':'');
@@ -2856,6 +2994,40 @@
     optionList += '</select>';
     
     return optionList;
+  }
+  
+  /**
+   * return a form of list of position for a newly added word
+   */
+  function getOptionsPosition(depgraph){
+    var optionList = '<select>';
+    for(var i=0;i<depgraph.data.graph.words.length+1;i++){
+      var wordData = (i>0 && i<depgraph.data.graph.words.length+1)?depgraph.data.graph.words[i-1]:{label:'^'};
+      var nextWordData = (i<depgraph.data.graph.words.length)?depgraph.data.graph.words[i]:{label:'$'};
+      optionList += '<option value="'+i+'" ';
+      optionList += '>#' + i + ' (' + wordData['label'] + ' x ' + nextWordData['label'] +')';
+      optionList += '</option>';
+    }
+    optionList += '</select>';
+    
+    return optionList;
+  }
+  
+  /**
+   * create a panel to add a new word
+   */
+  function addWordPanel(depgraph){
+    var html = '';
+    html += '<div><h3>Add a new word</h3>';
+    html += '<table><tr>';
+    html += '<td><label>Label</label></td>';
+    html += '<td><input type="text" name="label"></td></tr>';
+    html += '<tr><td><label>Sublabels (separated by commas, use \\, for commas)</label></td>';
+    html += '<td><input type="text" name="sublabels"></td></tr>';
+    html += '<tr><td><label>Position</label></td>';
+    html += '<td>'+getOptionsPosition(depgraph)+'</td></tr>';
+    html += '</table></div>';
+    return html;
   }
 
   /**
@@ -2884,7 +3056,7 @@
     }
     
     div += '</table>';
-    div += '<input id="'+depgraph.viewer.appendOwnID(klass+'-save-properties')+'" type="button" value="Save" onclick="saveProperties.call(this,arguments);">';
+    div += '<input id="'+depgraph.viewer.appendOwnID(klass+'-save-properties')+'" type="button" value="Save" onclick="depgraphlib.saveProperties.call(this,arguments);">';
     div += '</div>';
     
     /*var div = '<div>'
@@ -2927,8 +3099,13 @@
     
     depgraph.update();
     depgraph.postProcesses();
-    viewer.hideToolTip();
+    var box = depgraphlib.Box.getBox(this);
+    box.destroy();
   }
+  
+  depgraphlib.saveProperties = saveProperties;
+  
+  
 
   /**
    * save the properties for a link
@@ -3020,7 +3197,7 @@
     +'<tr><td colspant="2"><input id="link-settings'+depgraph.viewer.appendOwnID('')+'"  type="button" style="margin:0" value="Create Link"></td></tr>'
     +'</table></div>';
     div = jQuery(div);
-    depgraph.viewer.loadTooltipContent(div);
+    
     depgraph.editObject.clearSelection();
     
     jQuery('#link-settings'+depgraph.viewer.appendOwnID('')).click(function(){
@@ -3065,7 +3242,8 @@
     +'<tr><td colspant="2"><input id="word-settings'+depgraph.viewer.appendOwnID('')+'"  type="button" style="margin:0" value="Insert Word"></td></tr>'
     +'</table></div>';
     div = jQuery(div);
-    depgraph.viewer.loadTooltipContent(div);
+    var box = depgraph.viewer.createBox({closeButton:true,draggable:true}).setContent(div).open(point);
+
     depgraph.editObject.clearSelection();
     
     jQuery('#word-settings'+depgraph.viewer.appendOwnID('')).click(function(){
@@ -3078,11 +3256,9 @@
       var word = addWord(depgraph,wordData);
       var action = {baseAction:'wordAddition',addedWord:word};
       depgraph.editObject.pushAction({mode:depgraph.editObject.editMode,rollbackdata:action,data:{event:'onWordContext',params:element}});
-      depgraph.viewer.hideToolTip();
+      box.destroy();
     });
     
-    depgraph.viewer.tooltipExitButton.show();
-    depgraph.viewer.showTooltip(point);
   }
 
   /**

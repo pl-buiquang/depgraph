@@ -4,6 +4,43 @@ if(function_exists('module_load_include')){
   module_load_include("inc", "mgwiki","mgwiki.utils");
 }
 
+
+function convertGraph($data,$sourceformat,$targetformat){
+  $json;
+  $formateddata;
+  switch ($sourceformat){
+    case 'conll':
+      $json = conll2depGraph($data);
+      break;
+    case 'depxml':
+      $json = depXML2depGraph($data);
+      break;
+    case 'json':
+      $json = $data;
+      break;
+    case 'dep2pict':
+      $json = dep2pict2depGraph($data);
+      break;
+  }
+  switch ($targetformat){
+    case 'conll':
+      $formateddata = depGraph2conll($data);
+      break;
+    case 'depxml':
+      $formateddata = depGraph2depXML($data);
+      break;
+    case 'json':
+      $formateddata = $json;
+      break;
+    case 'dep2pict':
+      $formateddata = depGraph2dep2pict($data);
+      break;
+  }
+  
+  return $formateddata;
+  
+}
+
 /*********************************************************/
 /*                    depgraph                           */
 /*********************************************************/
@@ -17,7 +54,6 @@ function getSentence($graph){
   }
   return trim($sentence);
 }
-
 
 /*********************************************************/
 /*                      conll                            */
@@ -362,6 +398,7 @@ function attributeTranslate(&$item,$attr,$value){
 
 function depGraph2depXML($data){
   // call parser with the sentence and parameters
+  return $data;
 }
 
 function comp_node_position($a,$b){
@@ -549,6 +586,7 @@ function depXML2depGraph($xml_data){
       );
     }
   }
+  
   return json_encode($dep_graph_array);
 }
 

@@ -11,6 +11,8 @@ class DepGraph{
    * @param unknown $options an associative array containing the options for the graph
    */
   function __construct($data,$options){
+    $this->options = $options;
+    
     // set default options
     $this->options['uid'] = isset($options['uid'])?$options['uid']:uniqid();
     
@@ -412,6 +414,9 @@ class DepGraph{
     $subfontStyle = $this->getStyle($word,'sub-font-style');
     $margin = $this->getStyle($word, 'margin');
     
+    $rect = $this->html->createElement('rect');
+    $node->appendChild($rect);
+    
     $text = $this->html->createElement('text');
     $node->appendChild($text);
     $label = $this->html->createElement('tspan',$word['label']);
@@ -433,6 +438,21 @@ class DepGraph{
       $text->appendChild($item);
     }
     
+    $highlight = 'none';
+    if($this->getStyle($word,'highlighted',false)){
+      $highlight = 'yellow';
+    }
+    
+    $bbox = $this->getWordBBox($word);
+    $rect->setAttribute('x',0);
+    $rect->setAttribute('y',$bbox['y']);
+    $rect->setAttribute('rx',10);
+    $rect->setAttribute('ry',10);
+    $rect->setAttribute('width',$bbox['width']);
+    $rect->setAttribute('height',$bbox['height']);
+    $this->setStyleAttr($rect, 'stroke',"transparent");
+    $this->setStyleAttr($rect, 'fill',$highlight);
+    $this->setStyleAttr($rect, 'stroke-width',1);
     
     $previousSibling = $this->getWordByPosition($word['#position']-1);
     if($previousSibling){
@@ -640,22 +660,28 @@ class DepGraph{
     $laf0 = (1+$hdir*$vdir)/2;
     $laf1 = (1+$hdir*$vdir)/2;
     
+    if($highlighted){
+      $color2 = 'yellow';
+    }else{
+      $color2 = 'none';
+    }
     
-    //$highlightPath = $this->html->createElement('path');
-    //$node->appendChild($highlightPath);
+    $highlightPath = $this->html->createElement('path');
+    $node->appendChild($highlightPath);
     $path = $this->html->createElement('path');
     $node->appendChild($path);
 
     if($originArc){
-      //$highlightPath->setAttribute('d',"M ".$x0.",".($y0+$v0)." v ".(-$v0));
+      $highlightPath->setAttribute('d',"M ".$x0.",".($y0+$v0)." v ".(-$v0));
       $path->setAttribute('d',"M ".$x0.",".($y0+$v0)." v ".(-$v0));
     }else{
-      //$highlightPath->setAttribute('d',"M ".$x0.",".$y0." v ".$v0." a 5 5 0 0 ".$laf0." ".$hdir*$arcSize." ".(-$vdir*$arcSize)." h ".$h." a 5 5 0 0 ".$laf1." ".$hdir*$arcSize." ".$vdir*$arcSize." v ".$v1);
+      $highlightPath->setAttribute('d',"M ".$x0.",".$y0." v ".$v0." a 5 5 0 0 ".$laf0." ".$hdir*$arcSize." ".(-$vdir*$arcSize)." h ".$h." a 5 5 0 0 ".$laf1." ".$hdir*$arcSize." ".$vdir*$arcSize." v ".$v1);
       $path->setAttribute('d',"M ".$x0.",".$y0." v ".$v0." a 5 5 0 0 ".$laf0." ".$hdir*$arcSize." ".(-$vdir*$arcSize)." h ".$h." a 5 5 0 0 ".$laf1." ".$hdir*$arcSize." ".$vdir*$arcSize." v ".$v1);
     }
-    /*highlightPath.attr('stroke',color2)
-    .attr('stroke-width',removeUnit(linkSize)+3)
-    .attr('fill','none');*/
+    $highlightPath->setAttribute('stroke',$color2);
+    $highlightPath->setAttribute('stroke-width',removeUnit($linkSize)+3);
+    $highlightPath->setAttribute('fill','none');
+    
     $path->setAttribute('stroke',$linkColor);
     $path->setAttribute('stroke-dasharray',$strokeDasharray);
     $path->setAttribute('stroke-width',$linkSize);
@@ -948,6 +974,21 @@ class DepGraph{
   function getHTML(){
     return $this->html->saveHTML(); 
   }
+  
+  /**
+   * Create the image frame (title, etc.)
+   */
+  function surroundWithFrame($content){
+    global $base_url; // retrieve the base url of the installation
+    
+    $title = isset($this->options['title'])?preg_replace("/'/","\'",$this->options['title']):'';
+    $title = str_replace("\n", " ", $title);
+    
+    $prepend = '<a id="graph-' . $this->options['uid'] . '" name="graph-' . $this->options['uid'] . '"></a>';
+    $append = '<div>' . ((!isset($this->options['wrapped']))? $title : '') . '</div>';
+    
+    return $prepend . $content . $append;
+  }
 
   /**
    * Returns the img/html of the graph
@@ -963,7 +1004,9 @@ class DepGraph{
     
     shell_exec($cmd);
     
-    return '<img src="'.$urlprepend.$output.'" width="'.$this->width.'" height="'.$this->height.'">';    
+    $content = '<img src="'.$urlprepend.$output.'" width="'.$this->width.'" height="'.$this->height.'">';
+
+    return $this->surroundWithFrame($content);
   }
   
 }
