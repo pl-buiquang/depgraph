@@ -2476,6 +2476,7 @@
       var me = depgraph.editObject;
       me.highlightMode = !me.highlightMode;
       if(me.highlightMode){
+        me.clearSelection();
         depgraph.viewer.getToolbarButton('highlight').removeClass('highlightoff').addClass('highlighton');
       }else{
         depgraph.viewer.getToolbarButton('highlight').removeClass('highlighton').addClass('highlightoff');
