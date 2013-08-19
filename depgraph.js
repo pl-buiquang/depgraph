@@ -1967,7 +1967,7 @@
    * (permanently or not <=> set highlighted = true or false in data or not)
    */
   function highlightLink(link,value,permanent){
-    if(link.selected || (!permanent && link.getStyle('highlighted',false))){
+    if(!permanent && (link.selected || link.getStyle('highlighted',false))){
       return;
     }
     
@@ -1992,7 +1992,7 @@
    * (permanently or not <=> set highlighted = true or false in data or not)
    */
   function highlightWord(word,value,permanent){
-    if(word.selected || (!permanent && word.getStyle('highlighted',false))){
+    if(!permanent && (word.selected || word.getStyle('highlighted',false))){
       return;
     }
     
@@ -2558,7 +2558,15 @@
         if(format == 'png'){
           exportPng();
         }else{
-          window.open('edit/export/'+format);
+          //TODO(paul) : send raw parameter if not in custom edit mode
+          depgraph.cleanData();
+          depgraphlib.windowOpenPost(
+              {'action':'export',
+                'data':depgraph.data,
+                'source_format':'json',
+                'target_format':format},
+              depgraph.wsurl);
+//          window.open('edit/export/'+format);
         }
         box.destroy();
       });
@@ -2573,6 +2581,7 @@
       depgraph.svg.attr('height',svgBBox.height);
       var svg_xml = (new XMLSerializer).serializeToString(depgraph.svg.node());
 
+      /*
       var form = document.getElementById("export_png");
       if(!form){
         depgraph.viewer.chart.append('<form id="export_png" method="post" action="edit/export/png" target="_blank">'+
@@ -2581,7 +2590,14 @@
         form = document.getElementById("export_png");
       }
       form['data'].value = svg_xml ;
-      form.submit();
+      form.submit();*/
+      depgraphlib.windowOpenPost(
+          {'action':'export',
+            'data':svg_xml,
+            'source_format':'json',
+            'target_format':'png'},
+          depgraph.wsurl);
+      
       d3.select('rect.export_bg').attr('width','0').attr('height','0');
     };
 
@@ -3198,6 +3214,8 @@
     +'</table></div>';
     div = jQuery(div);
     
+    var box = depgraph.viewer.createBox({closeButton:true,draggable:true}).setContent(div).open(point);
+    
     depgraph.editObject.clearSelection();
     
     jQuery('#link-settings'+depgraph.viewer.appendOwnID('')).click(function(){
@@ -3206,11 +3224,9 @@
       var link = addLink(depgraph,obj1,obj2,value,color);
       var action = {baseAction:'linkAddition',addedLink:link};
       depgraph.editObject.pushAction({mode:depgraph.editObject.editMode,rollbackdata:action,data:{event:'onWordSelect',params:params}});
-      depgraph.viewer.hideToolTip();
+      box.destroy();
     });
     
-    depgraph.viewer.tooltipExitButton.show();
-    depgraph.viewer.showTooltip(point);
   }
 
   /**
@@ -3342,6 +3358,29 @@
   /**                      Utils                             **/
   /************************************************************/
 
+  
+  depgraphlib.windowOpenPost = function(data,url){
+    depgraphlib.windowOpenPostForm = '<form id="depgraphlibWindowOpenPostForm" method="post" action="'+url+'" target="_blank"></form>';
+    var existingForm = jQuery('#depgraphlibWindowOpenPostForm');
+    if(!existingForm.length){
+      existingForm = jQuery(depgraphlib.windowOpenPostForm);
+      jQuery('body').append(existingForm);
+    }
+    existingForm.html('');
+    for(param in data){
+      var stringdata = null;
+      if(typeof data[param] == 'string'){
+        stringdata = data[param];
+      }else{
+        stringdata = JSON.stringify(data[param]);
+      }
+      existingForm.append('<input type="hidden" name="'+param+'" value="">');
+      existingForm[0][param].value = stringdata;
+    }
+    document.getElementById('depgraphlibWindowOpenPostForm').submit();
+  };
+  
+  
   /**
    * clone an object
    */

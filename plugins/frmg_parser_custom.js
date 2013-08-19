@@ -32,6 +32,7 @@ depgraphlib.EditObject.prototype.addEditModeSwitcher = function(){
   this.depgraph.viewer.addToolbarButton('Custom Edit Mode',function(){
     var r=confirm("You will not be able to get back to frmg edit mode, are you sure you want to edit manually the graph?");
     if (r==true){
+      depgraphlib.hideAltLinks(me.depgraph,me.depgraph.editObject.previousSelectedObject);
       me.setEditMode('default');
     }
   },'left');
@@ -286,6 +287,9 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
 
 
   function hideAltLinks(depgraph,node){
+    if(!node){
+      return;
+    }
     for(i in node.__data__['#data']['alternatives']){
       var link = node.__data__['#data']['alternatives'][i];
       var index = depgraph.getLinkIndexByOriginalId(link.id);
@@ -297,6 +301,8 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
     depgraph.update();
     depgraph.postProcesses();
   }
+  
+  depgraphlib.hideAltLinks = hideAltLinks;
 
   
 };
