@@ -43,6 +43,7 @@
     this._width = "100%";
     this.basemargin = 10;
     this.margin = {top:100,left:0,right:0,bottom:10};
+    this.borders = true;
     
     if(depgraphlib.GraphViewer.instances[uid]){
       uid += "_";
@@ -108,7 +109,9 @@
           var me = depgraphlib.GraphViewer.getInstance(this);
           if(!me.fixedToolbar){
             me.toolbar.slideUp(100);
-            me.mainpanel.css("border","none");
+            if(!me.borders){
+              me.mainpanel.css("border","none");
+            }
             //me.toolbar.hide();
           }
         }
@@ -381,6 +384,7 @@
    * remove border of the viewer
    */
   depgraphlib.GraphViewer.prototype.noBorders = function(){
+      this.borders = false;
       this.mainpanel.css("border","none");
   };
 
@@ -1176,22 +1180,43 @@
    */
   depgraphlib.DepGraph.prototype.setViewMode = function(){
     if(this.options.viewmode && this.options.viewmode != 'full'){
-      this.viewer.shrinkHeightToContent(removeUnit(this.data.graph['#style']['margin'].bottom)+20);
-      if(!this.options.viewsize){
-        alert('options.viewsize not defined, using 600px as default value');
-        this.options.viewsize = '600px';
-      }
-      this.viewer.setWidth(this.options.viewsize);
-      if(this.options.viewmode == 'cropped'){
-        this.createScrollBar();
-      }else {// if(this.options.viewmode == 'stretched'){
-        var visBBox = this.vis.node().getBBox();
-        var scale = this.viewer.chart.width() / (visBBox.width + removeUnit(this.data.graph['#style']['margin'].right)*2);
-        this.scale(scale);
-        this.viewer.shrinkHeightToContent(removeUnit(this.data.graph['#style']['margin'].bottom)+20);
-      }
+      this.setWidthLimitedViewMode('600px');
     }else{
-      this.viewer.shrinkToContent(removeUnit(this.data.graph['#style']['margin'].right),removeUnit(this.data.graph['#style']['margin'].bottom)+20);
+      var visBBox = this.vis.node().getBBox();
+      if(this.options.maxwidth && this.options.maxwidth<visBBox.width){
+        this.options.viewmode = 'cropped';
+        this.setWidthLimitedViewMode(this.options.maxwidth,true);
+      }else{
+        this.options.viewmode = 'full';
+        this.setFullViewMode();
+      }
+    }
+  };
+  
+  
+  depgraphlib.DepGraph.prototype.setFullViewMode = function(){
+    this.viewer.shrinkToContent(removeUnit(this.data.graph['#style']['margin'].right),removeUnit(this.data.graph['#style']['margin'].bottom)+20);
+  };
+  
+  
+  /**
+   * Set the view mode to a limited width (cropped or strechted)
+   * @param defaultWidth
+   * @param forceCrop
+   */
+  depgraphlib.DepGraph.prototype.setWidthLimitedViewMode = function(defaultWidth,forceCrop){
+    this.viewer.shrinkHeightToContent(removeUnit(this.data.graph['#style']['margin'].bottom)+20);
+    if(!this.options.viewsize){
+      this.options.viewsize = defaultWidth;
+    }
+    this.viewer.setWidth(this.options.viewsize);
+    if(forceCrop || this.options.viewmode == 'cropped'){
+      this.createScrollBar();
+    }else {// if(this.options.viewmode == 'stretched'){
+      var visBBox = this.vis.node().getBBox();
+      var scale = this.viewer.chart.width() / (visBBox.width + removeUnit(this.data.graph['#style']['margin'].right)*2);
+      this.scale(scale);
+      this.viewer.shrinkHeightToContent(removeUnit(this.data.graph['#style']['margin'].bottom)+20);
     }
   };
   
@@ -1212,7 +1237,10 @@
         scrollBarWidth = 20;
         k = (graphWidth-viewerWidth)/(viewerWidth-scrollBarWidth);
       }
-      this.scrollbar = this.svg.append('rect').classed('scrollbar',true);
+      this.scrollbar = this.svg.select('.scrollbar');
+      if(this.scrollbar.node() == null){
+        this.scrollbar = this.svg.append('rect').classed('scrollbar',true);
+      }
       this.scrollbar.attr('x',0)
       .attr('y',this.viewer.mainpanel.height()-10)
       .attr('rx',1)
@@ -1232,6 +1260,18 @@
         depgraph.scrollMouseSelected = d3.event.clientX;
         d3.event.preventDefault ? d3.event.preventDefault() : d3.event.returnValue = false;
       });
+      
+      /*
+      d3.select(this.viewer.chart[0]).on('mouseover',function(e){
+        var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget);
+        depgraph.setFullViewMode();
+      });
+      
+      d3.select(this.viewer.chart[0]).on('mouseout',function(e){
+        var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget);
+        depgraph.setViewMode();
+      });*/
+
       
       d3.select(document).on('click.focus',function(e){
         var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget);
