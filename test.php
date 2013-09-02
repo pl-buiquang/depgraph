@@ -102,8 +102,9 @@ href="depgraph.css" />
   ?>;
   var depGraph = new depgraphlib.DepGraph(jQuery("#graph-container"),json_data,{uid:1,viewmode:'streched',viewsize:'500px'});
   //depGraph.viewer.setImageMode(true);
-  var switchmodebuttontest = depgraphlib.createDropDownMenu('test',{'test1':{'cb':function(){alert('test1');}},'test2':{'cb':function(){alert('test2');},'tt':'Execute the test2 function.'}},false);
+  var switchmodebuttontest = depgraphlib.createDropDownMenu('test',{'test1':{'cb':function(){alert('test1');}},'a rmz df;lmgk fgdfg test2':{'cb':function(){alert('test2');},'tt':'Execute the test2 function.'}},false);
   depGraph.viewer.addToolbarElement(switchmodebuttontest,'left');
+  depGraph.viewer.setFixedToolbar(true);
   depGraph.addExportFeature();
   </script>
 <div id="graph-container2"></div>

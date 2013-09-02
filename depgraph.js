@@ -105,19 +105,36 @@
         function(){
           var me = depgraphlib.GraphViewer.getInstance(this);
           if(!me.fixedToolbar){
-            me.toolbar.slideDown(100);
-            me.mainpanel.css("border","1px solid grey");
-            //me.toolbar.show();
+            if(me.toolbar.queue().length == 0){
+              me.toolbar.slideDown(100,function(){
+                if(me.toolbar.queue('depgraph_toolbar_hiding_bufferqueue').length %2 == 1){
+                  me.toolbar.dequeue('depgraph_toolbar_hiding_bufferqueue');
+                }
+              });
+              me.mainpanel.css("border","1px solid grey");
+            }else{
+              me.toolbar.slideDown({duration:100,queue:'depgraph_toolbar_hiding_bufferqueue'});
+            }
+            console.log(me.toolbar.queue('depgraph_toolbar_hiding_bufferqueue'));
+
           }
         },
         function(){
           var me = depgraphlib.GraphViewer.getInstance(this);
           if(!me.fixedToolbar){
-            me.toolbar.slideUp(100);
-            if(!me.borders){
-              me.mainpanel.css("border","none");
+            if(me.toolbar.queue().length == 0){
+              me.toolbar.slideUp(100,function(){
+                if(me.toolbar.queue('depgraph_toolbar_hiding_bufferqueue').length %2 == 1){
+                  me.toolbar.dequeue('depgraph_toolbar_hiding_bufferqueue');
+                }
+              });
+              if(!me.borders){
+                me.mainpanel.css("border","none");
+              }
+            }else{
+              me.toolbar.slideUp({duration:100,queue:'depgraph_toolbar_hiding_bufferqueue'});
             }
-            //me.toolbar.hide();
+            console.log(me.toolbar.queue('depgraph_toolbar_hiding_bufferqueue'));
           }
         }
      );
@@ -170,9 +187,11 @@
     var toolbar = this.createDiv("gv-toolbar", "gv-toolbar");
     landing_area.append(toolbar);
     this.mainpanel.append(this.toolbar_landing_area);
+    var toolbarbuttons = this.toolbarbuttons = this.createDiv("gv-toolbarbuttons","gv-toolbarbuttons");
+    toolbar.append(toolbarbuttons);
     // use colorbox for fullscreen mode
     this.addFullScreenButton();
-    return toolbar;
+    return toolbarbuttons;
   };
 
   /**
@@ -314,7 +333,7 @@
     var vis = d3.select(this.chart.children()[0]).select('g');
     var bbox = vis.node().getBBox();
     var transform = getTransformValues(vis);
-    this.setHeight(transform.translate[1]+bbox.y*transform.scale[0]+bbox.height*transform.scale[0]+marginBottom*transform.scale[0]);
+    this.setHeight(30+transform.translate[1]+bbox.y*transform.scale[0]+bbox.height*transform.scale[0]+marginBottom*transform.scale[0]);
   };
 
   /**
@@ -510,7 +529,7 @@
    * remove all toolbar buttons
    */
   depgraphlib.GraphViewer.prototype.resetToolbarButtons = function(){
-    var children = jQuery("#"+this.appendOwnID("gv-toolbar")).children();
+    var children = this.toolbarbuttons.children();
     children.remove();
     this.addFullScreenButton();
   };
@@ -523,7 +542,7 @@
    */
   depgraphlib.GraphViewer.prototype.addToolbarElement = function(elt,position){
     elt.css('float',position);
-    jQuery("#"+this.appendOwnID("gv-toolbar")).append(elt);
+    this.toolbarbuttons.append(elt);
   };
 
   /**
@@ -548,7 +567,7 @@
     var button='<div id="button-'+this.appendOwnID(name)+'" title="'+(tooltip || name)+'" class="'+style+' tab '+position+'">'+text+'</div>';
     button = jQuery(button);
     button.click(callback);
-    jQuery("#"+this.appendOwnID("gv-toolbar")).append(button);
+    this.toolbarbuttons.append(button);
   };
 
   /**
@@ -571,6 +590,7 @@
     body.hide();
     header.html(name);
     header.attr('title',tooltip||name);
+    header.addClass('white');
     for(i in items){
       var item = jQuery('<div>'+i+'</div>');
       item.attr('title',items[i].tt || i);
@@ -1340,7 +1360,7 @@
     }
     
     this.svg = d3.select(this.viewer.chart[0]).append("svg")
-    .attr("width", "100%").attr("height", "100%");
+    .attr("width", "100%").attr("height", "100%").style('margin-top','30px');
     
     this.viewer.chart.css('background-color',this.data.graph['#style']['background-color']);
     this.svg.append('rect').classed('export_bg',true).attr('width','0').attr('height','0').style('fill',this.data.graph['#style']['background-color']);

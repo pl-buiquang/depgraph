@@ -74,17 +74,23 @@ a.gv-wrapper{
   /*height:25px;*/
   width:100%;
   background-color:#203254;
-  -webkit-box-shadow: 0 1px 1px #888888;
-  -moz-box-shadow: 0 1px 1px #888888;
-  box-shadow:0px 1px 1px #888888;
-  z-index:10;
+  
+  background: -moz-linear-gradient(center top , #F5F5F5, #CFD1CF) repeat scroll 0 0 #CFD1CF;
+  border-bottom: 1px solid #B6B6B6;
+  /*box-shadow: 0 1px 0 #FFFFFF inset;*/
+  
+  z-index:100;
+ }
+ 
+ .gv-toolbarbuttons{
+  padding: 6px 8px 2px 8px;
  }
  
 .gv-toolbar-landing-area{
   position:absolute;
   height:25px;
   width:100%;
-  z-index:10;
+  z-index:100;
 }
 
 
@@ -174,17 +180,36 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b3000000', e
  
  .gv-menu-header{
  height:25px;
+ background: -moz-linear-gradient(center top , #FFFFFF, #E4E4E4) repeat scroll 0 0 #E4E4E4;
+ border-color: #A6A6A6 #A6A6A6 #979797;
+ border-image: none;
+ border-radius: 3px 3px 3px 3px;
+ border-style: solid;
+ border-width: 1px;
+ box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), 0 0 2px rgba(255, 255, 255, 0.15) inset, 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+ padding: 4px 6px;
+ display:inline-block;
+ cursor:pointer;
  }
  
  .gv-menu{
  position:absolute;
-  background:#8A92A9  ;
- border-right:1px solid #888888;
- 
  }
  
  .gv-menu-body{
-  border-bottom:1px solid #888888;
+ cursor:pointer;
+  padding: 4px 6px;
+      -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background: -moz-linear-gradient(center top , #FFFFFF, #E4E4E4) repeat scroll 0 0 #E4E4E4;
+    border-color: #A6A6A6 #A6A6A6 #979797;
+    border-image: none;
+    border-radius: 3px 3px 3px 3px;
+    border-style: solid;
+    border-width: 1px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), 0 0 2px rgba(255, 255, 255, 0.15) inset, 0 1px 0 rgba(255, 255, 255, 0.15) inset;
  }
  
  .alt-panel-content{
@@ -199,11 +224,27 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b3000000', e
  }
  
  .tab{
-  margin:1px 2px auto 2px;
-  display:block;
-  color: white;
   cursor:pointer;
   z-index:7;
+  border: 0 none;
+  display: inline-block;
+  float: left;
+  height: 18px;
+  outline: 0 none;
+  padding: 4px 6px;
+      -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background: -moz-linear-gradient(center top , #FFFFFF, #E4E4E4) repeat scroll 0 0 #E4E4E4;
+    border-color: #A6A6A6 #A6A6A6 #979797;
+    border-image: none;
+    border-radius: 3px 3px 3px 3px;
+    border-style: solid;
+    border-width: 1px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), 0 0 2px rgba(255, 255, 255, 0.15) inset, 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+    float: left;
+    margin: 0 6px 5px 0;
  }
  
  .icon{
