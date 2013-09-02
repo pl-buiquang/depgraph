@@ -42,11 +42,13 @@ depgraphlib.save_default = function(depgraph){
   depgraph.cleanData();
   jQuery.ajax({
     type: 'POST', 
-    url: 'edit/save',
+    url: depgraph.wsurl,
     data: {
+      action:'save',
       format:depgraph.dataFormat,
       options: '',
       data:depgraph.data,
+      uid:depgraph.options.uid
     },
     dataType : 'json',
     success: function(data, textStatus, jqXHR) {
@@ -94,12 +96,14 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
     var highlightInfos = depgraph.editObject.mode[depgraph.editObject.editMode].highlightInfos;
     jQuery.ajax({
       type: 'POST', 
-      url: 'edit/save',
+      url: depgraph.wsurl,
       data: {
+        action:'save',
         format:'frmgserver',
         options: params,
         highlighting:highlightInfos,
         data:depgraph.sentence,
+        uid:depgraph.options.uid
       },
       dataType : 'json',
       success: function(data, textStatus, jqXHR) {
@@ -179,6 +183,8 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
       return action.rollbackdata.currentParams;
     }
   }
+  
+  depgraphlib.getPreviousParams = getPreviousParams;
   
   function processhighlightmode(depgraph,currentobj){
     if(depgraph.editObject.highlightMode){

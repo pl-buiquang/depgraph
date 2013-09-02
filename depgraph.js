@@ -10,8 +10,13 @@
  */
 (function(depgraphlib, $, undefined){
 
+  // Check if required library are present
   if(typeof jQuery == 'undefined'){
     alert('DepGraph : Error. This library needs jQuery!');
+  }
+  
+  if(typeof d3 == 'undefined'){
+    alert('Depgraph : Error. This library needs d3.js!');
   }
 
   /**

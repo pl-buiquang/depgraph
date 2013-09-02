@@ -397,7 +397,13 @@ function attributeTranslate(&$item,$attr,$value){
 
 
 function depGraph2depXML($data){
-  // call parser with the sentence and parameters
+  if(function_exists('module_load_include')){
+    module_load_include("inc", "mgwiki","mgwiki.utils");
+    module_load_include('module','parser');
+  }else{
+    return null;
+  }
+  
   return $data;
 }
 
