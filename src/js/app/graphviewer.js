@@ -1,10 +1,5 @@
-(function(depgraphlib, $, undefined){
+define(['app/utils'],function(depgraphlib){
 
-  // Check if required library are present
-  if(typeof jQuery == 'undefined'){
-    alert('DepGraph : Error. This library needs jQuery!');
-  }
-  
   
   /**
    * GraphViewer.js
@@ -21,7 +16,7 @@
    * @param uid
    * @returns
    */
-  depgraphlib.GraphViewer = function (container,uid){
+    var GraphViewer = function (container,uid){
     
     if(uid == null){
       uid = Math.floor(Math.random() * 10000000000000001).toString();
@@ -37,7 +32,7 @@
     this.margin = {top:100,left:0,right:0,bottom:10};
     this.borders = true;
     
-    if(depgraphlib.GraphViewer.instances[uid]){
+    if(GraphViewer.instances[uid]){
       uid += "_";
     }
     var uid = this.uid = uid; // uid
@@ -75,7 +70,7 @@
     mainpanel.append(this.altpanel);
     this.altpanel.append(this.altpanelcontent);
     
-    depgraphlib.GraphViewer.instances[uid]=this;
+    GraphViewer.instances[uid]=this;
     
     this.callbacks = new Object();
     this.callbacks.fullscreen = new Object();
@@ -90,7 +85,7 @@
 
     this.toolbar_landing_area.hover(
         function(){
-          var me = depgraphlib.GraphViewer.getInstance(this);
+          var me = GraphViewer.getInstance(this);
           if(!me.fixedToolbar){
             if(me.toolbar.queue().length == 0){
               me.toolbar.slideDown(100,function(){
@@ -106,7 +101,7 @@
           }
         },
         function(){
-          var me = depgraphlib.GraphViewer.getInstance(this);
+          var me = GraphViewer.getInstance(this);
           if(!me.fixedToolbar){
             if(me.toolbar.queue().length == 0){
               me.toolbar.slideUp(100,function(){
@@ -126,7 +121,7 @@
     
   };
 
-  depgraphlib.GraphViewer.instances = depgraphlib.GraphViewer.instances || [];
+  GraphViewer.instances = GraphViewer.instances || [];
 
   /**
    * Retrieve the viewer instance from :
@@ -136,9 +131,9 @@
    * @param fromdiv
    * @returns
    */
-  depgraphlib.GraphViewer.getInstance = function(fromdiv){
+  GraphViewer.getInstance = function(fromdiv){
     var id = "";
-    if(depgraphlib.GraphViewer.prototype.isPrototypeOf(fromdiv)){
+    if(GraphViewer.prototype.isPrototypeOf(fromdiv)){
       return fromdiv;
     }else if(fromdiv.ownerSVGElement != null){
       id = fromdiv.ownerSVGElement.parentNode.id;
@@ -152,10 +147,10 @@
     var match = regex.exec(id);
     var viewer = null;
     if(match != null){
-       viewer = depgraphlib.GraphViewer.instances[match[1]];
+       viewer = GraphViewer.instances[match[1]];
     }
     if(viewer == null){
-      viewer = depgraphlib.GraphViewer.getInstance(fromdiv.parentNode);
+      viewer = GraphViewer.getInstance(fromdiv.parentNode);
     }
     return viewer;
   };
@@ -167,7 +162,7 @@
   /**
    * init the toolbar
    */
-  depgraphlib.GraphViewer.prototype.initToolBar = function(){
+  GraphViewer.prototype.initToolBar = function(){
     var landing_area = this.toolbar_landing_area = this.createDiv("gv-toolbar-landing-area","gv-toolbar-landing-area");
     var toolbar = this.createDiv("gv-toolbar", "gv-toolbar");
     landing_area.append(toolbar);
@@ -183,7 +178,7 @@
    * create the debug panel
    * @returns
    */
-  depgraphlib.GraphViewer.prototype.createDebugPanel = function(){
+  GraphViewer.prototype.createDebugPanel = function(){
     var debugpanel = this.debugpanel = this.createDiv("gv-debug-panel","gv-debug-panel");
     this.debugpanelinfo = this.createDiv("debug-panel-info","debug-panel-info");
     debugpanel.append(this.debugpanelinfo);
@@ -193,7 +188,7 @@
     var maximize = this.createDiv("debug-panel-fullscreen","debug-panel-fullscreen slider-button maximize");
     maximize.click(
         function(e){
-          var graph = depgraphlib.GraphViewer.getInstance(this);
+          var graph = GraphViewer.getInstance(this);
           if(graph!=null){
             graph.viewAltContent('debug-panel-content'+graph.appendOwnID(''));
             var slider = jQuery('#debug-panel-slider'+graph.appendOwnID(''));
@@ -219,7 +214,7 @@
    * append msg to the debug log panel
    * @param msg
    */
-  depgraphlib.GraphViewer.prototype.debugLog = function(msg){
+  GraphViewer.prototype.debugLog = function(msg){
     this.debugpanelcontent.append(msg + '<br/>');
   };
 
@@ -227,7 +222,7 @@
    * create tooltip panel
    * @returns
    */
-  depgraphlib.GraphViewer.prototype.createToolTipPanel = function(){
+  GraphViewer.prototype.createToolTipPanel = function(){
     var me = this;
     this.tooltip = this.createDiv("gv-tooltip","gv-tooltip");
     var maincontainer = jQuery('<div style="display:inline-block;"></div>');
@@ -249,7 +244,7 @@
    * @param id
    * @returns
    */
-  depgraphlib.GraphViewer.prototype.appendOwnID = function(id){
+  GraphViewer.prototype.appendOwnID = function(id){
     if(id.endsWith(this.uid)){
       return id;
     }else{
@@ -262,7 +257,7 @@
    * @param title
    * @returns
    */
-  depgraphlib.GraphViewer.prototype.addWrapper = function(title){
+  GraphViewer.prototype.addWrapper = function(title){
     var me = this;
     var elt = this.wrapper = me.createElement("a", 'gv-wrapper','gv-wrapper');
     elt.html(title);
@@ -280,11 +275,11 @@
    * @param classes
    * @returns
    */
-  depgraphlib.GraphViewer.prototype.createDiv = function(id,classes){
+  GraphViewer.prototype.createDiv = function(id,classes){
     return this.createElement('div',id,classes);
   };
 
-  depgraphlib.GraphViewer.prototype.createElement = function(eltname,id,classes){
+  GraphViewer.prototype.createElement = function(eltname,id,classes){
     classes = (classes!=null)?('class="'+classes+'"'):'';
     var div = '<'+eltname+' id="'+this.appendOwnID(id)
       +'" '+classes+'></'+eltname+'>';
@@ -300,7 +295,7 @@
   /**
    * set up the debug panel proper height according to the viewer height
    */
-  depgraphlib.GraphViewer.prototype.adjustDebugHeight = function(){
+  GraphViewer.prototype.adjustDebugHeight = function(){
     var height = this.mainpanel.height() - this.toolbar.height();
     this.debugpanel.css('height',height);
     this.debugcontentcontainer.css('height',height-20);
@@ -311,7 +306,7 @@
    * adjust height to the content of the viewer
    * @param marginBottom
    */
-  depgraphlib.GraphViewer.prototype.shrinkHeightToContent = function(marginBottom){
+  GraphViewer.prototype.shrinkHeightToContent = function(marginBottom){
     if(marginBottom == null){
       marginBottom=0;
     }
@@ -325,7 +320,7 @@
    * adjust width to the content of the viewer
    * @param marginRight
    */
-  depgraphlib.GraphViewer.prototype.shrinkWidthToContent = function(marginRight){
+  GraphViewer.prototype.shrinkWidthToContent = function(marginRight){
     if(marginRight == null){
       marginRight=0;
     }
@@ -340,7 +335,7 @@
    * @param marginRight
    * @param marginBottom
    */
-  depgraphlib.GraphViewer.prototype.shrinkToContent = function(marginRight,marginBottom){
+  GraphViewer.prototype.shrinkToContent = function(marginRight,marginBottom){
     if(marginBottom == null){
       marginBottom=0;
     }
@@ -362,7 +357,7 @@
    * @param width
    * @param height
    */
-  depgraphlib.GraphViewer.prototype.setSize = function(width,height){
+  GraphViewer.prototype.setSize = function(width,height){
     this.setWidth(width);
     this.setHeight(height);
   };
@@ -371,7 +366,7 @@
    * remove toolbar, debugpanel and tooltip
    * @param value
    */
-  depgraphlib.GraphViewer.prototype.setImageMode = function(value){
+  GraphViewer.prototype.setImageMode = function(value){
     if(value == null){
       value = true;
     }
@@ -392,7 +387,7 @@
   /**
    * remove border of the viewer
    */
-  depgraphlib.GraphViewer.prototype.noBorders = function(){
+  GraphViewer.prototype.noBorders = function(){
       this.borders = false;
       this.mainpanel.css("border","none");
   };
@@ -401,7 +396,7 @@
    * switch on/off the debug mode (display or not the debug panel)
    * @param value
    */
-  depgraphlib.GraphViewer.prototype.debugMode = function(value){
+  GraphViewer.prototype.debugMode = function(value){
     if(value == null){
       value = true;
     }
@@ -417,7 +412,7 @@
    * set the width of the viewer
    * @param width
    */
-  depgraphlib.GraphViewer.prototype.setWidth = function(width){
+  GraphViewer.prototype.setWidth = function(width){
     this._width = width;
     this.mainpanel.css('width',width);
     this.ajaxLoader.width(width);
@@ -427,7 +422,7 @@
    * set the height of the viewer
    * @param height
    */
-  depgraphlib.GraphViewer.prototype.setHeight = function(height){
+  GraphViewer.prototype.setHeight = function(height){
     height += 30;
     this._height = height;
     this.mainpanel.css('height',height);
@@ -444,7 +439,7 @@
    * enable or disable the toolbar auto hiding
    * @param value
    */
-  depgraphlib.GraphViewer.prototype.setFixedToolbar = function(value){
+  GraphViewer.prototype.setFixedToolbar = function(value){
     if(value == null){
       value = true;
     }
@@ -463,7 +458,7 @@
   /**
    * add the fullscreen mode button to the toolbar
    */
-  depgraphlib.GraphViewer.prototype.addFullScreenButton = function(){
+  GraphViewer.prototype.addFullScreenButton = function(){
     if(!this.allowFullScreen){
       return;
     }
@@ -478,7 +473,7 @@
    * @param name
    * @returns {Boolean}
    */
-  depgraphlib.GraphViewer.prototype.existToolbarButton = function(name){
+  GraphViewer.prototype.existToolbarButton = function(name){
     return jQuery('#button-'+this.appendOwnID(name)).length > 0;
   };
 
@@ -487,7 +482,7 @@
    * @param name
    * @returns
    */
-  depgraphlib.GraphViewer.prototype.getToolbarButton = function(name){
+  GraphViewer.prototype.getToolbarButton = function(name){
     return jQuery('#button-'+this.appendOwnID(name));
   };
 
@@ -496,7 +491,7 @@
    * 0 : name, 1 : callback on click, 2: position (left or right), 3 : style (css classes)
    * @param definition
    */
-  depgraphlib.GraphViewer.prototype.setToolbarButtons = function(definition){
+  GraphViewer.prototype.setToolbarButtons = function(definition){
     this.tmpLeft = [];
     definition.forEach(function(item,index){
       if(item[2] == 'left'){
@@ -514,7 +509,7 @@
   /**
    * remove all toolbar buttons
    */
-  depgraphlib.GraphViewer.prototype.resetToolbarButtons = function(){
+  GraphViewer.prototype.resetToolbarButtons = function(){
     var children = this.toolbarbuttons.children();
     children.remove();
     this.addFullScreenButton();
@@ -526,7 +521,7 @@
    * @param elt
    * @param position
    */
-  depgraphlib.GraphViewer.prototype.addToolbarElement = function(elt,position){
+  GraphViewer.prototype.addToolbarElement = function(elt,position){
     elt.css('float',position);
     this.toolbarbuttons.append(elt);
   };
@@ -538,7 +533,7 @@
    * @param position
    * @param style
    */
-  depgraphlib.GraphViewer.prototype.addToolbarButton = function(name,callback,position,style,tooltip){
+  GraphViewer.prototype.addToolbarButton = function(name,callback,position,style,tooltip){
     var text = '';
     if(style == null){
       style = 'tab white';
@@ -560,7 +555,7 @@
    * remove a toolbar button given its name
    * @param name
    */
-  depgraphlib.GraphViewer.prototype.removeToolbarButton = function(name){
+  GraphViewer.prototype.removeToolbarButton = function(name){
     jQuery('#button-'+this.appendOwnID(name)).remove();
   };
 
@@ -569,7 +564,7 @@
    * items is an object of objects with at least the property 'cb' defining the callback when the item
    * is clicked.
    */
-  depgraphlib.createDropDownMenu = function(name,items,autoslidedown,tooltip){
+  GraphViewer.createDropDownMenu = function(name,items,autoslidedown,tooltip){
     var div = jQuery('<div class="gv-menu"><div class="gv-menu-header"></div><div class="gv-menu-body"></div></div>');
     var header = jQuery('.gv-menu-header',div);
     var body = jQuery('.gv-menu-body',div);
@@ -601,35 +596,35 @@
   /**                   Alt Content                          */
   /***********************************************************/
 
-  depgraphlib.GraphViewer.prototype.viewAltContent = function(divid){
+  GraphViewer.prototype.viewAltContent = function(divid){
     this.resetAltPanel();
     this.addContentToAltPanel(divid);
     this.showAltPanel();
   };
 
-  depgraphlib.GraphViewer.prototype.hideAltPanel = function(){
+  GraphViewer.prototype.hideAltPanel = function(){
     this.chart.show();
     this.altpanel.hide();
     this.removeToolbarButton('back');
     executeCallbacks(this.callbacks.hidealtpanel);
   };
 
-  depgraphlib.GraphViewer.prototype.showAltPanel = function(callbacks){
+  GraphViewer.prototype.showAltPanel = function(callbacks){
     this.chart.hide();
     this.altpanel.show();
-    this.addToolbarButton('back',function(){depgraphlib.GraphViewer.getInstance(this.id).hideAltPanel();},'left','back');
+    this.addToolbarButton('back',function(){GraphViewer.getInstance(this.id).hideAltPanel();},'left','back');
     executeCallbacks(this.callbacks.showaltpanel);
 
   };
 
-  depgraphlib.GraphViewer.prototype.addContentToAltPanel = function(divid,title){
+  GraphViewer.prototype.addContentToAltPanel = function(divid,title){
     this.altpanelcontent.html(jQuery('#'+this.appendOwnID(divid)).html());
     if(title!=null){
-      this.addToolbarButton(title,function(){depgraphlib.GraphViewer.getInstance(this.id).addContentOnAltPanel(divid);},'left');
+      this.addToolbarButton(title,function(){GraphViewer.getInstance(this.id).addContentOnAltPanel(divid);},'left');
     }
   };
 
-  depgraphlib.GraphViewer.prototype.resetAltPanel = function(){
+  GraphViewer.prototype.resetAltPanel = function(){
     this.altpanelcontent.html('');
   };
 
@@ -642,7 +637,7 @@
    * @see Box for parameters description
    * @return the new box created
    */
-  depgraphlib.GraphViewer.prototype.createBox = function(options){
+  GraphViewer.prototype.createBox = function(options){
     options.viewer = this;
     return new depgraphlib.Box(options);
   };
@@ -782,9 +777,9 @@
   /**                   ToolTip                              */
   /***********************************************************/
 
-  depgraphlib.GraphViewer.prototype.loadTooltipContent = function(divid){
+  GraphViewer.prototype.loadTooltipContent = function(divid){
     var div; 
-    var me = depgraphlib.GraphViewer.getInstance(this);
+    var me = GraphViewer.getInstance(this);
     if(typeof divid == 'string'){
       div = jQuery('#'+me.appendOwnID(divid));
     }else{
@@ -793,15 +788,15 @@
     me.tooltipContainer.html(div.html());
   };
 
-  depgraphlib.GraphViewer.prototype.showTooltip = function(position){
-    var me = depgraphlib.GraphViewer.getInstance(this);
+  GraphViewer.prototype.showTooltip = function(position){
+    var me = GraphViewer.getInstance(this);
     me.tooltip.css('left',position.x);
     me.tooltip.css('top',position.y);
     me.tooltip.show();
   };
 
-  depgraphlib.GraphViewer.prototype.hideToolTip = function(){
-    var me = depgraphlib.GraphViewer.getInstance(this);
+  GraphViewer.prototype.hideToolTip = function(){
+    var me = GraphViewer.getInstance(this);
     me.tooltip.hide();
   };
 
@@ -812,21 +807,21 @@
   /**
    * show an ajax throbber
    */
-  depgraphlib.GraphViewer.prototype.ajaxStart = function(){
+  GraphViewer.prototype.ajaxStart = function(){
     this.ajaxLoader.show();
   };
 
   /**
    * hide the ajax throbber
    */
-  depgraphlib.GraphViewer.prototype.ajaxFinished = function(){
+  GraphViewer.prototype.ajaxFinished = function(){
     this.ajaxLoader.hide();
   };
 
   /**
    * init full screen mode callbacks
    */
-  depgraphlib.GraphViewer.prototype.initFullscreenMode = function(){
+  GraphViewer.prototype.initFullscreenMode = function(){
     var graphviewer = this;
     var button = jQuery('#button-fullscreen'+this.appendOwnID(''));
     button.colorbox(
@@ -862,7 +857,7 @@
 
   function debugSlideUp(){
     var elt = jQuery(this);
-    var viewer = depgraphlib.GraphViewer.getInstance(elt[0].id);
+    var viewer = GraphViewer.getInstance(elt[0].id);
     elt.parent().animate({bottom:'0px'});
     elt.removeClass('slide-up');
     elt.addClass('slide-down');
@@ -871,7 +866,7 @@
 
   function debugSlideDown(){
     var elt = jQuery(this);
-    var viewer = depgraphlib.GraphViewer.getInstance(elt[0].id);
+    var viewer = GraphViewer.getInstance(elt[0].id);
     var debugpanel = elt.parent();
     debugpanel.animate({bottom:(-debugpanel.height()+20)+'px'});
     elt.removeClass('slide-down');
@@ -898,7 +893,7 @@
   /**                         Utils                          */
   /***********************************************************/
 
-  depgraphlib.GraphViewer.prototype.screenCoordsForElt = function(elt){
+  GraphViewer.prototype.screenCoordsForElt = function(elt){
     while(Object.prototype.toString.call( elt ) === '[object Array]'){
       elt = elt[0];
     }
@@ -918,5 +913,7 @@
     corners.sw = pt.matrixTransform(matrix);
     return corners;
   };
+  
+  return GraphViewer;
 
-}(window.depgraphlib = window.depgraphlib || {}, jQuery));
+});

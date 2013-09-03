@@ -1,7 +1,9 @@
   /************************************************************/
   /**                      Utils                             **/
   /************************************************************/
-(function(depgraphlib, $, undefined){
+define(function(){
+  
+  var depgraphlib = {};
   
   depgraphlib.windowOpenPost = function(data,url){
     depgraphlib.windowOpenPostForm = '<form id="depgraphlibWindowOpenPostForm" method="post" action="'+url+'" target="_blank"></form>';
@@ -238,4 +240,6 @@
     return {r:Math.floor(r * 255),g: Math.floor(g * 255),b: Math.floor(b * 255)};
   };
   
-}(window.depgraphlib = window.depgraphlib || {}, jQuery));
+  return depgraphlib;
+  
+});

@@ -11,7 +11,7 @@ module.exports = function(grunt) {
           name : 'depgraph',
           mainConfigFile: "config.js",
           out: "depgraph_optim.js",
-          optimize: "none",
+          //optimize: "none",
         }
       }
     }

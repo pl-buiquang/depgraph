@@ -1,7 +1,7 @@
   /************************************************************/
   /**                      Crossing Algo                     **/
   /************************************************************/
-(function(depgraphlib, $, undefined){
+define(['app/graphlayout','app/utils'],function(DepGraph,depgraphlib){
   
   /**
    * returns true if a node (word or chunk) is outside a frame defined by a link set of properties,
@@ -9,7 +9,7 @@
    */
   function isOutside(object,properties){
     // factor 2, in order to take into account left and right in the positions
-    return getNodePosition(object)*2< properties.min*2 || getNodePosition(object)*2> properties.max*2;
+    return depgraphlib.getNodePosition(object)*2< properties.min*2 || depgraphlib.getNodePosition(object)*2> properties.max*2;
   }
 
   /**
@@ -18,7 +18,7 @@
    */
   function isInside(object,properties){
     // factor 2, in order to take into account left and right in the positions
-    return getNodePosition(object)*2> properties.min*2 && getNodePosition(object)*2< properties.max*2;
+    return depgraphlib.getNodePosition(object)*2> properties.min*2 && depgraphlib.getNodePosition(object)*2< properties.max*2;
   }
 
   /**
@@ -27,7 +27,7 @@
    * @param link2
    * @returns {Boolean}
    */
-  depgraphlib.DepGraph.prototype.crossed = function(link1,link2){
+  DepGraph.prototype.crossed = function(link1,link2){
     var p1 = this.getLinkProperties(link1);
     var p2= this.getLinkProperties(link2);
     return (isInside(p1.nodeStart,p2) && isOutside(p1.nodeEnd,p2))
@@ -38,7 +38,7 @@
    * set up the links position and strate (height of the edge and "innerness")
    * @param links
    */
-  depgraphlib.DepGraph.prototype.preprocessLinksPosition = function(links){
+  DepGraph.prototype.preprocessLinksPosition = function(links){
     var me = this;
     // factor 2, in order to take into account left and right in the positions
     this.sortLinksByLength(links[0]);
@@ -150,7 +150,7 @@
    * sort the links by length..
    * @param links
    */
-  depgraphlib.DepGraph.prototype.sortLinksByLength = function(links){
+  DepGraph.prototype.sortLinksByLength = function(links){
     var me = this;
     links.sort(function(a,b){
       return me.getLinkProperties(a).length-me.getLinkProperties(b).length;
@@ -164,7 +164,7 @@
    * @param link
    * @returns the properties object
    */
-  depgraphlib.DepGraph.prototype.getLinkProperties = function(link){
+  DepGraph.prototype.getLinkProperties = function(link){
     var d = link.__data__;
     if(d['#properties'] == null){
       var properties = new Object();
@@ -176,13 +176,13 @@
       if(properties.nodeEnd == null){
         properties.nodeEnd = this.getChunkNodeByOriginalId(d.target);
       }
-      if(getNodePosition(properties.nodeStart)<getNodePosition(properties.nodeEnd)){
-        properties.min = getNodePosition(properties.nodeStart);
-        properties.max = getNodePosition(properties.nodeEnd);
+      if(depgraphlib.getNodePosition(properties.nodeStart)<depgraphlib.getNodePosition(properties.nodeEnd)){
+        properties.min = depgraphlib.getNodePosition(properties.nodeStart);
+        properties.max = depgraphlib.getNodePosition(properties.nodeEnd);
         properties.hdir = 1;
       }else{
-        properties.max = getNodePosition(properties.nodeStart);
-        properties.min = getNodePosition(properties.nodeEnd);
+        properties.max = depgraphlib.getNodePosition(properties.nodeStart);
+        properties.min = depgraphlib.getNodePosition(properties.nodeEnd);
         properties.hdir = -1;
       }
       properties.vdir = 1; // oriented top
@@ -203,11 +203,11 @@
    * Reset the properties of all links
    * @param links
    */
-  depgraphlib.DepGraph.prototype.resetLinksProperties = function(links){
+  DepGraph.prototype.resetLinksProperties = function(links){
     links.each(function(d,i){
       d['#properties'] = null;
     });
     this.maxLinksStrate = 0;
   };
 
-}(window.depgraphlib = window.depgraphlib || {}, jQuery));
+});
