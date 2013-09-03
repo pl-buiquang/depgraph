@@ -2,6 +2,7 @@
   /**                      Crossing Algo                     **/
   /************************************************************/
 (function(depgraphlib, $, undefined){
+  
   /**
    * returns true if a node (word or chunk) is outside a frame defined by a link set of properties,
    * false otherwise

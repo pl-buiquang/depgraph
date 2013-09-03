@@ -107,7 +107,7 @@
    * @param obj
    * @param refPrefix
    */
-  depgrahlib.JSONresolveReferences = function (obj,refPrefix){
+  depgraphlib.JSONresolveReferences = function (obj,refPrefix){
     var refids = [];
     var queue = [];
     subResolveRef(obj,refPrefix,refids,queue);
@@ -169,7 +169,7 @@
   depgraphlib.addPxs = function(){
     var sum = 0;
     for(var i=0; i<arguments.length;i++){
-      var arg = removeUnit(arguments[i]);
+      var arg = depgraphlib.removeUnit(arguments[i]);
       sum += parseInt(arg);
     }
     return sum+'px';
