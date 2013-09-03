@@ -38,7 +38,7 @@
     this.callbacks = new Object();
 
     this.setData(json_data);
-    this.original_data = clone(this.data);
+    this.original_data = depgraphlib.clone(this.data);
     this.createLayout();
     this.update();
 
@@ -84,8 +84,8 @@
     var previousValues = depgraphlib.getTransformValues(this.vis);
     var x  = (chartBBox.width-visBBox.width)/2;
     var y = (chartBBox.height-visBBox.height)/2;
-    y = y>0?y:removeUnit(this.data.graph['#style'].margin.top);
-    x = x>0?x:removeUnit(this.data.graph['#style'].margin.left);
+    y = y>0?y:depgraphlib.removeUnit(this.data.graph['#style'].margin.top);
+    x = x>0?x:depgraphlib.removeUnit(this.data.graph['#style'].margin.left);
     this.vis.attr("transform","translate(" + 
         (x-visBBox.x) + "," + 
         (y-visBBox.y)+") scale("+previousValues.scale[0]+")");
@@ -184,7 +184,7 @@
    */
   depgraphlib.DepGraph.prototype.prepareData = function() {
     // Resolve references
-    JSONresolveReferences(this.data,'@');
+    depgraphlib.JSONresolveReferences(this.data,'@');
     
     // Assign #id (and #position for words)
     this.id = 0;
@@ -267,8 +267,8 @@
   depgraphlib.DepGraph.prototype.postProcesses = function(){
     var visBBox = this.vis.node().getBBox();
     this.vis.attr("transform","translate(" + 
-        (removeUnit(this.data.graph['#style'].margin.left)-visBBox.x) + "," + 
-        (removeUnit(this.data.graph['#style'].margin.top)-visBBox.y)+") scale(1)");
+        (depgraphlib.removeUnit(this.data.graph['#style'].margin.left)-visBBox.x) + "," + 
+        (depgraphlib.removeUnit(this.data.graph['#style'].margin.top)-visBBox.y)+") scale(1)");
     
     this.setViewMode();
   };
@@ -296,7 +296,7 @@
   
   
   depgraphlib.DepGraph.prototype.setFullViewMode = function(){
-    this.viewer.shrinkToContent(removeUnit(this.data.graph['#style']['margin'].right),removeUnit(this.data.graph['#style']['margin'].bottom)+20);
+    this.viewer.shrinkToContent(depgraphlib.removeUnit(this.data.graph['#style']['margin'].right),depgraphlib.removeUnit(this.data.graph['#style']['margin'].bottom)+20);
   };
   
   
@@ -306,7 +306,7 @@
    * @param forceCrop
    */
   depgraphlib.DepGraph.prototype.setWidthLimitedViewMode = function(defaultWidth,forceCrop){
-    this.viewer.shrinkHeightToContent(removeUnit(this.data.graph['#style']['margin'].bottom)+20);
+    this.viewer.shrinkHeightToContent(depgraphlib.removeUnit(this.data.graph['#style']['margin'].bottom)+20);
     if(!this.options.viewsize){
       this.options.viewsize = defaultWidth;
     }
@@ -315,9 +315,9 @@
       this.createScrollBar();
     }else {// if(this.options.viewmode == 'stretched'){
       var visBBox = this.vis.node().getBBox();
-      var scale = this.viewer.chart.width() / (visBBox.width + removeUnit(this.data.graph['#style']['margin'].right)*2);
+      var scale = this.viewer.chart.width() / (visBBox.width + depgraphlib.removeUnit(this.data.graph['#style']['margin'].right)*2);
       this.scale(scale);
-      this.viewer.shrinkHeightToContent(removeUnit(this.data.graph['#style']['margin'].bottom)+20);
+      this.viewer.shrinkHeightToContent(depgraphlib.removeUnit(this.data.graph['#style']['margin'].bottom)+20);
     }
   };
   
@@ -328,7 +328,7 @@
     var me = this;
 
     var graphBBox = this.vis.node().getBBox();
-    var graphWidth = graphBBox.width + 2*removeUnit(this.data.graph['#style']['margin'].right); 
+    var graphWidth = graphBBox.width + 2*depgraphlib.removeUnit(this.data.graph['#style']['margin'].right); 
     var viewerWidth = this.viewer.mainpanel.width();
     
     if(graphWidth > viewerWidth){
@@ -444,8 +444,8 @@
     this.setSVGDefs();
     
     this.vis = this.svg.append("g").attr("transform","translate(" + 
-        removeUnit(this.data.graph['#style'].margin.left) + "," + 
-        removeUnit(this.data.graph['#style'].margin.top)+") scale(1)");
+        depgraphlib.removeUnit(this.data.graph['#style'].margin.left) + "," + 
+        depgraphlib.removeUnit(this.data.graph['#style'].margin.top)+") scale(1)");
     
   };
 
@@ -584,7 +584,7 @@
     for(var i=0;i<this.data.graph.links.length;i++){
       var link = this.data.graph.links[i];
       if(link.source == affectedID || link.target == affectedID){
-        affectedLinks.push(clone(link));
+        affectedLinks.push(depgraphlib.clone(link));
         this.data.graph.links.splice(i,1);
         i--;
       }
@@ -763,12 +763,12 @@
   /**
    * return the style of an svg element, looking in data.#style, or a default value or null 
    */
-  function getStyleElement(elt,property,defaultValue){
+  depgraphlib.getStyleElement = function(elt,property,defaultValue){
     if(elt.__data__['#style']!=null && elt.__data__['#style'][property] != null){
       return elt.__data__['#style'][property];
     };
     return defaultValue;
-  }
+  };
 
   /**
    * get style class method for svg element
@@ -796,7 +796,7 @@
   /**
    * set a property style in data.#style
    */
-  function setStyle(element,property,value){
+  depgraphlib.setStyle = function(element,property,value){
     if(element.__data__['#style'] == null){
       element.__data__['#style'] = {};
     }
@@ -806,7 +806,7 @@
       delete element.__data__['#style'][property];
     }
     
-  }
+  };
 
   /************************************************************/
   /**                   Layout Creation                      **/
@@ -878,14 +878,14 @@
     if(previousSibling != null){
       var transform = depgraphlib.getTransformValues(d3.select(previousSibling));
       var bbox = previousSibling.getBBox();
-      var x = removeUnit(addPxs(transform.translate[0],bbox.width,margin.right,margin.left));
-      var y = removeUnit(margin.top);
-      setGroupPosition(node,x,y);
+      var x = depgraphlib.removeUnit(depgraphlib.addPxs(transform.translate[0],bbox.width,margin.right,margin.left));
+      var y = depgraphlib.removeUnit(margin.top);
+      depgraphlib.setGroupPosition(node,x,y);
     }
     else{
-      var x = removeUnit(margin.left);
-      var y = removeUnit(margin.top);
-      setGroupPosition(node,x,y);
+      var x = depgraphlib.removeUnit(margin.left);
+      var y = depgraphlib.removeUnit(margin.top);
+      depgraphlib.setGroupPosition(node,x,y);
     }
     
     node.node().components = {text:text,label:label,rect:rect,sublabels:sublabels};
@@ -936,15 +936,15 @@
     var borderSize = elt.getStyle('border-size');
     
     var line = node.append('line');
-    line.attr('y1',addPxs(max.y,2*removeUnit(margin.top)))
+    line.attr('y1',depgraphlib.addPxs(max.y,2*depgraphlib.removeUnit(margin.top)))
       .attr('x1',0)
-      .attr('y2',addPxs(max.y,2*removeUnit(margin.top)))
-      .attr('x2',max.x-min.x+removeUnit(margin.left)+removeUnit(margin.right))
+      .attr('y2',depgraphlib.addPxs(max.y,2*depgraphlib.removeUnit(margin.top)))
+      .attr('x2',max.x-min.x+depgraphlib.removeUnit(margin.left)+depgraphlib.removeUnit(margin.right))
       .style('stroke',borderColor)
       .style('stroke-width',borderSize);
 
     var text = node.append("text");
-    text.attr('y',addPxs(20,max.y,2*removeUnit(margin.top)));
+    text.attr('y',depgraphlib.addPxs(20,max.y,2*depgraphlib.removeUnit(margin.top)));
     text.append("tspan")
       .text(d.label)
        .style('fill',color)
@@ -959,26 +959,26 @@
         .style('font-style',subfontStyle)
         .style('font-weight',subfontWeight)
         .style('fill',subColor)
-        .attr('dx',-(d.sublabel[i].length-1)*removeUnit(subfontSize))
+        .attr('dx',-(d.sublabel[i].length-1)*depgraphlib.removeUnit(subfontSize))
         .attr('dy','1.25em');
       }
     }
-    center(text,node);
+    depgraphlib.center(text,node);
 
     var offset = text.node().getBBox().height;
     rect.attr('x',0)
     .attr('y',0)
     .attr('rx',10)
     .attr('ry',10)
-    .attr('width',max.x-min.x+removeUnit(margin.left)+removeUnit(margin.right))
-    .attr('height',addPxs(max.y,-min.y,offset,2*removeUnit(margin.top),20))
+    .attr('width',max.x-min.x+depgraphlib.removeUnit(margin.left)+depgraphlib.removeUnit(margin.right))
+    .attr('height',depgraphlib.addPxs(max.y,-min.y,offset,2*depgraphlib.removeUnit(margin.top),20))
     .style('fill',backgroundColor)
     .style('stroke',borderColor)
     .style('stroke-width',borderSize);
     
     node.node().components = {text:text,rect:rect};
 
-    setGroupPosition(node,min.x-removeUnit(margin.left),min.y-removeUnit(margin.top));
+    depgraphlib.setGroupPosition(node,min.x-depgraphlib.removeUnit(margin.left),min.y-depgraphlib.removeUnit(margin.top));
   }
 
   /**
@@ -1077,7 +1077,7 @@
       .attr('d',"M "+x0+","+y0+" v "+v0+" a 5 5 0 0 "+laf0+" "+hdir*arcSize+" "+(-vdir*arcSize)+" h "+h+" a 5 5 0 0 "+laf1+" "+hdir*arcSize+" "+vdir*arcSize+" v "+v1);
     }
     highlightPath.attr('stroke',color2)
-    .attr('stroke-width',removeUnit(linkSize)+3)
+    .attr('stroke-width',depgraphlib.removeUnit(linkSize)+3)
     .attr('fill','none');
     path.attr('stroke',linkColor)
       .attr('stroke-dasharray',strokeDasharray)
@@ -1097,7 +1097,7 @@
       .style('font-size',fontSize);
     var textBBox = text.node().getBBox();
     text.attr('x',-textBBox.width/2+x0+h/2+hdir*arcSize)
-      .attr('y',removeUnit(addPxs(-removeUnit(margin.top),y0,v0,-vdir*arcSize)));
+      .attr('y',depgraphlib.removeUnit(depgraphlib.addPxs(-depgraphlib.removeUnit(margin.top),y0,v0,-vdir*arcSize)));
     
     // to access easily to link components
     elt.components = {highlightPath:highlightPath,path:path,label:text};
@@ -1113,7 +1113,7 @@
     }
     
     if(permanent){
-      setStyle(link,'highlighted',value);
+      depgraphlib.setStyle(link,'highlighted',value);
     } 
 
     var linkColor = link.getStyle('link-color');
@@ -1138,7 +1138,7 @@
     }
     
     if(permanent){
-      setStyle(word,'highlighted',value);
+      depgraphlib.setStyle(word,'highlighted',value);
     } 
     
     word.components.rect
@@ -1167,12 +1167,8 @@
   /**
    * return if object is permanently highlighted
    */
-  function isObjectPermanentHighlighted(object){
-    return object.getStyle('highlighted',false);
-  }
-  
   depgraphlib.isObjectPermanentHighlighted = function(object){
-    return isObjectPermanentHighlighted(object);
+    return object.getStyle('highlighted',false);
   };
 
   /**
@@ -1183,12 +1179,12 @@
       return 'yellow';
     
     var deltaValue = -0.30;
-    var rgb = hexToRgb(color);
-    var hsl = rgbToHsl(rgb.r,rgb.g,rgb.b);
+    var rgb = depgraphlib.hexToRgb(color);
+    var hsl = depgraphlib.rgbToHsl(rgb.r,rgb.g,rgb.b);
     hsl.l+=deltaValue;
     hsl.l=(hsl.l<0)?0:((hsl.l>1)?1:hsl.l);
-    rgb = hslToRgb(hsl.h,hsl.s,hsl.l);
-    return rgbToHex(rgb.r,rgb.g,rgb.b);
+    rgb = depgraphlib.hslToRgb(hsl.h,hsl.s,hsl.l);
+    return depgraphlib.rgbToHex(rgb.r,rgb.g,rgb.b);
   }
 
   /**
@@ -1209,216 +1205,6 @@
         .attr('points','0,0 10,5 0,10 1,5');
   };
 
-  /************************************************************/
-  /**                      Crossing Algo                     **/
-  /************************************************************/
-
-  /**
-   * returns true if a node (word or chunk) is outside a frame defined by a link set of properties,
-   * false otherwise
-   */
-  function isOutside(object,properties){
-    // factor 2, in order to take into account left and right in the positions
-    return getNodePosition(object)*2< properties.min*2 || getNodePosition(object)*2> properties.max*2;
-  }
-
-  /**
-   * returns true if a node (word or chunk) is inside a frame defined by a link set of properties,
-   * false otherwise
-   */
-  function isInside(object,properties){
-    // factor 2, in order to take into account left and right in the positions
-    return getNodePosition(object)*2> properties.min*2 && getNodePosition(object)*2< properties.max*2;
-  }
-
-  /**
-   * returns true if two link cross each other, false otherwise
-   * @param link1
-   * @param link2
-   * @returns {Boolean}
-   */
-  depgraphlib.DepGraph.prototype.crossed = function(link1,link2){
-    var p1 = this.getLinkProperties(link1);
-    var p2= this.getLinkProperties(link2);
-    return (isInside(p1.nodeStart,p2) && isOutside(p1.nodeEnd,p2))
-      || (isInside(p1.nodeEnd,p2) && isOutside(p1.nodeStart,p2));
-  };
-
-  /**
-   * set up the links position and strate (height of the edge and "innerness")
-   * @param links
-   */
-  depgraphlib.DepGraph.prototype.preprocessLinksPosition = function(links){
-    var me = this;
-    // factor 2, in order to take into account left and right in the positions
-    this.sortLinksByLength(links[0]);
-    var n = links[0].length;
-    var table = [];
-    for(var i=0;i<n;++i){
-      var link = links[0][i];
-      var p = this.getLinkProperties(link);
-      var k = 1;
-      while(true){
-        if(table[k]==null){ // nothing exist at this strate : fill it and break
-          table[k]=new Array();
-          for(var j=p.min*2;j<p.max*2;j++){
-            table[k][j]=link;
-          }
-          p.strate = k;
-          setMaxStrate(k);
-          break;
-        }
-        var crossing = null;
-        for(var j=p.min*2;j<p.max*2;j++){ // see if there is something where the link lies
-          if(table[k][j]!=null){
-            crossing = table[k][j];
-            if(this.crossed(link,crossing)){
-              break;
-            }
-          }
-        }
-        if(crossing!=null){ // if there is something
-          if(this.crossed(link,crossing)){ // real crossing
-            k=-1;
-            while(true){
-              if(table[k]==null){ // nothing exist at this strate : fill it and break
-                table[k]=new Array();
-                for(var j=p.min*2;j<p.max*2;j++){ // fill in the strate
-                  table[k][j]=link;
-                }
-                p.strate = k; // set the strate
-                setMaxStrate(k);
-                break;
-              }
-              var dcrossing = null;
-              for(var j=p.min*2;j<p.max*2;j++){ // see if there is something where the link lies
-                if(table[k][j]!=null){
-                  dcrossing = table[k][j];
-                  break;
-                }
-              }
-              if(dcrossing!=null){ // even if real cross, just jump next line
-                k--;
-              }else{
-                for(var j=p.min*2;j<p.max*2;j++){
-                  table[k][j]=link;
-                }
-                p.strate = k;
-                setMaxStrate(k);
-                break;
-              }
-            }
-            break;
-          }else{
-            k++;
-          }
-        }else{
-          for(var j=p.min*2;j<p.max*2;j++){ // fill in the table
-            table[k][j]=link;
-          }
-          p.strate = k; // set the strate
-          setMaxStrate(k);
-          break;
-        }
-      }
-    }
-    
-    for(var i =0;i<n;i++){
-      var link = links[0][i];
-      var p = this.getLinkProperties(link);
-      var kstep;
-      if(p.strate>0){
-        kstep = -1;
-      }else{
-        kstep = 1;
-      }
-      for(var k = p.strate ; k!=0 ; k+=kstep){
-        var altLink = table[k][p.min*2];
-        if(altLink!=null && altLink!=link){
-          var p2 = this.getLinkProperties(altLink);
-          if(p2.min == p.min){
-            p2.offsetXmin++;
-          }
-        }
-        altLink = table[k][p.max*2-1];
-        if(altLink!=null && altLink!=link){
-          var p2 = this.getLinkProperties(altLink);
-          if(p2.max == p.max){
-            p2.offsetXmax++;
-          }
-        }
-      }
-    }
-    
-    function setMaxStrate(strate){
-      var absStrate = Math.abs(strate);
-      me.maxLinksStrate = (me.maxLinksStrate<absStrate)?absStrate:me.maxLinksStrate;
-    };
-  };
-
-  /**
-   * sort the links by length..
-   * @param links
-   */
-  depgraphlib.DepGraph.prototype.sortLinksByLength = function(links){
-    var me = this;
-    links.sort(function(a,b){
-      return me.getLinkProperties(a).length-me.getLinkProperties(b).length;
-    });
-  };
-
-  /**
-   * lazy load the computed properties of a link.
-   * Those properties are used to compute the position of the links in order
-   * to minimize crossing
-   * @param link
-   * @returns the properties object
-   */
-  depgraphlib.DepGraph.prototype.getLinkProperties = function(link){
-    var d = link.__data__;
-    if(d['#properties'] == null){
-      var properties = new Object();
-      properties.nodeStart = this.getWordNodeByOriginalId(d.source);
-      if(properties.nodeStart == null){
-        properties.nodeStart = this.getChunkNodeByOriginalId(d.source);
-      }
-      properties.nodeEnd = this.getWordNodeByOriginalId(d.target);
-      if(properties.nodeEnd == null){
-        properties.nodeEnd = this.getChunkNodeByOriginalId(d.target);
-      }
-      if(getNodePosition(properties.nodeStart)<getNodePosition(properties.nodeEnd)){
-        properties.min = getNodePosition(properties.nodeStart);
-        properties.max = getNodePosition(properties.nodeEnd);
-        properties.hdir = 1;
-      }else{
-        properties.max = getNodePosition(properties.nodeStart);
-        properties.min = getNodePosition(properties.nodeEnd);
-        properties.hdir = -1;
-      }
-      properties.vdir = 1; // oriented top
-      properties.offsetXmax = 0;
-      properties.offsetXmin = 0;
-      properties.strate = 0;
-      properties.length = properties.max-properties.min;
-      if(!properties.nodeStart){ // for orign arc to be processed first in anti crossing algo
-        properties.length = 0;
-      }
-      properties.outer=0;
-      d['#properties'] = properties;
-    }
-    return d['#properties'];
-  };
-
-  /**
-   * Reset the properties of all links
-   * @param links
-   */
-  depgraphlib.DepGraph.prototype.resetLinksProperties = function(links){
-    links.each(function(d,i){
-      d['#properties'] = null;
-    });
-    this.maxLinksStrate = 0;
-  };
 
   /**
    * Returns the position of the node (word or chunk).
@@ -1443,252 +1229,7 @@
   }
 
  
-  /************************************************************/
-  /**                      Utils                             **/
-  /************************************************************/
 
-  
-  depgraphlib.windowOpenPost = function(data,url){
-    depgraphlib.windowOpenPostForm = '<form id="depgraphlibWindowOpenPostForm" method="post" action="'+url+'" target="_blank"></form>';
-    var existingForm = jQuery('#depgraphlibWindowOpenPostForm');
-    if(!existingForm.length){
-      existingForm = jQuery(depgraphlib.windowOpenPostForm);
-      jQuery('body').append(existingForm);
-    }
-    existingForm.html('');
-    for(param in data){
-      var stringdata = null;
-      if(typeof data[param] == 'string'){
-        stringdata = data[param];
-      }else{
-        stringdata = JSON.stringify(data[param]);
-      }
-      existingForm.append('<input type="hidden" name="'+param+'" value="">');
-      existingForm[0][param].value = stringdata;
-    }
-    document.getElementById('depgraphlibWindowOpenPostForm').submit();
-  };
-  
-  
-  /**
-   * clone an object
-   */
-  function clone(obj) {
-    if (null == obj || "object" != typeof obj)
-      return obj;
-
-    if (obj instanceof Date) {
-      var copy = new Date();
-      copy.setTime(obj.getTime());
-      return copy;
-    }
-
-    if (obj instanceof Array) {
-      var copy = [];
-      for ( var i = 0, len = obj.length; i < len; i++) {
-        copy[i] = clone(obj[i]);
-      }
-      return copy;
-    }
-
-    if (obj instanceof Object) {
-      var copy = {};
-      for ( var attr in obj) {
-        if (obj.hasOwnProperty(attr))
-          copy[attr] = clone(obj[attr]);
-      }
-      return copy;
-    }
-
-    throw new Error("Unable to copy obj! Its type isn't supported.");
-  }
-  
-  depgraphlib.clone = clone;
-
-  /**
-   * Set the position for a d3 selection of an SVGElement
-   * @param x
-   * @param y
-   */
-  function setGroupPosition(node,x,y){
-    node.attr("transform","translate("+x+","+y+")");
-  };
-
-  /**
-   * center a node in x in reference of an other
-   * @param node
-   * @param refNode
-   */
-  function center(node,refNode){
-    var refbbox = refNode.node().getBBox();
-    var bbox = node.node().getBBox();
-    node.attr('x',-bbox.width/2+refbbox.width/2);
-  }
-
-  /**
-   * get the transform value of a  g svg element
-   * @param elt
-   * @returns {Object}
-   */
-  depgraphlib.getTransformValues = function (elt){
-    var value = elt.attr("transform");
-    var pairRegex = /(\w+)\((.*?)\)/g;
-    var result = new Object();
-    var tmp;
-    while((tmp = pairRegex.exec(value)) != null){
-      var valuesRegex = /(-*\w+\.*\w*)/g;
-      result[tmp[1]] = [];
-      var values;
-      while((values= valuesRegex.exec(tmp[2]))!=null){
-        result[tmp[1]].push(parseFloat(values[1]));
-      }
-    }
-    
-    return result;
-  };
-
-  /**
-   * resolve the references in a json object
-   * the references are su objects id starting with a refPrefix 
-   * (eg. '@15' for a object of id 15 and using '@' as a refPrefix  
-   * @param obj
-   * @param refPrefix
-   */
-  function JSONresolveReferences(obj,refPrefix){
-    var refids = [];
-    var queue = [];
-    subResolveRef(obj,refPrefix,refids,queue);
-    for(elt in queue){
-      if(refids[elt] == null){
-        throw "This object has missing references!";
-      }else{
-        elt = refids[elt];
-      }
-    }
-    
-    function subResolveRef(obj,refPrefix,refids,queue){
-      for(var property in obj){
-        if(!obj.hasOwnProperty(property)){
-          continue;
-        } 
-        if(property == 'id'){
-          refids[obj[property]]=obj;
-          continue;
-        }
-        var type = typeof obj[property];
-        if(type == 'object'){
-          subResolveRef(obj[property],refPrefix,refids,queue);
-        }else if(type == 'string'){
-          if(obj[property].indexOf(refPrefix) == 0){
-            var refid = obj[property].substring(1);
-            if(refids[refid] != null){
-              //TODO resolve for uri rdf type
-              obj[property] = refids[refid];
-              subResolveRef(obj[property],refPrefix,refids,queue);
-            }else{
-              queue.push[obj[property]];
-            }
-          }
-        }
-      }
-    }
-  };
-
-  /**
-   * remove the unit 'px' from a string an returns the number as a float number
-   * @param value
-   * @returns
-   */
-  function removeUnit(value){
-    var regex_px = /(-*)(\d+\.*\d*)px/;
-    var match = regex_px.exec(value);
-    if(match != null){
-      var sign = (match[1].length%2==0)?'':'-';
-      value = sign+match[2];
-    }
-    return parseFloat(value);
-  }
-  
-  /**
-   * for external use
-   */
-  depgraphlib.removeUnit = function(value){return removeUnit(value);};
-
-  /**
-   * add multiple arguments (number or string with units) and returns their sum in a string appended by 'px'
-   * @returns {String}
-   */
-  function addPxs(){
-    var sum = 0;
-    for(var i=0; i<arguments.length;i++){
-      var arg = removeUnit(arguments[i]);
-      sum += parseInt(arg);
-    }
-    return sum+'px';
-  }
-
-  /************************************************************/
-  /**                      Colors                            **/
-  /************************************************************/
-
-  function rgbToHex(r, g, b) {
-    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-  }
-
-  function hexToRgb(hex) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : null;
-  }
-
-  function rgbToHsl(r, g, b){
-    r /= 255, g /= 255, b /= 255;
-    var max = Math.max(r, g, b), min = Math.min(r, g, b);
-    var h, s, l = (max + min) / 2;
-
-    if(max == min){
-        h = s = 0; // achromatic
-    }else{
-        var d = max - min;
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        switch(max){
-            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-            case g: h = (b - r) / d + 2; break;
-            case b: h = (r - g) / d + 4; break;
-        }
-        h /= 6;
-    }
-
-    return {h:h ,s: s ,l: l };
-  }
-
-  function hslToRgb(h, s, l){
-    var r, g, b;
-
-    if(s == 0){
-        r = g = b = l; // achromatic
-    }else{
-        function hue2rgb(p, q, t){
-            if(t < 0) t += 1;
-            if(t > 1) t -= 1;
-            if(t < 1/6) return p + (q - p) * 6 * t;
-            if(t < 1/2) return q;
-            if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-            return p;
-        }
-
-        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-        var p = 2 * l - q;
-        r = hue2rgb(p, q, h + 1/3);
-        g = hue2rgb(p, q, h);
-        b = hue2rgb(p, q, h - 1/3);
-    }
-
-    return {r:Math.floor(r * 255),g: Math.floor(g * 255),b: Math.floor(b * 255)};
-  }
   
 }(window.depgraphlib = window.depgraphlib || {}, jQuery));
 

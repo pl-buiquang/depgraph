@@ -37,7 +37,7 @@
             addWordSettings(depgraph,element[0],1);
           },
           'Delete':function(depgraph,element){
-            var word = clone(element[0].__data__);
+            var word = depgraphlib.clone(element[0].__data__);
             var affectedLinks = removeWord(depgraph,element[0].__data__['#id']);
             depgraph.editObject.previousSelectedObject = null;
             return {baseAction:'wordRemoval',word:word,affectedLinks:affectedLinks};
@@ -48,8 +48,8 @@
             showEditPanel(depgraph,element);
           },
           'Delete' : function(depgraph,element){
-            var link = clone(element[0]);
-            link.color = getStyleElement(element[0],'link-color','black');
+            var link = depgraphlib.clone(element[0]);
+            link.color = depgraphlib.getStyleElement(element[0],'link-color','black');
             var success = removeLink(depgraph, element[0].__data__['#id']);
             depgraph.editObject.previousSelectedObject = null;
             if(success){
@@ -495,7 +495,7 @@
     if(this.previousSelectedObject != null){
       try {
         this.previousSelectedObject.selected = false;
-        highlightObject(this.previousSelectedObject,false); // sometimes the object doesn't exist anymore.
+        depgraphlib.highlightObject(this.previousSelectedObject,false); // sometimes the object doesn't exist anymore.
       }catch(e){
         
       }
@@ -514,7 +514,7 @@
     }
     this.clearSelection();
     this.previousSelectedObject = obj;
-    highlightObject(this.previousSelectedObject,true);
+    depgraphlib.highlightObject(this.previousSelectedObject,true);
     obj.selected = true;
   };
 
@@ -526,7 +526,7 @@
    * @param pushAction
    */
   depgraphlib.EditObject.prototype.changeAttributes = function(obj,attrs,pushAction){
-    var backup = clone(obj);
+    var backup = depgraphlib.clone(obj);
     var oldAttrs = [];
     for(var i = 0; i < attrs.length ; i ++){
       var oldVal = setAttrPath(obj,attrs[i].path,attrs[i].value);
@@ -560,7 +560,7 @@
         // Error;
       }
     }
-    var oldVal = clone(attr[pathComponents[pathComponents.length-1]]);
+    var oldVal = depgraphlib.clone(attr[pathComponents[pathComponents.length-1]]);
     attr[pathComponents[pathComponents.length-1]] = value;
     return oldVal;
   }
@@ -572,8 +572,8 @@
    */
   function selectObject(depgraph,params){
     if(depgraph.editObject.highlightMode){
-      var value = !isObjectPermanentHighlighted(this);
-      highlightObject(this,value,true);
+      var value = !depgraphlib.isObjectPermanentHighlighted(this);
+      depgraphlib.highlightObject(this,value,true);
       depgraph.editObject.setNeedToSave();
       return;
     }
@@ -637,15 +637,15 @@
     if(params.keyCode == 46){
       if(depgraph.editObject.previousSelectedObject!= null){
         if(isALink(depgraph.editObject.previousSelectedObject)){
-          var link = clone(depgraph.editObject.previousSelectedObject);
-          link.color = getStyleElement(depgraph.editObject.previousSelectedObject,'link-color','black');
+          var link = depgraphlib.clone(depgraph.editObject.previousSelectedObject);
+          link.color = depgraphlib.getStyleElement(depgraph.editObject.previousSelectedObject,'link-color','black');
           var success = removeLink(depgraph, depgraph.editObject.previousSelectedObject.__data__['#id']);
           depgraph.editObject.previousSelectedObject = null;
           if(success){
             return {baseAction:'linkRemoval',link:link};
           }
         }else if(isAWord(depgraph.editObject.previousSelectedObject)){
-          var word = clone(depgraph.editObject.previousSelectedObject.__data__);
+          var word = depgraphlib.clone(depgraph.editObject.previousSelectedObject.__data__);
           var affectedLinks = removeWord(depgraph,depgraph.editObject.previousSelectedObject.__data__['#id']);
           depgraph.editObject.previousSelectedObject = null;
           return {baseAction:'wordRemoval',word:word,affectedLinks:affectedLinks};
@@ -971,7 +971,7 @@
     depgraph.insertWord(wordData,position);
     depgraph.editObject.init();
     depgraph.autoHighLightOnMouseOver();
-    return clone(wordData);
+    return depgraphlib.clone(wordData);
   }
 
   /**
