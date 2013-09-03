@@ -314,4 +314,3 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
 };
 
 }(window.depgraphlib = window.depgraphlib || {}, jQuery));
-

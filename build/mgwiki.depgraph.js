@@ -209,7 +209,8 @@
     this.maxLinksStrate = 0;
   };
 
-}(window.depgraphlib = window.depgraphlib || {}, jQuery));;/**
+}(window.depgraphlib = window.depgraphlib || {}, jQuery));
+;/**
  * DepGraph.js
  * This part of the library contains the function
  * for displaying a graph.
@@ -1443,7 +1444,6 @@
 
   
 }(window.depgraphlib = window.depgraphlib || {}, jQuery));
-
 ;(function(depgraphlib, $, undefined){ 
 /************************************************************/
   /**                      Edition                           **/
@@ -2531,7 +2531,8 @@
     return isAChunk(obj);
   };
 
-}(window.depgraphlib = window.depgraphlib || {}, jQuery));;(function(depgraphlib, $, undefined){
+}(window.depgraphlib = window.depgraphlib || {}, jQuery));
+;(function(depgraphlib, $, undefined){
 
   // Check if required library are present
   if(typeof jQuery == 'undefined'){
@@ -3692,7 +3693,8 @@
     return {r:Math.floor(r * 255),g: Math.floor(g * 255),b: Math.floor(b * 255)};
   };
   
-}(window.depgraphlib = window.depgraphlib || {}, jQuery));;(function(depgraphlib, $, undefined){
+}(window.depgraphlib = window.depgraphlib || {}, jQuery));
+;(function(depgraphlib, $, undefined){
 
   document.write('<form id="export_png" method="post" action="plugins/export.php" target="_blank">'+
 '<input type="hidden" name="data" value="" />'+
@@ -4047,7 +4049,6 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
 };
 
 }(window.depgraphlib = window.depgraphlib || {}, jQuery));
-
 ;(function(depgraphlib, $, undefined){
   
 
