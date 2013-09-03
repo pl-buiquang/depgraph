@@ -149,7 +149,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b3000000', e
   padding: 2px;
   position:fixed;
   display:block;
-  z-index:99;
+  z-index:999;
  }
  
  .depgraphlib-box-header{
@@ -229,7 +229,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b3000000', e
   border: 0 none;
   display: inline-block;
   float: left;
-  height: 18px;
+  height: 24px;
   outline: 0 none;
   padding: 4px 6px;
       -moz-border-bottom-colors: none;
@@ -245,6 +245,35 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b3000000', e
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), 0 0 2px rgba(255, 255, 255, 0.15) inset, 0 1px 0 rgba(255, 255, 255, 0.15) inset;
     float: left;
     margin: 0 6px 5px 0;
+ }
+ 
+ .tab_on {
+  cursor:pointer;
+  z-index:7;
+  border: 0 none;
+  display: inline-block;
+  float: left;
+  height: 24px;
+  outline: 0 none;
+  padding: 4px 6px;
+      -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    border-color: #A6A6A6 #A6A6A6 #979797;
+    border-image: none;
+    border-radius: 3px 3px 3px 3px;
+    border-style: solid;
+    border-width: 1px;
+    float: left;
+    margin: 0 6px 5px 0;
+ background: -moz-linear-gradient(center top , #AAAAAA, #CACACA) repeat scroll 0 0 #B5B5B5;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.6) inset, 0 1px 0 rgba(0, 0, 0, 0.2);
+  }
+ 
+ .tab:hover{
+  background: -moz-linear-gradient(center top , #F2F2F2, #CCCCCC) repeat scroll 0 0 #F2F2F2;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.3) inset;
  }
  
  .icon{
@@ -282,79 +311,75 @@ background: rgba(0,0,0,0.5) url('img/ajax-loader.gif') no-repeat center;
  }
  
  .maximize{
-  background: url('img/fullscreen.png') no-repeat center; 
+  background: url('img/fullscreen.png') no-repeat center !important; 
  }
  
  .refs{
- background: url('img/page-text-icon.png') no-repeat center;
+ background: url('img/page-text-icon.png') no-repeat center !important;
  }
  
 .save{
- background: url('img/save_waiting.png') no-repeat center; 
+ background: url('img/save_waiting.png') no-repeat center !important; 
 }
  
 .saved{
- background: url('img/save_ok.png') no-repeat center; 
+ background: url('img/save_ok.png') no-repeat center !important; 
 }
 
 .undo{
- background: url('img/undo.png') no-repeat center; 
+ background: url('img/undo.png') no-repeat center !important; 
 }
 
 .export{
- background: url('img/export.png') no-repeat center; 
-}
-
-.highlighton{
- background: url('img/stabilo_blue_on.png') no-repeat center; 
+ background: url('img/export.png') no-repeat center !important; 
 }
 
 .highlightoff{
- background: url('img/stabilo_blue.png') no-repeat center; 
+ background: url('img/stabilo_blue.png') no-repeat center !important; 
 }
 
 .redo{
- background: url('img/redo.png') no-repeat center; 
+ background: url('img/redo.png') no-repeat center !important; 
 }
 
 .slide-up{
- background: url('img/arrow_up.png') no-repeat center;
+ background: url('img/arrow_up.png') no-repeat center !important;
  }
  
  .slide-down{
- background: url('img/arrow_down.png') no-repeat center;
+ background: url('img/arrow_down.png') no-repeat center !important;
  }
  
  .fullscreen{
-  background: url('img/fullscreen-12-24w.png') no-repeat center;
+  background: url('img/fullscreen-12-24w.png') no-repeat center !important;
  }
  
  .fullscreen:hover{
-  background: url('img/fullscreen-12-24r.png') no-repeat center;
+  background: url('img/fullscreen-12-24r.png') no-repeat center !important;
  }
  
   .home{
-  background: url('img/home-24w.png') no-repeat center;
+  background: url('img/home-24w.png') no-repeat center !important;
  }
  
  .home:hover{
-  background: url('img/home-24g.png') no-repeat center;
+  background: url('img/home-24g.png') no-repeat center !important;
  }
 
  .info:hover{
- background: url('img/info-24r.png') no-repeat center;
+ background: url('img/info-24r.png') no-repeat center !important;
  }
  
  .back:hover{
- background: url('img/arrow-81-24r.png') no-repeat center;
+ background: url('img/arrow-81-24r.png') no-repeat center !important;
  }
  
  .info{
- background: url('img/info-24w.png') no-repeat center;
+ background: url('img/info-24w.png') no-repeat center !important;
  }
  
  .back{
- background: url('img/arrow-81-24w.png') no-repeat center;
+ background: url('img/arrow-81-24w.png') no-repeat center !important;
  }
  
  .slider-button{
