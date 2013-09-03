@@ -131,7 +131,7 @@ a.gv-wrapper{
   padding: 2px;
   position:fixed;
   display:block;
-  z-index:99;
+  z-index:999;
  }
  
  .gv-tooltip > div {
