@@ -15,10 +15,7 @@
     alert('DepGraph : Error. This library needs jQuery!');
   }
   
-  if(typeof d3 == 'undefined'){
-    alert('Depgraph : Error. This library needs d3.js!');
-  }
-
+  
   /**
    * GraphViewer.js
    * This part of the library contains functions utilities to create
@@ -115,7 +112,6 @@
             }else{
               me.toolbar.slideDown({duration:100,queue:'depgraph_toolbar_hiding_bufferqueue'});
             }
-            console.log(me.toolbar.queue('depgraph_toolbar_hiding_bufferqueue'));
 
           }
         },
@@ -134,7 +130,6 @@
             }else{
               me.toolbar.slideUp({duration:100,queue:'depgraph_toolbar_hiding_bufferqueue'});
             }
-            console.log(me.toolbar.queue('depgraph_toolbar_hiding_bufferqueue'));
           }
         }
      );
@@ -191,7 +186,7 @@
     toolbar.append(toolbarbuttons);
     // use colorbox for fullscreen mode
     this.addFullScreenButton();
-    return toolbarbuttons;
+    return toolbar;
   };
 
   /**
@@ -333,7 +328,7 @@
     var vis = d3.select(this.chart.children()[0]).select('g');
     var bbox = vis.node().getBBox();
     var transform = getTransformValues(vis);
-    this.setHeight(30+transform.translate[1]+bbox.y*transform.scale[0]+bbox.height*transform.scale[0]+marginBottom*transform.scale[0]);
+    this.setHeight(transform.translate[1]+bbox.y*transform.scale[0]+bbox.height*transform.scale[0]+marginBottom*transform.scale[0]);
   };
 
   /**
@@ -443,6 +438,7 @@
    * @param height
    */
   depgraphlib.GraphViewer.prototype.setHeight = function(height){
+    height += 30;
     this._height = height;
     this.mainpanel.css('height',height);
     this.margin.top = this.chart.height()/10 + this.basemargin + ((this.imagemode)?0:20);
@@ -555,7 +551,7 @@
   depgraphlib.GraphViewer.prototype.addToolbarButton = function(name,callback,position,style,tooltip){
     var text = '';
     if(style == null){
-      style = 'button white';
+      style = 'tab white';
       text = name;
     }else{
       style += " icon";
@@ -1267,7 +1263,7 @@
         this.scrollbar = this.svg.append('rect').classed('scrollbar',true);
       }
       this.scrollbar.attr('x',0)
-      .attr('y',this.viewer.mainpanel.height()-10)
+      .attr('y',this.viewer.mainpanel.height()-40)
       .attr('rx',1)
       .attr('ry',1)
       .attr('width',scrollBarWidth)
@@ -2381,6 +2377,7 @@
     this.editMode = false; // on/off boolean for edition
     this.mode = [];
     this.highlightMode = false;
+    this.dataModel = {};
     
     this.previousSelectedObject = null; // last selected object
     this.actionsLog = []; // action log for rollback purposes
@@ -2431,6 +2428,25 @@
     };
     
     this.addEditMode(this.defaultMode);
+  };
+  
+  /**
+   * Set a data model to the edit object.
+   * 
+   * The data model must be an object with one or all of the following properties arrays :
+   * - links
+   * - words
+   * - chunks
+   * Each of these arrays (except links which is an array containing exactly 1 element) contains
+   * objects that define labels model as following :
+   * - name : name of the label
+   * - values : (optional) array of possible values for label
+   * - value-restrict : (optional, default false) boolean indicating if the user input is restricted to defined possible values
+   * - onchange : (optional) user callback called after user submitted new value to this label field
+   * 
+   */
+  depgraphlib.EditObject.prototype.setDataModel = function(dataModel){
+    this.dataModel = dataModel;
   };
 
   /**
@@ -2542,9 +2558,9 @@
       me.highlightMode = !me.highlightMode;
       if(me.highlightMode){
         me.clearSelection();
-        depgraph.viewer.getToolbarButton('highlight').removeClass('highlightoff').addClass('highlighton');
+        depgraph.viewer.getToolbarButton('highlight').removeClass('tab').addClass('tab_on');
       }else{
-        depgraph.viewer.getToolbarButton('highlight').removeClass('highlighton').addClass('highlightoff');
+        depgraph.viewer.getToolbarButton('highlight').removeClass('tab_on').addClass('tab');
       }
     }
     
@@ -3040,9 +3056,23 @@
    * @returns
    */
   function populateWordEditPanel(depgraph,editDiv,wordData){
-    editDiv += '<tr><td>label</td><td><input type="text" name="label" value="'+wordData.label+'"></td></tr>';
-    for(var i =0 ;i< wordData.sublabel.length ; i++){
-      editDiv += '<tr><td>sublabel'+i+'</td><td><input type="text" name="sublabel'+i+'" value="'+wordData.sublabel[i]+'"></td></tr>';
+    var dataModel = depgraph.editObject.dataModel;
+    if(!dataModel.words){
+      dataModel.words = [];
+      dataModel.words[0] = {name:'label'};
+      for(var i =0 ;i< wordData.sublabel.length ; i++){
+        dataModel.words[i+1] = {name: 'sublabel'+i};
+      }
+    }
+    
+    editDiv += '<tr><td>'+dataModel.words[0].name+'</td><td><input id="word-edit-' + dataModel.words[0].name + '" type="text" name="'+dataModel.words[0].name+'" value="'+wordData.label+'"></td></tr>';
+/*    if(dataModel.words[0].values){
+      $(document).ready(function(){
+        $("#word-edit-" + dataModel.words[0].name).autocomplete({source: dataModel.words[0].values});}
+      );
+    }*/
+    for(var i=1;i<dataModel.words.length ; i++){
+      editDiv += '<tr><td>'+dataModel.words[i].name+'</td><td><input id="word-edit-' + dataModel.words[i].name + '" type="text" name="'+dataModel.words[i].name+'" value="'+wordData.sublabel[i-1]+'"></td></tr>';
     }
     return editDiv;
   }
@@ -3232,12 +3262,10 @@
       var cells = tr.cells;
       var label = cells[0].innerHTML;
       var value = cells[1];
-      if(label == 'label'){
+      if(i == 0){
         attrs.push({path:'label',value:value.firstChild.value});
-      }else if(label.substring(0,8) == 'sublabel'){
-        attrs.push({path:'sublabel/'+label.substring(8),value:value.firstChild.value});
-      }else{
-        // TODO(paul) handle error or extra field
+      }else {
+        attrs.push({path:'sublabel/'+(i-1),value:value.firstChild.value});
       }
     }
     depgraph.editObject.changeAttributes(word,attrs,true);
@@ -3334,7 +3362,7 @@
         alert('you must fill all required fields');
         return;
       }
-      var wordData = {label:value,'#position':element.__data__['#position']+offset};
+      var wordData = {label:value,sublabel:[],'#position':element.__data__['#position']+offset};
       var word = addWord(depgraph,wordData);
       var action = {baseAction:'wordAddition',addedWord:word};
       depgraph.editObject.pushAction({mode:depgraph.editObject.editMode,rollbackdata:action,data:{event:'onWordContext',params:element}});
