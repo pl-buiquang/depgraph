@@ -210,7 +210,7 @@
   };
 
 }(window.depgraphlib = window.depgraphlib || {}, jQuery));
-;/**
+/**
  * DepGraph.js
  * This part of the library contains the function
  * for displaying a graph.
@@ -1444,7 +1444,7 @@
 
   
 }(window.depgraphlib = window.depgraphlib || {}, jQuery));
-;(function(depgraphlib, $, undefined){ 
+(function(depgraphlib, $, undefined){ 
 /************************************************************/
   /**                      Edition                           **/
   /************************************************************/
@@ -2532,7 +2532,7 @@
   };
 
 }(window.depgraphlib = window.depgraphlib || {}, jQuery));
-;(function(depgraphlib, $, undefined){
+(function(depgraphlib, $, undefined){
 
   // Check if required library are present
   if(typeof jQuery == 'undefined'){
@@ -3453,7 +3453,7 @@
     return corners;
   };
 
-}(window.depgraphlib = window.depgraphlib || {}, jQuery));;  /************************************************************/
+}(window.depgraphlib = window.depgraphlib || {}, jQuery));  /************************************************************/
   /**                      Utils                             **/
   /************************************************************/
 (function(depgraphlib, $, undefined){
@@ -3694,7 +3694,7 @@
   };
   
 }(window.depgraphlib = window.depgraphlib || {}, jQuery));
-;(function(depgraphlib, $, undefined){
+(function(depgraphlib, $, undefined){
 
   document.write('<form id="export_png" method="post" action="plugins/export.php" target="_blank">'+
 '<input type="hidden" name="data" value="" />'+
@@ -3733,7 +3733,7 @@
   
   
 }(window.depgraphlib = window.depgraphlib || {}, jQuery));
-;(function(depgraphlib, $, undefined){
+(function(depgraphlib, $, undefined){
 
   depgraphlib.showRefs = function(){
   var me = depgraphlib.DepGraph.getInstance(this);
@@ -4049,7 +4049,7 @@ depgraphlib.FRMGEditMode = function(urlFRMGServer){
 };
 
 }(window.depgraphlib = window.depgraphlib || {}, jQuery));
-;(function(depgraphlib, $, undefined){
+(function(depgraphlib, $, undefined){
   
 
   depgraphlib.promote = function(gid,url){
