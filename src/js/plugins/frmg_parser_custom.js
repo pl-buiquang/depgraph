@@ -2,18 +2,11 @@
  * frmg_parser_custom.js
  * Defines FrMGWiki custom editobject
  */
-(function(){
-
-  if(typeof define == 'undefined'){
-      frmg_parser_custom(depgraphlib,depgraphlib.DepGraph,depgraphlib.EditObject);
-  }else{
-    define(['app/depgraphlib','app/graphlayout','app/editobject'],frmg_parser_custom);
-  }
-
-  function frmg_parser_custom(depgraphlib,DepGraph,EditObject){
+(function(depgraphlib){
 
 
-    var FRMGEditMode = function(urlFRMGServer){
+
+    depgraphlib.FRMGEditMode = function(urlFRMGServer){
       this.mode = {
           name : 'frmg',
           onWordSelect : showAltOnNodeClick,
@@ -264,19 +257,7 @@
       
     };
     
-    
-    depgraphlib.FRMGEditMode = FRMGEditMode;
-    
-    return FRMGEditMode;
-    
-    
-  }
-
-
-
-
   
   
-  
-}());
+}(window.depgraphlib));
 

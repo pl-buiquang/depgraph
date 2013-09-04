@@ -3,18 +3,8 @@
  * If using requirejs, it define a convenient object containing usefull functions,
  * otherwise, it creates the global namespace that will contain every objects and function of DepGraph Library
  */
-(function(){
+(function(depgraphlib){
   
-  if(typeof define == 'undefined'){
-    utils();
-  }else{
-    define(utils);
-  }
-
-  
-  function utils(){
-    
-    var depgraphlib = {};
     
     depgraphlib.windowOpenPost = function(data,url){
       depgraphlib.windowOpenPostForm = '<form id="depgraphlibWindowOpenPostForm" method="post" action="'+url+'" target="_blank"></form>';
@@ -252,11 +242,6 @@
     };
     
     
-    window.depgraphlib = depgraphlib;
-    
-    return depgraphlib;
-    
-  }  
   
-}());
+}(window.depgraphlib = window.depgraphlib || {}));
 

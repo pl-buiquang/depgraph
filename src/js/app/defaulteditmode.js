@@ -1,14 +1,5 @@
-(function(){
+(function(depgraphlib){
 
-  if(typeof define == 'undefined'){
-    defaulteditmode(depgraphlib);
-  }else{
-    define(['app/depgraphlib'],defaulteditmode);
-  }
-  
-  function defaulteditmode(depgraphlib){
-    
-    
     depgraphlib.save_default = function(depgraph){
       depgraph.cleanData();
       jQuery.ajax({
@@ -32,8 +23,6 @@
         }
       });
     };
-
-  }
   
   
-}());
+}(window.depgraphlib));

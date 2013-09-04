@@ -2,24 +2,14 @@
     /**                      Edition                           **/
     /************************************************************/
 
-(function(){
-  
-  if(typeof define == 'undefined'){
-    editobject(depgraphlib);
-  }else{
-    define(['app/depgraphlib'],editobject);
-  }
-  
-
-  function editobject(depgraphlib){
-
+(function(depgraphlib){
 
       /**
        * Object handling event callbacks and misc attributes for editing purpose
        * @param depgraph
        * @returns {EditObject}
        */
-      var EditObject = function (depgraph){
+      depgraphlib.EditObject = function (depgraph){
         this.depgraph = depgraph; // reference to the graph
         
         this.editMode = false; // on/off boolean for edition
@@ -93,7 +83,7 @@
        * - onchange : (optional) user callback called after user submitted new value to this label field
        * 
        */
-      EditObject.prototype.setDataModel = function(dataModel){
+      depgraphlib.EditObject.prototype.setDataModel = function(dataModel){
         this.dataModel = dataModel;
       };
 
@@ -102,7 +92,7 @@
        * difference is computed by watching if edit actions has been logged
        * and if the current pointer on the action is equal to the pointer of the last saved state
        */
-      EditObject.prototype.dataChanged = function(){
+      depgraphlib.EditObject.prototype.dataChanged = function(){
         if(this.needToSaveState){
           return true;
         }
@@ -122,7 +112,7 @@
        * Enable or disable the edit mode
        * @param value
        */
-      EditObject.prototype.setEditMode = function(value){
+      depgraphlib.EditObject.prototype.setEditMode = function(value){
         var me = this;
 
         if(value == null){
@@ -171,7 +161,7 @@
       /**
        * init the toolbar with the current edit mode
        */
-      EditObject.prototype.initToolbar = function(){
+      depgraphlib.EditObject.prototype.initToolbar = function(){
         var depgraph = this.depgraph;
         depgraph.viewer.resetToolbarButtons();
         var buttons = [['save',save,'right','saved'],
@@ -336,7 +326,7 @@
       /**
        * set the need the save icon to display a unsaved state
        */
-      EditObject.prototype.setNeedToSave = function(){
+      depgraphlib.EditObject.prototype.setNeedToSave = function(){
         this.needToSaveState = true;
         this.updateSaveState();
       };
@@ -344,7 +334,7 @@
       /**
        * update the save state depending on the last saved pointer and the current pointer in the actions log
        */
-      EditObject.prototype.updateSaveState =function(){
+      depgraphlib.EditObject.prototype.updateSaveState =function(){
         if(this.lastSavedPtr == this.currentPtr && !this.needToSaveState){
           this.depgraph.viewer.getToolbarButton('save').removeClass('save').addClass('saved');
         }else{
@@ -355,7 +345,7 @@
       /**
        * init the edit object according to the current edit mode
        */
-      EditObject.prototype.init = function(){
+      depgraphlib.EditObject.prototype.init = function(){
         var depgraph = this.depgraph;
 
         if(!this.editMode){
@@ -478,7 +468,7 @@
        * add an edit mode
        * @param mode
        */
-      EditObject.prototype.addEditMode = function(mode){
+      depgraphlib.EditObject.prototype.addEditMode = function(mode){
         this.mode[mode.name] = mode;
       };
 
@@ -489,7 +479,7 @@
        * if the rollbackdata isn't set, the action won't be registered
        * @param action
        */
-      EditObject.prototype.pushAction = function(action){
+      depgraphlib.EditObject.prototype.pushAction = function(action){
         if(action.rollbackdata != null && this.mode[action.mode].undo != null){
           this.depgraph.viewer.getToolbarButton('redo').hide();
           var button = this.depgraph.viewer.getToolbarButton('undo');
@@ -502,7 +492,7 @@
       /**
        * clear current selection
        */
-      EditObject.prototype.clearSelection = function(){
+      depgraphlib.EditObject.prototype.clearSelection = function(){
         if(this.previousSelectedObject != null){
           try {
             this.previousSelectedObject.selected = false;
@@ -518,7 +508,7 @@
        * select an object node (word, chunk or link)
        * @param obj
        */
-      EditObject.prototype.selectObject =function(obj){
+      depgraphlib.EditObject.prototype.selectObject =function(obj){
         if(this.previousSelectedObject == obj){
           this.clearSelection();
           return;
@@ -536,7 +526,7 @@
        * @param attrs
        * @param pushAction
        */
-      EditObject.prototype.changeAttributes = function(obj,attrs,pushAction){
+      depgraphlib.EditObject.prototype.changeAttributes = function(obj,attrs,pushAction){
         var backup = depgraphlib.clone(obj);
         var oldAttrs = [];
         for(var i = 0; i < attrs.length ; i ++){
@@ -1101,7 +1091,7 @@
        * Append a toolbar button allowing user to choose an edit mode among those registered
        * @todo rework this!
        */
-      EditObject.prototype.addEditModeSwitcher = function(){
+      depgraphlib.EditObject.prototype.addEditModeSwitcher = function(){
         var me = this;
         this.depgraph.viewer.addToolbarButton('Custom Edit Mode',function(){
           var r=confirm("You will not be able to get back to frmg edit mode, are you sure you want to edit manually the graph?");
@@ -1115,13 +1105,8 @@
       
       
       
-      depgraphlib.EditObject = EditObject;
-      
-      return EditObject;
-
-    }  
   
-}());
+}(window.depgraphlib));
 
 
 

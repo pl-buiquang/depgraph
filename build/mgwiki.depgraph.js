@@ -3,18 +3,8 @@
  * If using requirejs, it define a convenient object containing usefull functions,
  * otherwise, it creates the global namespace that will contain every objects and function of DepGraph Library
  */
-(function(){
+(function(depgraphlib){
   
-  if(typeof define == 'undefined'){
-    utils();
-  }else{
-    define(utils);
-  }
-
-  
-  function utils(){
-    
-    var depgraphlib = {};
     
     depgraphlib.windowOpenPost = function(data,url){
       depgraphlib.windowOpenPostForm = '<form id="depgraphlibWindowOpenPostForm" method="post" action="'+url+'" target="_blank"></form>';
@@ -252,27 +242,12 @@
     };
     
     
-    window.depgraphlib = depgraphlib;
-    
-    return depgraphlib;
-    
-  }  
   
-}());
+}(window.depgraphlib = window.depgraphlib || {}));
 
 
 
-(function(){
-  
-  if(typeof define == 'undefined'){
-    graphviewer(depgraphlib);
-  }else{
-    define(['app/depgraphlib'],graphviewer);
-  }
-
-
-  function graphviewer(depgraphlib){
-
+(function(depgraphlib){
     
     /**
      * GraphViewer.js
@@ -289,7 +264,7 @@
      * @param uid
      * @returns
      */
-      var GraphViewer = function (container,uid){
+      depgraphlib.GraphViewer = function (container,uid){
       
       if(uid == null){
         uid = Math.floor(Math.random() * 10000000000000001).toString();
@@ -305,7 +280,7 @@
       this.margin = {top:100,left:0,right:0,bottom:10};
       this.borders = true;
       
-      if(GraphViewer.instances[uid]){
+      if(depgraphlib.GraphViewer.instances[uid]){
         uid += "_";
       }
       var uid = this.uid = uid; // uid
@@ -343,7 +318,7 @@
       mainpanel.append(this.altpanel);
       this.altpanel.append(this.altpanelcontent);
       
-      GraphViewer.instances[uid]=this;
+      depgraphlib.GraphViewer.instances[uid]=this;
       
       this.callbacks = new Object();
       this.callbacks.fullscreen = new Object();
@@ -358,7 +333,7 @@
 
       this.toolbar_landing_area.hover(
           function(){
-            var me = GraphViewer.getInstance(this);
+            var me = depgraphlib.GraphViewer.getInstance(this);
             if(!me.fixedToolbar){
               if(me.toolbar.queue().length == 0){
                 me.toolbar.slideDown(100,function(){
@@ -374,7 +349,7 @@
             }
           },
           function(){
-            var me = GraphViewer.getInstance(this);
+            var me = depgraphlib.GraphViewer.getInstance(this);
             if(!me.fixedToolbar){
               if(me.toolbar.queue().length == 0){
                 me.toolbar.slideUp(100,function(){
@@ -394,7 +369,7 @@
       
     };
 
-    GraphViewer.instances = GraphViewer.instances || [];
+    depgraphlib.GraphViewer.instances = depgraphlib.GraphViewer.instances || [];
 
     /**
      * Retrieve the viewer instance from :
@@ -404,9 +379,9 @@
      * @param fromdiv
      * @returns
      */
-    GraphViewer.getInstance = function(fromdiv){
+    depgraphlib.GraphViewer.getInstance = function(fromdiv){
       var id = "";
-      if(GraphViewer.prototype.isPrototypeOf(fromdiv)){
+      if(depgraphlib.GraphViewer.prototype.isPrototypeOf(fromdiv)){
         return fromdiv;
       }else if(fromdiv.ownerSVGElement != null){
         id = fromdiv.ownerSVGElement.parentNode.id;
@@ -420,10 +395,10 @@
       var match = regex.exec(id);
       var viewer = null;
       if(match != null){
-         viewer = GraphViewer.instances[match[1]];
+         viewer = depgraphlib.GraphViewer.instances[match[1]];
       }
       if(viewer == null){
-        viewer = GraphViewer.getInstance(fromdiv.parentNode);
+        viewer = depgraphlib.GraphViewer.getInstance(fromdiv.parentNode);
       }
       return viewer;
     };
@@ -435,7 +410,7 @@
     /**
      * init the toolbar
      */
-    GraphViewer.prototype.initToolBar = function(){
+    depgraphlib.GraphViewer.prototype.initToolBar = function(){
       var landing_area = this.toolbar_landing_area = this.createDiv("gv-toolbar-landing-area","gv-toolbar-landing-area");
       var toolbar = this.createDiv("gv-toolbar", "gv-toolbar");
       landing_area.append(toolbar);
@@ -451,7 +426,7 @@
      * create the debug panel
      * @returns
      */
-    GraphViewer.prototype.createDebugPanel = function(){
+    depgraphlib.GraphViewer.prototype.createDebugPanel = function(){
       var debugpanel = this.debugpanel = this.createDiv("gv-debug-panel","gv-debug-panel");
       this.debugpanelinfo = this.createDiv("debug-panel-info","debug-panel-info");
       debugpanel.append(this.debugpanelinfo);
@@ -461,7 +436,7 @@
       var maximize = this.createDiv("debug-panel-fullscreen","debug-panel-fullscreen slider-button maximize");
       maximize.click(
           function(e){
-            var graph = GraphViewer.getInstance(this);
+            var graph = depgraphlib.GraphViewer.getInstance(this);
             if(graph!=null){
               graph.viewAltContent('debug-panel-content'+graph.appendOwnID(''));
               var slider = jQuery('#debug-panel-slider'+graph.appendOwnID(''));
@@ -487,7 +462,7 @@
      * append msg to the debug log panel
      * @param msg
      */
-    GraphViewer.prototype.debugLog = function(msg){
+    depgraphlib.GraphViewer.prototype.debugLog = function(msg){
       this.debugpanelcontent.append(msg + '<br/>');
     };
 
@@ -495,7 +470,7 @@
      * create tooltip panel
      * @returns
      */
-    GraphViewer.prototype.createToolTipPanel = function(){
+    depgraphlib.GraphViewer.prototype.createToolTipPanel = function(){
       var me = this;
       this.tooltip = this.createDiv("gv-tooltip","gv-tooltip");
       var maincontainer = jQuery('<div style="display:inline-block;"></div>');
@@ -517,7 +492,7 @@
      * @param id
      * @returns
      */
-    GraphViewer.prototype.appendOwnID = function(id){
+    depgraphlib.GraphViewer.prototype.appendOwnID = function(id){
       if(id.endsWith(this.uid)){
         return id;
       }else{
@@ -530,7 +505,7 @@
      * @param title
      * @returns
      */
-    GraphViewer.prototype.addWrapper = function(title){
+    depgraphlib.GraphViewer.prototype.addWrapper = function(title){
       var me = this;
       var elt = this.wrapper = me.createElement("a", 'gv-wrapper','gv-wrapper');
       elt.html(title);
@@ -548,11 +523,11 @@
      * @param classes
      * @returns
      */
-    GraphViewer.prototype.createDiv = function(id,classes){
+    depgraphlib.GraphViewer.prototype.createDiv = function(id,classes){
       return this.createElement('div',id,classes);
     };
 
-    GraphViewer.prototype.createElement = function(eltname,id,classes){
+    depgraphlib.GraphViewer.prototype.createElement = function(eltname,id,classes){
       classes = (classes!=null)?('class="'+classes+'"'):'';
       var div = '<'+eltname+' id="'+this.appendOwnID(id)
         +'" '+classes+'></'+eltname+'>';
@@ -568,7 +543,7 @@
     /**
      * set up the debug panel proper height according to the viewer height
      */
-    GraphViewer.prototype.adjustDebugHeight = function(){
+    depgraphlib.GraphViewer.prototype.adjustDebugHeight = function(){
       var height = this.mainpanel.height() - this.toolbar.height();
       this.debugpanel.css('height',height);
       this.debugcontentcontainer.css('height',height-20);
@@ -579,7 +554,7 @@
      * adjust height to the content of the viewer
      * @param marginBottom
      */
-    GraphViewer.prototype.shrinkHeightToContent = function(marginBottom){
+    depgraphlib.GraphViewer.prototype.shrinkHeightToContent = function(marginBottom){
       if(marginBottom == null){
         marginBottom=0;
       }
@@ -593,7 +568,7 @@
      * adjust width to the content of the viewer
      * @param marginRight
      */
-    GraphViewer.prototype.shrinkWidthToContent = function(marginRight){
+    depgraphlib.GraphViewer.prototype.shrinkWidthToContent = function(marginRight){
       if(marginRight == null){
         marginRight=0;
       }
@@ -608,7 +583,7 @@
      * @param marginRight
      * @param marginBottom
      */
-    GraphViewer.prototype.shrinkToContent = function(marginRight,marginBottom){
+    depgraphlib.GraphViewer.prototype.shrinkToContent = function(marginRight,marginBottom){
       if(marginBottom == null){
         marginBottom=0;
       }
@@ -630,7 +605,7 @@
      * @param width
      * @param height
      */
-    GraphViewer.prototype.setSize = function(width,height){
+    depgraphlib.GraphViewer.prototype.setSize = function(width,height){
       this.setWidth(width);
       this.setHeight(height);
     };
@@ -639,7 +614,7 @@
      * remove toolbar, debugpanel and tooltip
      * @param value
      */
-    GraphViewer.prototype.setImageMode = function(value){
+    depgraphlib.GraphViewer.prototype.setImageMode = function(value){
       if(value == null){
         value = true;
       }
@@ -660,7 +635,7 @@
     /**
      * remove border of the viewer
      */
-    GraphViewer.prototype.noBorders = function(){
+    depgraphlib.GraphViewer.prototype.noBorders = function(){
         this.borders = false;
         this.mainpanel.css("border","none");
     };
@@ -669,7 +644,7 @@
      * switch on/off the debug mode (display or not the debug panel)
      * @param value
      */
-    GraphViewer.prototype.debugMode = function(value){
+    depgraphlib.GraphViewer.prototype.debugMode = function(value){
       if(value == null){
         value = true;
       }
@@ -685,7 +660,7 @@
      * set the width of the viewer
      * @param width
      */
-    GraphViewer.prototype.setWidth = function(width){
+    depgraphlib.GraphViewer.prototype.setWidth = function(width){
       this._width = width;
       this.mainpanel.css('width',width);
       this.ajaxLoader.width(width);
@@ -695,7 +670,7 @@
      * set the height of the viewer
      * @param height
      */
-    GraphViewer.prototype.setHeight = function(height){
+    depgraphlib.GraphViewer.prototype.setHeight = function(height){
       height += 30;
       this._height = height;
       this.mainpanel.css('height',height);
@@ -712,7 +687,7 @@
      * enable or disable the toolbar auto hiding
      * @param value
      */
-    GraphViewer.prototype.setFixedToolbar = function(value){
+    depgraphlib.GraphViewer.prototype.setFixedToolbar = function(value){
       if(value == null){
         value = true;
       }
@@ -731,7 +706,7 @@
     /**
      * add the fullscreen mode button to the toolbar
      */
-    GraphViewer.prototype.addFullScreenButton = function(){
+    depgraphlib.GraphViewer.prototype.addFullScreenButton = function(){
       if(!this.allowFullScreen){
         return;
       }
@@ -746,7 +721,7 @@
      * @param name
      * @returns {Boolean}
      */
-    GraphViewer.prototype.existToolbarButton = function(name){
+    depgraphlib.GraphViewer.prototype.existToolbarButton = function(name){
       return jQuery('#button-'+this.appendOwnID(name)).length > 0;
     };
 
@@ -755,7 +730,7 @@
      * @param name
      * @returns
      */
-    GraphViewer.prototype.getToolbarButton = function(name){
+    depgraphlib.GraphViewer.prototype.getToolbarButton = function(name){
       return jQuery('#button-'+this.appendOwnID(name));
     };
 
@@ -764,7 +739,7 @@
      * 0 : name, 1 : callback on click, 2: position (left or right), 3 : style (css classes)
      * @param definition
      */
-    GraphViewer.prototype.setToolbarButtons = function(definition){
+    depgraphlib.GraphViewer.prototype.setToolbarButtons = function(definition){
       this.tmpLeft = [];
       definition.forEach(function(item,index){
         if(item[2] == 'left'){
@@ -782,7 +757,7 @@
     /**
      * remove all toolbar buttons
      */
-    GraphViewer.prototype.resetToolbarButtons = function(){
+    depgraphlib.GraphViewer.prototype.resetToolbarButtons = function(){
       var children = this.toolbarbuttons.children();
       children.remove();
       this.addFullScreenButton();
@@ -794,7 +769,7 @@
      * @param elt
      * @param position
      */
-    GraphViewer.prototype.addToolbarElement = function(elt,position){
+    depgraphlib.GraphViewer.prototype.addToolbarElement = function(elt,position){
       elt.css('float',position);
       this.toolbarbuttons.append(elt);
     };
@@ -806,7 +781,7 @@
      * @param position
      * @param style
      */
-    GraphViewer.prototype.addToolbarButton = function(name,callback,position,style,tooltip){
+    depgraphlib.GraphViewer.prototype.addToolbarButton = function(name,callback,position,style,tooltip){
       var text = '';
       if(style == null){
         style = 'tab white';
@@ -828,7 +803,7 @@
      * remove a toolbar button given its name
      * @param name
      */
-    GraphViewer.prototype.removeToolbarButton = function(name){
+    depgraphlib.GraphViewer.prototype.removeToolbarButton = function(name){
       jQuery('#button-'+this.appendOwnID(name)).remove();
     };
 
@@ -837,7 +812,7 @@
      * items is an object of objects with at least the property 'cb' defining the callback when the item
      * is clicked.
      */
-    GraphViewer.createDropDownMenu = function(name,items,autoslidedown,tooltip){
+    depgraphlib.GraphViewer.createDropDownMenu = function(name,items,autoslidedown,tooltip){
       var div = jQuery('<div class="gv-menu"><div class="gv-menu-header"></div><div class="gv-menu-body"></div></div>');
       var header = jQuery('.gv-menu-header',div);
       var body = jQuery('.gv-menu-body',div);
@@ -869,35 +844,35 @@
     /**                   Alt Content                          */
     /***********************************************************/
 
-    GraphViewer.prototype.viewAltContent = function(divid){
+    depgraphlib.GraphViewer.prototype.viewAltContent = function(divid){
       this.resetAltPanel();
       this.addContentToAltPanel(divid);
       this.showAltPanel();
     };
 
-    GraphViewer.prototype.hideAltPanel = function(){
+    depgraphlib.GraphViewer.prototype.hideAltPanel = function(){
       this.chart.show();
       this.altpanel.hide();
       this.removeToolbarButton('back');
       executeCallbacks(this.callbacks.hidealtpanel);
     };
 
-    GraphViewer.prototype.showAltPanel = function(callbacks){
+    depgraphlib.GraphViewer.prototype.showAltPanel = function(callbacks){
       this.chart.hide();
       this.altpanel.show();
-      this.addToolbarButton('back',function(){GraphViewer.getInstance(this.id).hideAltPanel();},'left','back');
+      this.addToolbarButton('back',function(){depgraphlib.GraphViewer.getInstance(this.id).hideAltPanel();},'left','back');
       executeCallbacks(this.callbacks.showaltpanel);
 
     };
 
-    GraphViewer.prototype.addContentToAltPanel = function(divid,title){
+    depgraphlib.GraphViewer.prototype.addContentToAltPanel = function(divid,title){
       this.altpanelcontent.html(jQuery('#'+this.appendOwnID(divid)).html());
       if(title!=null){
-        this.addToolbarButton(title,function(){GraphViewer.getInstance(this.id).addContentOnAltPanel(divid);},'left');
+        this.addToolbarButton(title,function(){depgraphlib.GraphViewer.getInstance(this.id).addContentOnAltPanel(divid);},'left');
       }
     };
 
-    GraphViewer.prototype.resetAltPanel = function(){
+    depgraphlib.GraphViewer.prototype.resetAltPanel = function(){
       this.altpanelcontent.html('');
     };
 
@@ -910,7 +885,7 @@
      * @see Box for parameters description
      * @return the new box created
      */
-    GraphViewer.prototype.createBox = function(options){
+    depgraphlib.GraphViewer.prototype.createBox = function(options){
       options.viewer = this;
       return new depgraphlib.Box(options);
     };
@@ -1050,9 +1025,9 @@
     /**                   ToolTip                              */
     /***********************************************************/
 
-    GraphViewer.prototype.loadTooltipContent = function(divid){
+    depgraphlib.GraphViewer.prototype.loadTooltipContent = function(divid){
       var div; 
-      var me = GraphViewer.getInstance(this);
+      var me = depgraphlib.GraphViewer.getInstance(this);
       if(typeof divid == 'string'){
         div = jQuery('#'+me.appendOwnID(divid));
       }else{
@@ -1061,15 +1036,15 @@
       me.tooltipContainer.html(div.html());
     };
 
-    GraphViewer.prototype.showTooltip = function(position){
-      var me = GraphViewer.getInstance(this);
+    depgraphlib.GraphViewer.prototype.showTooltip = function(position){
+      var me = depgraphlib.GraphViewer.getInstance(this);
       me.tooltip.css('left',position.x);
       me.tooltip.css('top',position.y);
       me.tooltip.show();
     };
 
-    GraphViewer.prototype.hideToolTip = function(){
-      var me = GraphViewer.getInstance(this);
+    depgraphlib.GraphViewer.prototype.hideToolTip = function(){
+      var me = depgraphlib.GraphViewer.getInstance(this);
       me.tooltip.hide();
     };
 
@@ -1080,21 +1055,21 @@
     /**
      * show an ajax throbber
      */
-    GraphViewer.prototype.ajaxStart = function(){
+    depgraphlib.GraphViewer.prototype.ajaxStart = function(){
       this.ajaxLoader.show();
     };
 
     /**
      * hide the ajax throbber
      */
-    GraphViewer.prototype.ajaxFinished = function(){
+    depgraphlib.GraphViewer.prototype.ajaxFinished = function(){
       this.ajaxLoader.hide();
     };
 
     /**
      * init full screen mode callbacks
      */
-    GraphViewer.prototype.initFullscreenMode = function(){
+    depgraphlib.GraphViewer.prototype.initFullscreenMode = function(){
       var graphviewer = this;
       var button = jQuery('#button-fullscreen'+this.appendOwnID(''));
       button.colorbox(
@@ -1130,7 +1105,7 @@
 
     function debugSlideUp(){
       var elt = jQuery(this);
-      var viewer = GraphViewer.getInstance(elt[0].id);
+      var viewer = depgraphlib.GraphViewer.getInstance(elt[0].id);
       elt.parent().animate({bottom:'0px'});
       elt.removeClass('slide-up');
       elt.addClass('slide-down');
@@ -1139,7 +1114,7 @@
 
     function debugSlideDown(){
       var elt = jQuery(this);
-      var viewer = GraphViewer.getInstance(elt[0].id);
+      var viewer = depgraphlib.GraphViewer.getInstance(elt[0].id);
       var debugpanel = elt.parent();
       debugpanel.animate({bottom:(-debugpanel.height()+20)+'px'});
       elt.removeClass('slide-down');
@@ -1166,7 +1141,7 @@
     /**                         Utils                          */
     /***********************************************************/
 
-    GraphViewer.prototype.screenCoordsForElt = function(elt){
+    depgraphlib.GraphViewer.prototype.screenCoordsForElt = function(elt){
       while(Object.prototype.toString.call( elt ) === '[object Array]'){
         elt = elt[0];
       }
@@ -1186,39 +1161,23 @@
       corners.sw = pt.matrixTransform(matrix);
       return corners;
     };
-    
-    
-    depgraphlib.GraphViewer = GraphViewer; 
-      
-    return GraphViewer;
 
-  }  
   
-}());
+}(window.depgraphlib));
 
 
   /************************************************************/
     /**                      Edition                           **/
     /************************************************************/
 
-(function(){
-  
-  if(typeof define == 'undefined'){
-    editobject(depgraphlib);
-  }else{
-    define(['app/depgraphlib'],editobject);
-  }
-  
-
-  function editobject(depgraphlib){
-
+(function(depgraphlib){
 
       /**
        * Object handling event callbacks and misc attributes for editing purpose
        * @param depgraph
        * @returns {EditObject}
        */
-      var EditObject = function (depgraph){
+      depgraphlib.EditObject = function (depgraph){
         this.depgraph = depgraph; // reference to the graph
         
         this.editMode = false; // on/off boolean for edition
@@ -1292,7 +1251,7 @@
        * - onchange : (optional) user callback called after user submitted new value to this label field
        * 
        */
-      EditObject.prototype.setDataModel = function(dataModel){
+      depgraphlib.EditObject.prototype.setDataModel = function(dataModel){
         this.dataModel = dataModel;
       };
 
@@ -1301,7 +1260,7 @@
        * difference is computed by watching if edit actions has been logged
        * and if the current pointer on the action is equal to the pointer of the last saved state
        */
-      EditObject.prototype.dataChanged = function(){
+      depgraphlib.EditObject.prototype.dataChanged = function(){
         if(this.needToSaveState){
           return true;
         }
@@ -1321,7 +1280,7 @@
        * Enable or disable the edit mode
        * @param value
        */
-      EditObject.prototype.setEditMode = function(value){
+      depgraphlib.EditObject.prototype.setEditMode = function(value){
         var me = this;
 
         if(value == null){
@@ -1370,7 +1329,7 @@
       /**
        * init the toolbar with the current edit mode
        */
-      EditObject.prototype.initToolbar = function(){
+      depgraphlib.EditObject.prototype.initToolbar = function(){
         var depgraph = this.depgraph;
         depgraph.viewer.resetToolbarButtons();
         var buttons = [['save',save,'right','saved'],
@@ -1535,7 +1494,7 @@
       /**
        * set the need the save icon to display a unsaved state
        */
-      EditObject.prototype.setNeedToSave = function(){
+      depgraphlib.EditObject.prototype.setNeedToSave = function(){
         this.needToSaveState = true;
         this.updateSaveState();
       };
@@ -1543,7 +1502,7 @@
       /**
        * update the save state depending on the last saved pointer and the current pointer in the actions log
        */
-      EditObject.prototype.updateSaveState =function(){
+      depgraphlib.EditObject.prototype.updateSaveState =function(){
         if(this.lastSavedPtr == this.currentPtr && !this.needToSaveState){
           this.depgraph.viewer.getToolbarButton('save').removeClass('save').addClass('saved');
         }else{
@@ -1554,7 +1513,7 @@
       /**
        * init the edit object according to the current edit mode
        */
-      EditObject.prototype.init = function(){
+      depgraphlib.EditObject.prototype.init = function(){
         var depgraph = this.depgraph;
 
         if(!this.editMode){
@@ -1677,7 +1636,7 @@
        * add an edit mode
        * @param mode
        */
-      EditObject.prototype.addEditMode = function(mode){
+      depgraphlib.EditObject.prototype.addEditMode = function(mode){
         this.mode[mode.name] = mode;
       };
 
@@ -1688,7 +1647,7 @@
        * if the rollbackdata isn't set, the action won't be registered
        * @param action
        */
-      EditObject.prototype.pushAction = function(action){
+      depgraphlib.EditObject.prototype.pushAction = function(action){
         if(action.rollbackdata != null && this.mode[action.mode].undo != null){
           this.depgraph.viewer.getToolbarButton('redo').hide();
           var button = this.depgraph.viewer.getToolbarButton('undo');
@@ -1701,7 +1660,7 @@
       /**
        * clear current selection
        */
-      EditObject.prototype.clearSelection = function(){
+      depgraphlib.EditObject.prototype.clearSelection = function(){
         if(this.previousSelectedObject != null){
           try {
             this.previousSelectedObject.selected = false;
@@ -1717,7 +1676,7 @@
        * select an object node (word, chunk or link)
        * @param obj
        */
-      EditObject.prototype.selectObject =function(obj){
+      depgraphlib.EditObject.prototype.selectObject =function(obj){
         if(this.previousSelectedObject == obj){
           this.clearSelection();
           return;
@@ -1735,7 +1694,7 @@
        * @param attrs
        * @param pushAction
        */
-      EditObject.prototype.changeAttributes = function(obj,attrs,pushAction){
+      depgraphlib.EditObject.prototype.changeAttributes = function(obj,attrs,pushAction){
         var backup = depgraphlib.clone(obj);
         var oldAttrs = [];
         for(var i = 0; i < attrs.length ; i ++){
@@ -2296,14 +2255,26 @@
       };
       
       
-      
-      depgraphlib.EditObject = EditObject;
-      
-      return EditObject;
+      /**
+       * Append a toolbar button allowing user to choose an edit mode among those registered
+       * @todo rework this!
+       */
+      depgraphlib.EditObject.prototype.addEditModeSwitcher = function(){
+        var me = this;
+        this.depgraph.viewer.addToolbarButton('Custom Edit Mode',function(){
+          var r=confirm("You will not be able to get back to frmg edit mode, are you sure you want to edit manually the graph?");
+          if (r==true){
+            depgraphlib.hideAltLinks(me.depgraph,me.depgraph.editObject.previousSelectedObject);
+            me.setEditMode('default');
+          }
+        },'left');
+      };
 
-    }  
+      
+      
+      
   
-}());
+}(window.depgraphlib));
 
 
 
@@ -2319,19 +2290,8 @@
  * Author : Paul Bui-Quang
  * INRIA
  */
+(function(depgraphlib){
 
-(function(){
-  
-  if(typeof define == 'undefined'){
-    graphlayout(depgraphlib,depgraphlib.GraphViewer,depgraphlib.EditObject);
-  }else{
-    define(['app/depgraphlib','app/graphviewer','app/editobject'],graphlayout);
-  }
-
-
-
-  function graphlayout(depgraphlib,GraphViewer,EditObject){
-    
     /**
      * Create a new instance of a graph
      * @param viewer The viewer in which the graph will be displayed
@@ -2351,11 +2311,11 @@
      * 7. set viewer additional settings
      * 8. instanciate edit object
      */
-    var DepGraph = function (container, json_data, options) {
+    depgraphlib.DepGraph = function (container, json_data, options) {
       this.options = options || {};
-      this.viewer = new GraphViewer(container,this.options.uid);
+      this.viewer = new depgraphlib.GraphViewer(container,this.options.uid);
       
-      DepGraph.instances[this.viewer.uid] = this;
+      depgraphlib.DepGraph.instances[this.viewer.uid] = this;
 
       this.callbacks = new Object();
 
@@ -2369,10 +2329,10 @@
       this.autoHighLightOnMouseOver();
       this.viewerSettings();
       
-      this.editObject = new EditObject(this);
+      this.editObject = new depgraphlib.EditObject(this);
     }; 
 
-    DepGraph.prototype.getOriginalUID = function(){
+    depgraphlib.DepGraph.prototype.getOriginalUID = function(){
       return this.viewer.uid.replace(/_*$/g, '');
     };
     
@@ -2381,7 +2341,7 @@
      * Set up viewer callbacks and settings :
      * - callback when fullscreen open and close
      */
-    DepGraph.prototype.viewerSettings = function(){
+    depgraphlib.DepGraph.prototype.viewerSettings = function(){
       this.viewer.callbacks.fullscreen.oncomplete.push({
         method:this.centerGraph,
         caller:this
@@ -2399,7 +2359,7 @@
      * If container is smaller than the content graph, graph position is set in accordance with
      * margins parameters (see #style)
      */
-    DepGraph.prototype.centerGraph = function(){
+    depgraphlib.DepGraph.prototype.centerGraph = function(){
       var chart = this.viewer.chart;
       var chartBBox = chart[0].getBoundingClientRect();
       var visBBox = this.vis.node().getBBox();
@@ -2416,7 +2376,7 @@
     /**
      * Switch on or off the highlight on mouseover (link and words)
      */
-    DepGraph.prototype.autoHighLightOnMouseOver = function(value){
+    depgraphlib.DepGraph.prototype.autoHighLightOnMouseOver = function(value){
       if(value==null || value){
         this.vis.selectAll('g.link').on("mouseover.autohighlight",function(){highlightLink(this, true); });
         this.vis.selectAll('g.link').on("mouseout.autohighlight",function(){highlightLink(this, false); });
@@ -2434,7 +2394,7 @@
     /**
      * Static variable containing all instances of depgraphs on the page (keyed by their viewer uid)
      */
-    DepGraph.instances = DepGraph.instances || [];
+    depgraphlib.DepGraph.instances = depgraphlib.DepGraph.instances || [];
 
     /**
      * Retrieve the depgraph instance from :
@@ -2444,9 +2404,9 @@
      * @param fromdiv
      * @returns
      */
-    DepGraph.getInstance = function(fromdiv) {
+    depgraphlib.DepGraph.getInstance = function(fromdiv) {
       if(fromdiv){
-        if (DepGraph.prototype.isPrototypeOf(fromdiv)) {
+        if (depgraphlib.DepGraph.prototype.isPrototypeOf(fromdiv)) {
           return fromdiv;
         } else if (fromdiv.ownerSVGElement != null) {
           fromdiv = fromdiv.ownerSVGElement.parentNode.id;
@@ -2459,7 +2419,7 @@
         regex = /.*-(\w+)/;
         var match = regex.exec(fromdiv);
         if (match != null) {
-          return DepGraph.instances[match[1]];
+          return depgraphlib.DepGraph.instances[match[1]];
         }
         return null;
       }
@@ -2469,7 +2429,7 @@
      * Initial set up and preprocess of graph data
      * @param json_data
      */
-    DepGraph.prototype.setData = function(json_data){
+    depgraphlib.DepGraph.prototype.setData = function(json_data){
       this.data = json_data;
       this.prepareData();
     };
@@ -2478,7 +2438,7 @@
      * Reset data and run immediatly an update
      * @param json_data
      */
-    DepGraph.prototype.resetData = function(json_data){
+    depgraphlib.DepGraph.prototype.resetData = function(json_data){
       this.setData(json_data);
       this.createLayout();
       this.update();
@@ -2493,7 +2453,7 @@
      * Clean added data (used for graph svg layout creation)
      * TODO(paul) clean other added data (#id)
      */
-    DepGraph.prototype.cleanData = function(){
+    depgraphlib.DepGraph.prototype.cleanData = function(){
       var links = this.vis.selectAll("g.link");
       this.resetLinksProperties(links);
     };
@@ -2504,7 +2464,7 @@
      * - set up #id and #position, reset #properties
      * TODO(paul) validate data => set error message if failed validation
      */
-    DepGraph.prototype.prepareData = function() {
+    depgraphlib.DepGraph.prototype.prepareData = function() {
       // Resolve references
       depgraphlib.JSONresolveReferences(this.data,'@');
       
@@ -2586,7 +2546,7 @@
      * - apply viewer view mode (shrinkToContent is default)
      * TODO(paul) : add parameter or attributes to depgraph in order to control which view mode to apply
      */
-    DepGraph.prototype.postProcesses = function(){
+    depgraphlib.DepGraph.prototype.postProcesses = function(){
       var visBBox = this.vis.node().getBBox();
       this.vis.attr("transform","translate(" + 
           (depgraphlib.removeUnit(this.data.graph['#style'].margin.left)-visBBox.x) + "," + 
@@ -2601,7 +2561,7 @@
      * 
      * For values in %, make sure that the container wrapping the viewer is displayed as block and a size is set.
      */
-    DepGraph.prototype.setViewMode = function(){
+    depgraphlib.DepGraph.prototype.setViewMode = function(){
       if(this.options.viewmode && this.options.viewmode != 'full'){
         this.setWidthLimitedViewMode('600px');
       }else{
@@ -2617,7 +2577,7 @@
     };
     
     
-    DepGraph.prototype.setFullViewMode = function(){
+    depgraphlib.DepGraph.prototype.setFullViewMode = function(){
       this.viewer.shrinkToContent(depgraphlib.removeUnit(this.data.graph['#style']['margin'].right),depgraphlib.removeUnit(this.data.graph['#style']['margin'].bottom)+20);
     };
     
@@ -2627,7 +2587,7 @@
      * @param defaultWidth
      * @param forceCrop
      */
-    DepGraph.prototype.setWidthLimitedViewMode = function(defaultWidth,forceCrop){
+    depgraphlib.DepGraph.prototype.setWidthLimitedViewMode = function(defaultWidth,forceCrop){
       this.viewer.shrinkHeightToContent(depgraphlib.removeUnit(this.data.graph['#style']['margin'].bottom)+20);
       if(!this.options.viewsize){
         this.options.viewsize = defaultWidth;
@@ -2646,7 +2606,7 @@
     /**
      * Create the scrollbar and set up the callbacks for scrolling the view
      */
-    DepGraph.prototype.createScrollBar = function(){
+    depgraphlib.DepGraph.prototype.createScrollBar = function(){
       var me = this;
 
       var graphBBox = this.vis.node().getBBox();
@@ -2678,35 +2638,35 @@
         this.scrollMouseSelected = null;
         
         this.scrollbar.on('mousedown',function(e){
-          var depgraph = DepGraph.getInstance(this);
-          DepGraph.depgraphActive = '-' + depgraph.viewer.uid;
+          var depgraph = depgraphlib.DepGraph.getInstance(this);
+          depgraphlib.DepGraph.depgraphActive = '-' + depgraph.viewer.uid;
           depgraph.scrollMouseSelected = d3.event.clientX;
           d3.event.preventDefault ? d3.event.preventDefault() : d3.event.returnValue = false;
         });
         
         /*
         d3.select(this.viewer.chart[0]).on('mouseover',function(e){
-          var depgraph = DepGraph.getInstance(d3.event.originalTarget);
+          var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget);
           depgraph.setFullViewMode();
         });
         
         d3.select(this.viewer.chart[0]).on('mouseout',function(e){
-          var depgraph = DepGraph.getInstance(d3.event.originalTarget);
+          var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget);
           depgraph.setViewMode();
         });*/
 
         
         d3.select(document).on('click.focus',function(e){
-          var depgraph = DepGraph.getInstance(d3.event.originalTarget);
+          var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget);
           if(depgraph){
-            DepGraph.depgraphActive = '-' + depgraph.viewer.uid;
+            depgraphlib.DepGraph.depgraphActive = '-' + depgraph.viewer.uid;
           }else{
-            DepGraph.depgraphActive = null;
+            depgraphlib.DepGraph.depgraphActive = null;
           }
         });
         
         d3.select(document).on('wheel.scrollbar',function(e){
-          var depgraph = DepGraph.getInstance(DepGraph.depgraphActive);
+          var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.DepGraph.depgraphActive);
           if(depgraph && depgraph.scrollbar){
             depgraph.translateGraph(3*d3.event.deltaY,0);
             d3.event.preventDefault ? d3.event.preventDefault() : d3.event.returnValue = false;
@@ -2714,7 +2674,7 @@
         });
         
         d3.select(document).on('mousemove.scrollbar'+me.viewer.uid,function(e){
-          var depgraph = DepGraph.getInstance(DepGraph.depgraphActive);
+          var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.DepGraph.depgraphActive);
           if(depgraph && (depgraph.scrollMouseSelected || depgraph.scrollMouseSelected === 0)){
             var xoffset = d3.event.clientX - depgraph.scrollMouseSelected;
             if(depgraph.scrollbar){
@@ -2726,7 +2686,7 @@
         });
         
         d3.select(document).on('mouseup.scrollbar'+me.viewer.uid,function(e){
-          var depgraph = DepGraph.getInstance(DepGraph.depgraphActive);
+          var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.DepGraph.depgraphActive);
           if(depgraph){
             depgraph.scrollMouseSelected = null;
           }
@@ -2736,8 +2696,8 @@
       
       d3.select(document).on('keydown.move'+me.viewer.uid,function(e){
         var translateSpeed = 10;
-        if(DepGraph.depgraphActive){
-          var depgraph = DepGraph.getInstance(DepGraph.depgraphActive);
+        if(depgraphlib.DepGraph.depgraphActive){
+          var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.DepGraph.depgraphActive);
           if(d3.event.keyCode==37){ // left
             depgraph.translateGraph(-translateSpeed,0);
           }else if(d3.event.keyCode==39){ // right
@@ -2752,7 +2712,7 @@
      * events handler
      * TODO(paul) : refactor this function
      */
-    DepGraph.prototype.createLayout = function() {
+    depgraphlib.DepGraph.prototype.createLayout = function() {
       if(this.svg != null){
         this.svg.remove();
       }
@@ -2772,8 +2732,8 @@
     };
 
     
-    DepGraph.prototype.scale = function(scale){
-      var me = DepGraph.getInstance(this);
+    depgraphlib.DepGraph.prototype.scale = function(scale){
+      var me = depgraphlib.DepGraph.getInstance(this);
       var previousValues = depgraphlib.getTransformValues(me.vis);
       me.vis.attr("transform",
           "translate(" + (previousValues.translate[0])*scale + "," + (previousValues.translate[1])*scale + ")" + " scale("+scale+")");
@@ -2784,8 +2744,8 @@
      * @param x
      * @param y
      */
-    DepGraph.prototype.translateGraph = function(x,y){
-      var me = DepGraph.getInstance(this);
+    depgraphlib.DepGraph.prototype.translateGraph = function(x,y){
+      var me = depgraphlib.DepGraph.getInstance(this);
       var previousValues = depgraphlib.getTransformValues(me.vis);
       
       if(me.scrollbar){
@@ -2808,7 +2768,7 @@
     /**
      * Read data and construct the graph layout (update and init)
      */
-    DepGraph.prototype.update = function(){
+    depgraphlib.DepGraph.prototype.update = function(){
       
       var chunks;
       var chunks_enter;
@@ -2845,7 +2805,7 @@
      * @param word
      * @param position
      */
-    DepGraph.prototype.insertWord = function(word,position){
+    depgraphlib.DepGraph.prototype.insertWord = function(word,position){
       if(word['#id']==null){
         word['#id'] = this.id++;
       }
@@ -2864,7 +2824,7 @@
      * Add a link and update the graph
      * @param link
      */
-    DepGraph.prototype.addLink = function(link) {
+    depgraphlib.DepGraph.prototype.addLink = function(link) {
       if(link['#id']==null){
         link['#id'] = this.id++;
       }
@@ -2878,7 +2838,7 @@
      * TODO(paul) : add chunk implementation
      * @param chunk
      */
-    DepGraph.prototype.addChunk = function(chunk) {
+    depgraphlib.DepGraph.prototype.addChunk = function(chunk) {
       
     };
 
@@ -2887,7 +2847,7 @@
      * @param id
      * @returns list of obsolete links data that were removed during the process
      */
-    DepGraph.prototype.removeWord = function(id){
+    depgraphlib.DepGraph.prototype.removeWord = function(id){
       var affectedLinks = [];
       var index = this.getWordIndexById(id);
       if(index == null){
@@ -2922,7 +2882,7 @@
      * @param id
      * @returns {Boolean} true if success
      */
-    DepGraph.prototype.removeLink = function(id){
+    depgraphlib.DepGraph.prototype.removeLink = function(id){
       var index = this.getLinkIndexById(id);
       if(index == null){
         return false;
@@ -2939,7 +2899,7 @@
      * @returns the list of deleted obsolete links
      * TODO(paul) à implémenter
      */
-    DepGraph.prototype.removeChunk = function(id){
+    depgraphlib.DepGraph.prototype.removeChunk = function(id){
       
     };
 
@@ -2948,7 +2908,7 @@
      * @param position
      * @returns a word svg element
      */
-    DepGraph.prototype.getWordNodeByPosition = function(position){
+    depgraphlib.DepGraph.prototype.getWordNodeByPosition = function(position){
       var nodes = this.vis.selectAll('g.word');
       for(var i = 0; i<nodes[0].length; i++){
         if(nodes[0][i].__data__['#position'] == position)
@@ -2962,7 +2922,7 @@
      * @param id
      * @returns a word svg element
      */
-    DepGraph.prototype.getWordNodeByOriginalId = function(id){
+    depgraphlib.DepGraph.prototype.getWordNodeByOriginalId = function(id){
       var nodes = this.vis.selectAll('g.word');
       for(var i = 0; i<nodes[0].length; i++){
         if(nodes[0][i].__data__['id'] == id)
@@ -2975,7 +2935,7 @@
      * @param id
      * @returns a chunk svg element
      */
-    DepGraph.prototype.getChunkNodeByOriginalId = function(id){
+    depgraphlib.DepGraph.prototype.getChunkNodeByOriginalId = function(id){
       var nodes = this.vis.selectAll('g.chunk');
       for(var i = 0; i<nodes[0].length; i++){
         if(nodes[0][i].__data__['id'] == id)
@@ -2988,7 +2948,7 @@
      * @param id
      * @returns a word svg element
      */
-    DepGraph.prototype.getWordNodeById = function(id){
+    depgraphlib.DepGraph.prototype.getWordNodeById = function(id){
       var nodes = this.vis.selectAll('g.word');
       for(var i = 0; i<nodes[0].length; i++){
         if(nodes[0][i].__data__['#id'] == id)
@@ -3001,7 +2961,7 @@
      * @param id
      * @returns the index of the word in the words data list
      */
-    DepGraph.prototype.getWordIndexById = function(id){
+    depgraphlib.DepGraph.prototype.getWordIndexById = function(id){
       for(var i in this.data.graph.words){
         if(this.data.graph.words[i]['#id'] == id){
           return i;
@@ -3014,7 +2974,7 @@
      * @param id
      * @returns the link
      */
-    DepGraph.prototype.getLinkById = function(id){
+    depgraphlib.DepGraph.prototype.getLinkById = function(id){
       for(var i in this.data.graph.links){
         if(this.data.graph.links[i]['#id'] == id){
           return this.data.graph.links[i];
@@ -3027,7 +2987,7 @@
      * @param id
      * @returns the link index in the links data list
      */
-    DepGraph.prototype.getLinkIndexById = function(id){
+    depgraphlib.DepGraph.prototype.getLinkIndexById = function(id){
       for(var i in this.data.graph.links){
         if(this.data.graph.links[i]['#id'] == id){
           return i;
@@ -3041,7 +3001,7 @@
      * @param id
      * @returns a link in the links data list
      */
-    DepGraph.prototype.getLinkIndexByOriginalId = function(id){
+    depgraphlib.DepGraph.prototype.getLinkIndexByOriginalId = function(id){
       for(var i in this.data.graph.links){
         if(this.data.graph.links[i].id == id){
           return i;
@@ -3054,7 +3014,7 @@
      * @param id
      * @returns an object data from the links,words or chunks data list
      */
-    DepGraph.prototype.getObjectById = function(id){
+    depgraphlib.DepGraph.prototype.getObjectById = function(id){
       for(var i in this.data.graph.words){
         if(this.data.graph.words[i]['#id'] == id){
           return this.data.graph.words[i];
@@ -3077,7 +3037,7 @@
      * @param id
      * @returns an object svg element from the links,words or chunks nodes selections
      */
-    DepGraph.prototype.getObjectNodeFromObject = function(obj){
+    depgraphlib.DepGraph.prototype.getObjectNodeFromObject = function(obj){
       //TODO (check object type (isALink, isAChunk, isAWord, else) then search in corresponding
       // lists the #id
     };
@@ -3100,7 +3060,7 @@
      * @returns
      */
     SVGElement.prototype.getStyle = function(property,defaultValue){
-      var me = DepGraph.getInstance(this);
+      var me = depgraphlib.DepGraph.getInstance(this);
       if(this.__data__['#style']!=null && this.__data__['#style'][property] != null){
         return this.__data__['#style'][property];
       };
@@ -3194,7 +3154,7 @@
       .style('fill',highlight)
       .style('stroke-width',1);
       
-      var me = DepGraph.getInstance(this);
+      var me = depgraphlib.DepGraph.getInstance(this);
       var previousSibling = me.getWordNodeByPosition(node.datum()['#position']-1);
       var margin = elt.getStyle('margin');
       if(previousSibling != null){
@@ -3219,7 +3179,7 @@
      */
     function setChunkMaterials(d,i){
       var node = d3.select(this);
-      var me = DepGraph.getInstance(node.node());
+      var me = depgraphlib.DepGraph.getInstance(node.node());
       var elt = node.node();
 
       var rect = node.append("rect");
@@ -3308,7 +3268,7 @@
      */
     function setLinkMaterials(d,i){
       var node = d3.select(this);
-      var me = DepGraph.getInstance(this);
+      var me = depgraphlib.DepGraph.getInstance(this);
       var elt = this;
       var p = me.getLinkProperties(node.node());
       
@@ -3512,7 +3472,7 @@
     /**
      * set up svg needed definitions
      */
-    DepGraph.prototype.setSVGDefs = function(){
+    depgraphlib.DepGraph.prototype.setSVGDefs = function(){
       this.defs = this.svg.append("defs");
       this.defs.append('marker')
         .attr('id',this.viewer.appendOwnID('arrow'))
@@ -3540,7 +3500,7 @@
         if(node.__data__['#position']!=null)
           return node.__data__['#position'];
         else{ // we are dealing with a chunk
-          var me = DepGraph.getInstance(node);
+          var me = depgraphlib.DepGraph.getInstance(node);
           var middle = Math.floor(node.__data__['elements'].length/2);
           var middleNode = me.getWordNodeByOriginalId(node.__data__['elements'][middle]);
           return middleNode.__data__['#position'];
@@ -3550,36 +3510,44 @@
       }
     };
 
-   depgraphlib.DepGraph = DepGraph;
-   
-   return DepGraph;
-    
-  }
-    
-
   
-  
-  
-  
-}());
+}(window.depgraphlib));
 
 
+(function(depgraphlib){
+
+    depgraphlib.save_default = function(depgraph){
+      depgraph.cleanData();
+      jQuery.ajax({
+        type: 'POST', 
+        url: depgraph.wsurl,
+        data: {
+          action:'save',
+          format:depgraph.dataFormat,
+          options: '',
+          data:depgraph.data,
+          uid:depgraph.options.uid
+        },
+        dataType : 'json',
+        success: function(data, textStatus, jqXHR) {
+          depgraph.editObject.lastSavedPtr = depgraph.editObject.currentPtr;
+          depgraph.editObject.needToSaveState = false;
+          depgraph.editObject.updateSaveState();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          alert(textStatus);
+        }
+      });
+    };
+  
+  
+}(window.depgraphlib));
   /************************************************************/
   /**                      Crossing Algo                     **/
   /************************************************************/
 
-(function(){
+(function(depgraphlib){
 
-  
-  if(typeof define == 'undefined'){
-      crossing_algo(depgraphlib, depgraphlib.DepGraph);
-  }else{
-    define(['app/depgraphlib','app/graphlayout'],crossing_algo);
-  }
-
-
-  function crossing_algo(depgraphlib,DepGraph){
-    
     /**
      * returns true if a node (word or chunk) is outside a frame defined by a link set of properties,
      * false otherwise
@@ -3604,7 +3572,7 @@
      * @param link2
      * @returns {Boolean}
      */
-    DepGraph.prototype.crossed = function(link1,link2){
+    depgraphlib.DepGraph.prototype.crossed = function(link1,link2){
       var p1 = this.getLinkProperties(link1);
       var p2= this.getLinkProperties(link2);
       return (isInside(p1.nodeStart,p2) && isOutside(p1.nodeEnd,p2))
@@ -3615,7 +3583,7 @@
      * set up the links position and strate (height of the edge and "innerness")
      * @param links
      */
-    DepGraph.prototype.preprocessLinksPosition = function(links){
+    depgraphlib.DepGraph.prototype.preprocessLinksPosition = function(links){
       var me = this;
       // factor 2, in order to take into account left and right in the positions
       this.sortLinksByLength(links[0]);
@@ -3727,7 +3695,7 @@
      * sort the links by length..
      * @param links
      */
-    DepGraph.prototype.sortLinksByLength = function(links){
+    depgraphlib.DepGraph.prototype.sortLinksByLength = function(links){
       var me = this;
       links.sort(function(a,b){
         return me.getLinkProperties(a).length-me.getLinkProperties(b).length;
@@ -3741,7 +3709,7 @@
      * @param link
      * @returns the properties object
      */
-    DepGraph.prototype.getLinkProperties = function(link){
+    depgraphlib.DepGraph.prototype.getLinkProperties = function(link){
       var d = link.__data__;
       if(d['#properties'] == null){
         var properties = new Object();
@@ -3780,93 +3748,26 @@
      * Reset the properties of all links
      * @param links
      */
-    DepGraph.prototype.resetLinksProperties = function(links){
+    depgraphlib.DepGraph.prototype.resetLinksProperties = function(links){
       links.each(function(d,i){
         d['#properties'] = null;
       });
       this.maxLinksStrate = 0;
     };
 
-  }
 
 
 
-}());
+}(window.depgraphlib));
 
 
-
-(function(){
-  
-
-  if(typeof define == 'undefined'){
-      frmg_parser_custom(depgraphlib.DepGraph,depgraphlib,depgraphlib.EditObject);
-  }else{
-    define(['app/depgraphlib','app/graphlayout','app/editobject'],frmg_parser_custom);
-  }
-
-  function frmg_parser_custom(depgraphlib,DepGraph,EditObject){
-
-    depgraphlib.showRefs = function(){
-      var me = DepGraph.getInstance(this);
-      var coords = this.getBoundingClientRect();
-      var point = {x:coords.left,y:coords.top + coords.height + 2};
-      var div ='<div>Reference Infos : <br>';
-      div += 'Sentence : ' + fix_missing_a_closing_tag(me.sentenceLink) + '<br>'
-      + 'Back Links : ' + me.refs
-      +'</div>';
-      div = jQuery(div);
-      me.viewer.createBox({closeButton:true,position:point}).setContent(div).open();
-
-    };
-
-    function fix_missing_a_closing_tag(link){
-      if(link.indexOf('</a>', link.length - 4) !== -1){
-        return link;
-      }else{
-        return link + '</a>';
-      }
-    }
+/**
+ * frmg_parser_custom.js
+ * Defines FrMGWiki custom editobject
+ */
+(function(depgraphlib){
 
 
-
-    /**
-     * Append a toolbar button allowing user to choose an edit mode among those registered
-     * TODO(paul) : a implémenter 
-     */
-    EditObject.prototype.addEditModeSwitcher = function(){
-      var me = this;
-      this.depgraph.viewer.addToolbarButton('Custom Edit Mode',function(){
-        var r=confirm("You will not be able to get back to frmg edit mode, are you sure you want to edit manually the graph?");
-        if (r==true){
-          depgraphlib.hideAltLinks(me.depgraph,me.depgraph.editObject.previousSelectedObject);
-          me.setEditMode('default');
-        }
-      },'left');
-    };
-
-    depgraphlib.save_default = function(depgraph){
-      depgraph.cleanData();
-      jQuery.ajax({
-        type: 'POST', 
-        url: depgraph.wsurl,
-        data: {
-          action:'save',
-          format:depgraph.dataFormat,
-          options: '',
-          data:depgraph.data,
-          uid:depgraph.options.uid
-        },
-        dataType : 'json',
-        success: function(data, textStatus, jqXHR) {
-          depgraph.editObject.lastSavedPtr = depgraph.editObject.currentPtr;
-          depgraph.editObject.needToSaveState = false;
-          depgraph.editObject.updateSaveState();
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          alert(textStatus);
-        }
-      });
-    };
 
     depgraphlib.FRMGEditMode = function(urlFRMGServer){
       this.mode = {
@@ -4118,43 +4019,53 @@
 
       
     };
-  }
-
-
-
-
-  
-  
-  
-}());
-
-
-
-(function(){
-  
-
-  if(typeof define == 'undefined'){
-      mgwiki_graphs(depgraphlib);
-  }else{
-    define(['app/depgraphlib'],mgwiki_graphs);
-  }
-
-
-  function mgwiki_graphs(depgraphlib){
     
-    depgraphlib.foo = function (){
-      console.log('working');
+  
+  
+}(window.depgraphlib));
+
+
+/**
+ * mgwiki_graphs.js
+ * This file contains javascript ajax function that will interact with FrMGWiki server functions,
+ * and others convenient functions.
+ */
+(function(depgraphlib){
+
+    /**
+     * Callback to use in a toolbar button.
+     * Display a box containing informations about the current graph.
+     */
+    depgraphlib.showRefs = function(){
+      var me = depgraphlib.DepGraph.getInstance(this);
+      var coords = this.getBoundingClientRect();
+      var point = {x:coords.left,y:coords.top + coords.height + 2};
+      var div ='<div>Reference Infos : <br>';
+      div += 'Sentence : ' + fix_missing_a_closing_tag(me.sentenceLink) + '<br>'
+      + 'Back Links : ' + me.refs
+      +'</div>';
+      div = jQuery(div);
+      me.viewer.createBox({closeButton:true,position:point}).setContent(div).open();
     };
-    
-    depgraphlib.promote = function(gid,url){
+
+    function fix_missing_a_closing_tag(link){
+      if(link.indexOf('</a>', link.length - 4) !== -1){
+        return link;
+      }else{
+        return link + '</a>';
+      }
+    }
+
+
+    depgraphlib.mgwiki_d3js_module_action = function(action,gid,wsurl){
       jQuery.ajax({
         type: 'POST', 
-        url: url,
+        url: wsurl,
         data: {
           gid:gid,
           action:'promote',
         },
-        dataType : 'json',
+        dataType : action,
         success: function(data, textStatus, jqXHR) {
           if(data.success){
             window.location = '';
@@ -4168,51 +4079,17 @@
       });
     };
     
+    depgraphlib.promote = function(gid,url){
+      depgraphlib.mgwiki_d3js_module_action('promote',gid,url);
+    };
+    
     depgraphlib.reload = function(gid,url){
-      jQuery.ajax({
-        type: 'POST', 
-        url: url,
-        data: {
-          gid:gid,
-          action:'reload',
-        },
-        dataType : 'json',
-        success: function(data, textStatus, jqXHR) {
-          if(data.success){
-            window.location = '';
-          }else{
-            alert(data.error);
-          }
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          alert(textStatus);
-        }
-      });
+      depgraphlib.mgwiki_d3js_module_action('reload',gid,url);
     };
 
     depgraphlib.remove = function(gid,url){
-      jQuery.ajax({
-        type: 'POST', 
-        url: url,
-        data: {
-          gid:gid,
-          action:'delete',
-        },
-        dataType : 'json',
-        success: function(data, textStatus, jqXHR) {
-          if(data.success){
-            window.location = '';
-          }else{
-            alert(data.error);
-          }
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          alert(textStatus);
-        }
-      });
+      depgraphlib.mgwiki_d3js_module_action('remove',gid,url);
     };
-  }
-
   
-}());
+}(window.depgraphlib));
 

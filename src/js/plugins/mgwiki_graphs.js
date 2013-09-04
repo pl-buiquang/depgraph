@@ -3,16 +3,8 @@
  * This file contains javascript ajax function that will interact with FrMGWiki server functions,
  * and others convenient functions.
  */
-(function(){
+(function(depgraphlib){
 
-  if(typeof define == 'undefined'){
-      mgwiki_graphs(depgraphlib);
-  }else{
-    define(['app/depgraphlib'],mgwiki_graphs);
-  }
-
-  function mgwiki_graphs(depgraphlib){
-    
     /**
      * Callback to use in a toolbar button.
      * Display a box containing informations about the current graph.
@@ -71,7 +63,6 @@
     depgraphlib.remove = function(gid,url){
       depgraphlib.mgwiki_d3js_module_action('remove',gid,url);
     };
-  }
   
-}());
+}(window.depgraphlib));
 

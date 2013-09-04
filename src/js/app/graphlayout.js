@@ -8,19 +8,8 @@
  * Author : Paul Bui-Quang
  * INRIA
  */
+(function(depgraphlib){
 
-(function(){
-  
-  if(typeof define == 'undefined'){
-    graphlayout(depgraphlib,depgraphlib.GraphViewer,depgraphlib.EditObject);
-  }else{
-    define(['app/depgraphlib','app/graphviewer','app/editobject'],graphlayout);
-  }
-
-
-
-  function graphlayout(depgraphlib,GraphViewer,EditObject){
-    
     /**
      * Create a new instance of a graph
      * @param viewer The viewer in which the graph will be displayed
@@ -40,11 +29,11 @@
      * 7. set viewer additional settings
      * 8. instanciate edit object
      */
-    var DepGraph = function (container, json_data, options) {
+    depgraphlib.DepGraph = function (container, json_data, options) {
       this.options = options || {};
-      this.viewer = new GraphViewer(container,this.options.uid);
+      this.viewer = new depgraphlib.GraphViewer(container,this.options.uid);
       
-      DepGraph.instances[this.viewer.uid] = this;
+      depgraphlib.DepGraph.instances[this.viewer.uid] = this;
 
       this.callbacks = new Object();
 
@@ -58,10 +47,10 @@
       this.autoHighLightOnMouseOver();
       this.viewerSettings();
       
-      this.editObject = new EditObject(this);
+      this.editObject = new depgraphlib.EditObject(this);
     }; 
 
-    DepGraph.prototype.getOriginalUID = function(){
+    depgraphlib.DepGraph.prototype.getOriginalUID = function(){
       return this.viewer.uid.replace(/_*$/g, '');
     };
     
@@ -70,7 +59,7 @@
      * Set up viewer callbacks and settings :
      * - callback when fullscreen open and close
      */
-    DepGraph.prototype.viewerSettings = function(){
+    depgraphlib.DepGraph.prototype.viewerSettings = function(){
       this.viewer.callbacks.fullscreen.oncomplete.push({
         method:this.centerGraph,
         caller:this
@@ -88,7 +77,7 @@
      * If container is smaller than the content graph, graph position is set in accordance with
      * margins parameters (see #style)
      */
-    DepGraph.prototype.centerGraph = function(){
+    depgraphlib.DepGraph.prototype.centerGraph = function(){
       var chart = this.viewer.chart;
       var chartBBox = chart[0].getBoundingClientRect();
       var visBBox = this.vis.node().getBBox();
@@ -105,7 +94,7 @@
     /**
      * Switch on or off the highlight on mouseover (link and words)
      */
-    DepGraph.prototype.autoHighLightOnMouseOver = function(value){
+    depgraphlib.DepGraph.prototype.autoHighLightOnMouseOver = function(value){
       if(value==null || value){
         this.vis.selectAll('g.link').on("mouseover.autohighlight",function(){highlightLink(this, true); });
         this.vis.selectAll('g.link').on("mouseout.autohighlight",function(){highlightLink(this, false); });
@@ -123,7 +112,7 @@
     /**
      * Static variable containing all instances of depgraphs on the page (keyed by their viewer uid)
      */
-    DepGraph.instances = DepGraph.instances || [];
+    depgraphlib.DepGraph.instances = depgraphlib.DepGraph.instances || [];
 
     /**
      * Retrieve the depgraph instance from :
@@ -133,9 +122,9 @@
      * @param fromdiv
      * @returns
      */
-    DepGraph.getInstance = function(fromdiv) {
+    depgraphlib.DepGraph.getInstance = function(fromdiv) {
       if(fromdiv){
-        if (DepGraph.prototype.isPrototypeOf(fromdiv)) {
+        if (depgraphlib.DepGraph.prototype.isPrototypeOf(fromdiv)) {
           return fromdiv;
         } else if (fromdiv.ownerSVGElement != null) {
           fromdiv = fromdiv.ownerSVGElement.parentNode.id;
@@ -148,7 +137,7 @@
         regex = /.*-(\w+)/;
         var match = regex.exec(fromdiv);
         if (match != null) {
-          return DepGraph.instances[match[1]];
+          return depgraphlib.DepGraph.instances[match[1]];
         }
         return null;
       }
@@ -158,7 +147,7 @@
      * Initial set up and preprocess of graph data
      * @param json_data
      */
-    DepGraph.prototype.setData = function(json_data){
+    depgraphlib.DepGraph.prototype.setData = function(json_data){
       this.data = json_data;
       this.prepareData();
     };
@@ -167,7 +156,7 @@
      * Reset data and run immediatly an update
      * @param json_data
      */
-    DepGraph.prototype.resetData = function(json_data){
+    depgraphlib.DepGraph.prototype.resetData = function(json_data){
       this.setData(json_data);
       this.createLayout();
       this.update();
@@ -182,7 +171,7 @@
      * Clean added data (used for graph svg layout creation)
      * TODO(paul) clean other added data (#id)
      */
-    DepGraph.prototype.cleanData = function(){
+    depgraphlib.DepGraph.prototype.cleanData = function(){
       var links = this.vis.selectAll("g.link");
       this.resetLinksProperties(links);
     };
@@ -193,7 +182,7 @@
      * - set up #id and #position, reset #properties
      * TODO(paul) validate data => set error message if failed validation
      */
-    DepGraph.prototype.prepareData = function() {
+    depgraphlib.DepGraph.prototype.prepareData = function() {
       // Resolve references
       depgraphlib.JSONresolveReferences(this.data,'@');
       
@@ -275,7 +264,7 @@
      * - apply viewer view mode (shrinkToContent is default)
      * TODO(paul) : add parameter or attributes to depgraph in order to control which view mode to apply
      */
-    DepGraph.prototype.postProcesses = function(){
+    depgraphlib.DepGraph.prototype.postProcesses = function(){
       var visBBox = this.vis.node().getBBox();
       this.vis.attr("transform","translate(" + 
           (depgraphlib.removeUnit(this.data.graph['#style'].margin.left)-visBBox.x) + "," + 
@@ -290,7 +279,7 @@
      * 
      * For values in %, make sure that the container wrapping the viewer is displayed as block and a size is set.
      */
-    DepGraph.prototype.setViewMode = function(){
+    depgraphlib.DepGraph.prototype.setViewMode = function(){
       if(this.options.viewmode && this.options.viewmode != 'full'){
         this.setWidthLimitedViewMode('600px');
       }else{
@@ -306,7 +295,7 @@
     };
     
     
-    DepGraph.prototype.setFullViewMode = function(){
+    depgraphlib.DepGraph.prototype.setFullViewMode = function(){
       this.viewer.shrinkToContent(depgraphlib.removeUnit(this.data.graph['#style']['margin'].right),depgraphlib.removeUnit(this.data.graph['#style']['margin'].bottom)+20);
     };
     
@@ -316,7 +305,7 @@
      * @param defaultWidth
      * @param forceCrop
      */
-    DepGraph.prototype.setWidthLimitedViewMode = function(defaultWidth,forceCrop){
+    depgraphlib.DepGraph.prototype.setWidthLimitedViewMode = function(defaultWidth,forceCrop){
       this.viewer.shrinkHeightToContent(depgraphlib.removeUnit(this.data.graph['#style']['margin'].bottom)+20);
       if(!this.options.viewsize){
         this.options.viewsize = defaultWidth;
@@ -335,7 +324,7 @@
     /**
      * Create the scrollbar and set up the callbacks for scrolling the view
      */
-    DepGraph.prototype.createScrollBar = function(){
+    depgraphlib.DepGraph.prototype.createScrollBar = function(){
       var me = this;
 
       var graphBBox = this.vis.node().getBBox();
@@ -367,35 +356,35 @@
         this.scrollMouseSelected = null;
         
         this.scrollbar.on('mousedown',function(e){
-          var depgraph = DepGraph.getInstance(this);
-          DepGraph.depgraphActive = '-' + depgraph.viewer.uid;
+          var depgraph = depgraphlib.DepGraph.getInstance(this);
+          depgraphlib.DepGraph.depgraphActive = '-' + depgraph.viewer.uid;
           depgraph.scrollMouseSelected = d3.event.clientX;
           d3.event.preventDefault ? d3.event.preventDefault() : d3.event.returnValue = false;
         });
         
         /*
         d3.select(this.viewer.chart[0]).on('mouseover',function(e){
-          var depgraph = DepGraph.getInstance(d3.event.originalTarget);
+          var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget);
           depgraph.setFullViewMode();
         });
         
         d3.select(this.viewer.chart[0]).on('mouseout',function(e){
-          var depgraph = DepGraph.getInstance(d3.event.originalTarget);
+          var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget);
           depgraph.setViewMode();
         });*/
 
         
         d3.select(document).on('click.focus',function(e){
-          var depgraph = DepGraph.getInstance(d3.event.originalTarget);
+          var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget);
           if(depgraph){
-            DepGraph.depgraphActive = '-' + depgraph.viewer.uid;
+            depgraphlib.DepGraph.depgraphActive = '-' + depgraph.viewer.uid;
           }else{
-            DepGraph.depgraphActive = null;
+            depgraphlib.DepGraph.depgraphActive = null;
           }
         });
         
         d3.select(document).on('wheel.scrollbar',function(e){
-          var depgraph = DepGraph.getInstance(DepGraph.depgraphActive);
+          var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.DepGraph.depgraphActive);
           if(depgraph && depgraph.scrollbar){
             depgraph.translateGraph(3*d3.event.deltaY,0);
             d3.event.preventDefault ? d3.event.preventDefault() : d3.event.returnValue = false;
@@ -403,7 +392,7 @@
         });
         
         d3.select(document).on('mousemove.scrollbar'+me.viewer.uid,function(e){
-          var depgraph = DepGraph.getInstance(DepGraph.depgraphActive);
+          var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.DepGraph.depgraphActive);
           if(depgraph && (depgraph.scrollMouseSelected || depgraph.scrollMouseSelected === 0)){
             var xoffset = d3.event.clientX - depgraph.scrollMouseSelected;
             if(depgraph.scrollbar){
@@ -415,7 +404,7 @@
         });
         
         d3.select(document).on('mouseup.scrollbar'+me.viewer.uid,function(e){
-          var depgraph = DepGraph.getInstance(DepGraph.depgraphActive);
+          var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.DepGraph.depgraphActive);
           if(depgraph){
             depgraph.scrollMouseSelected = null;
           }
@@ -425,8 +414,8 @@
       
       d3.select(document).on('keydown.move'+me.viewer.uid,function(e){
         var translateSpeed = 10;
-        if(DepGraph.depgraphActive){
-          var depgraph = DepGraph.getInstance(DepGraph.depgraphActive);
+        if(depgraphlib.DepGraph.depgraphActive){
+          var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.DepGraph.depgraphActive);
           if(d3.event.keyCode==37){ // left
             depgraph.translateGraph(-translateSpeed,0);
           }else if(d3.event.keyCode==39){ // right
@@ -441,7 +430,7 @@
      * events handler
      * TODO(paul) : refactor this function
      */
-    DepGraph.prototype.createLayout = function() {
+    depgraphlib.DepGraph.prototype.createLayout = function() {
       if(this.svg != null){
         this.svg.remove();
       }
@@ -461,8 +450,8 @@
     };
 
     
-    DepGraph.prototype.scale = function(scale){
-      var me = DepGraph.getInstance(this);
+    depgraphlib.DepGraph.prototype.scale = function(scale){
+      var me = depgraphlib.DepGraph.getInstance(this);
       var previousValues = depgraphlib.getTransformValues(me.vis);
       me.vis.attr("transform",
           "translate(" + (previousValues.translate[0])*scale + "," + (previousValues.translate[1])*scale + ")" + " scale("+scale+")");
@@ -473,8 +462,8 @@
      * @param x
      * @param y
      */
-    DepGraph.prototype.translateGraph = function(x,y){
-      var me = DepGraph.getInstance(this);
+    depgraphlib.DepGraph.prototype.translateGraph = function(x,y){
+      var me = depgraphlib.DepGraph.getInstance(this);
       var previousValues = depgraphlib.getTransformValues(me.vis);
       
       if(me.scrollbar){
@@ -497,7 +486,7 @@
     /**
      * Read data and construct the graph layout (update and init)
      */
-    DepGraph.prototype.update = function(){
+    depgraphlib.DepGraph.prototype.update = function(){
       
       var chunks;
       var chunks_enter;
@@ -534,7 +523,7 @@
      * @param word
      * @param position
      */
-    DepGraph.prototype.insertWord = function(word,position){
+    depgraphlib.DepGraph.prototype.insertWord = function(word,position){
       if(word['#id']==null){
         word['#id'] = this.id++;
       }
@@ -553,7 +542,7 @@
      * Add a link and update the graph
      * @param link
      */
-    DepGraph.prototype.addLink = function(link) {
+    depgraphlib.DepGraph.prototype.addLink = function(link) {
       if(link['#id']==null){
         link['#id'] = this.id++;
       }
@@ -567,7 +556,7 @@
      * TODO(paul) : add chunk implementation
      * @param chunk
      */
-    DepGraph.prototype.addChunk = function(chunk) {
+    depgraphlib.DepGraph.prototype.addChunk = function(chunk) {
       
     };
 
@@ -576,7 +565,7 @@
      * @param id
      * @returns list of obsolete links data that were removed during the process
      */
-    DepGraph.prototype.removeWord = function(id){
+    depgraphlib.DepGraph.prototype.removeWord = function(id){
       var affectedLinks = [];
       var index = this.getWordIndexById(id);
       if(index == null){
@@ -611,7 +600,7 @@
      * @param id
      * @returns {Boolean} true if success
      */
-    DepGraph.prototype.removeLink = function(id){
+    depgraphlib.DepGraph.prototype.removeLink = function(id){
       var index = this.getLinkIndexById(id);
       if(index == null){
         return false;
@@ -628,7 +617,7 @@
      * @returns the list of deleted obsolete links
      * TODO(paul) à implémenter
      */
-    DepGraph.prototype.removeChunk = function(id){
+    depgraphlib.DepGraph.prototype.removeChunk = function(id){
       
     };
 
@@ -637,7 +626,7 @@
      * @param position
      * @returns a word svg element
      */
-    DepGraph.prototype.getWordNodeByPosition = function(position){
+    depgraphlib.DepGraph.prototype.getWordNodeByPosition = function(position){
       var nodes = this.vis.selectAll('g.word');
       for(var i = 0; i<nodes[0].length; i++){
         if(nodes[0][i].__data__['#position'] == position)
@@ -651,7 +640,7 @@
      * @param id
      * @returns a word svg element
      */
-    DepGraph.prototype.getWordNodeByOriginalId = function(id){
+    depgraphlib.DepGraph.prototype.getWordNodeByOriginalId = function(id){
       var nodes = this.vis.selectAll('g.word');
       for(var i = 0; i<nodes[0].length; i++){
         if(nodes[0][i].__data__['id'] == id)
@@ -664,7 +653,7 @@
      * @param id
      * @returns a chunk svg element
      */
-    DepGraph.prototype.getChunkNodeByOriginalId = function(id){
+    depgraphlib.DepGraph.prototype.getChunkNodeByOriginalId = function(id){
       var nodes = this.vis.selectAll('g.chunk');
       for(var i = 0; i<nodes[0].length; i++){
         if(nodes[0][i].__data__['id'] == id)
@@ -677,7 +666,7 @@
      * @param id
      * @returns a word svg element
      */
-    DepGraph.prototype.getWordNodeById = function(id){
+    depgraphlib.DepGraph.prototype.getWordNodeById = function(id){
       var nodes = this.vis.selectAll('g.word');
       for(var i = 0; i<nodes[0].length; i++){
         if(nodes[0][i].__data__['#id'] == id)
@@ -690,7 +679,7 @@
      * @param id
      * @returns the index of the word in the words data list
      */
-    DepGraph.prototype.getWordIndexById = function(id){
+    depgraphlib.DepGraph.prototype.getWordIndexById = function(id){
       for(var i in this.data.graph.words){
         if(this.data.graph.words[i]['#id'] == id){
           return i;
@@ -703,7 +692,7 @@
      * @param id
      * @returns the link
      */
-    DepGraph.prototype.getLinkById = function(id){
+    depgraphlib.DepGraph.prototype.getLinkById = function(id){
       for(var i in this.data.graph.links){
         if(this.data.graph.links[i]['#id'] == id){
           return this.data.graph.links[i];
@@ -716,7 +705,7 @@
      * @param id
      * @returns the link index in the links data list
      */
-    DepGraph.prototype.getLinkIndexById = function(id){
+    depgraphlib.DepGraph.prototype.getLinkIndexById = function(id){
       for(var i in this.data.graph.links){
         if(this.data.graph.links[i]['#id'] == id){
           return i;
@@ -730,7 +719,7 @@
      * @param id
      * @returns a link in the links data list
      */
-    DepGraph.prototype.getLinkIndexByOriginalId = function(id){
+    depgraphlib.DepGraph.prototype.getLinkIndexByOriginalId = function(id){
       for(var i in this.data.graph.links){
         if(this.data.graph.links[i].id == id){
           return i;
@@ -743,7 +732,7 @@
      * @param id
      * @returns an object data from the links,words or chunks data list
      */
-    DepGraph.prototype.getObjectById = function(id){
+    depgraphlib.DepGraph.prototype.getObjectById = function(id){
       for(var i in this.data.graph.words){
         if(this.data.graph.words[i]['#id'] == id){
           return this.data.graph.words[i];
@@ -766,7 +755,7 @@
      * @param id
      * @returns an object svg element from the links,words or chunks nodes selections
      */
-    DepGraph.prototype.getObjectNodeFromObject = function(obj){
+    depgraphlib.DepGraph.prototype.getObjectNodeFromObject = function(obj){
       //TODO (check object type (isALink, isAChunk, isAWord, else) then search in corresponding
       // lists the #id
     };
@@ -789,7 +778,7 @@
      * @returns
      */
     SVGElement.prototype.getStyle = function(property,defaultValue){
-      var me = DepGraph.getInstance(this);
+      var me = depgraphlib.DepGraph.getInstance(this);
       if(this.__data__['#style']!=null && this.__data__['#style'][property] != null){
         return this.__data__['#style'][property];
       };
@@ -883,7 +872,7 @@
       .style('fill',highlight)
       .style('stroke-width',1);
       
-      var me = DepGraph.getInstance(this);
+      var me = depgraphlib.DepGraph.getInstance(this);
       var previousSibling = me.getWordNodeByPosition(node.datum()['#position']-1);
       var margin = elt.getStyle('margin');
       if(previousSibling != null){
@@ -908,7 +897,7 @@
      */
     function setChunkMaterials(d,i){
       var node = d3.select(this);
-      var me = DepGraph.getInstance(node.node());
+      var me = depgraphlib.DepGraph.getInstance(node.node());
       var elt = node.node();
 
       var rect = node.append("rect");
@@ -997,7 +986,7 @@
      */
     function setLinkMaterials(d,i){
       var node = d3.select(this);
-      var me = DepGraph.getInstance(this);
+      var me = depgraphlib.DepGraph.getInstance(this);
       var elt = this;
       var p = me.getLinkProperties(node.node());
       
@@ -1201,7 +1190,7 @@
     /**
      * set up svg needed definitions
      */
-    DepGraph.prototype.setSVGDefs = function(){
+    depgraphlib.DepGraph.prototype.setSVGDefs = function(){
       this.defs = this.svg.append("defs");
       this.defs.append('marker')
         .attr('id',this.viewer.appendOwnID('arrow'))
@@ -1229,7 +1218,7 @@
         if(node.__data__['#position']!=null)
           return node.__data__['#position'];
         else{ // we are dealing with a chunk
-          var me = DepGraph.getInstance(node);
+          var me = depgraphlib.DepGraph.getInstance(node);
           var middle = Math.floor(node.__data__['elements'].length/2);
           var middleNode = me.getWordNodeByOriginalId(node.__data__['elements'][middle]);
           return middleNode.__data__['#position'];
@@ -1239,16 +1228,6 @@
       }
     };
 
-   depgraphlib.DepGraph = DepGraph;
-   
-   return DepGraph;
-    
-  }
-    
-
   
-  
-  
-  
-}());
+}(window.depgraphlib));
 

@@ -2,18 +2,8 @@
   /**                      Crossing Algo                     **/
   /************************************************************/
 
-(function(){
+(function(depgraphlib){
 
-  
-  if(typeof define == 'undefined'){
-      crossing_algo(depgraphlib, depgraphlib.DepGraph);
-  }else{
-    define(['app/depgraphlib','app/graphlayout'],crossing_algo);
-  }
-
-
-  function crossing_algo(depgraphlib,DepGraph){
-    
     /**
      * returns true if a node (word or chunk) is outside a frame defined by a link set of properties,
      * false otherwise
@@ -38,7 +28,7 @@
      * @param link2
      * @returns {Boolean}
      */
-    DepGraph.prototype.crossed = function(link1,link2){
+    depgraphlib.DepGraph.prototype.crossed = function(link1,link2){
       var p1 = this.getLinkProperties(link1);
       var p2= this.getLinkProperties(link2);
       return (isInside(p1.nodeStart,p2) && isOutside(p1.nodeEnd,p2))
@@ -49,7 +39,7 @@
      * set up the links position and strate (height of the edge and "innerness")
      * @param links
      */
-    DepGraph.prototype.preprocessLinksPosition = function(links){
+    depgraphlib.DepGraph.prototype.preprocessLinksPosition = function(links){
       var me = this;
       // factor 2, in order to take into account left and right in the positions
       this.sortLinksByLength(links[0]);
@@ -161,7 +151,7 @@
      * sort the links by length..
      * @param links
      */
-    DepGraph.prototype.sortLinksByLength = function(links){
+    depgraphlib.DepGraph.prototype.sortLinksByLength = function(links){
       var me = this;
       links.sort(function(a,b){
         return me.getLinkProperties(a).length-me.getLinkProperties(b).length;
@@ -175,7 +165,7 @@
      * @param link
      * @returns the properties object
      */
-    DepGraph.prototype.getLinkProperties = function(link){
+    depgraphlib.DepGraph.prototype.getLinkProperties = function(link){
       var d = link.__data__;
       if(d['#properties'] == null){
         var properties = new Object();
@@ -214,16 +204,15 @@
      * Reset the properties of all links
      * @param links
      */
-    DepGraph.prototype.resetLinksProperties = function(links){
+    depgraphlib.DepGraph.prototype.resetLinksProperties = function(links){
       links.each(function(d,i){
         d['#properties'] = null;
       });
       this.maxLinksStrate = 0;
     };
 
-  }
 
 
 
-}());
+}(window.depgraphlib));
 
