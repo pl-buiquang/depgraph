@@ -30,8 +30,8 @@ href="depgraph.css" />
 <body>
 <?php
 
-require_once "depgraph_formats.inc";
-require_once "depgraph.php";
+require_once "../depgraph_formats.inc";
+require_once "../depgraph.php";
 
 $data1 = '[GRAPH] {
     background=#F9F9F9;
@@ -138,13 +138,12 @@ w2-> w4 {label ="cross";}
 }';
 
 $data = json_decode(dep2pict2depGraph($data1),true);
-
 $graph1 = new DepGraph($data,null);
 $html1 = $graph1->getHTMLImage();
 echo $html1;
 
 $data = json_decode(dep2pict2depGraph($data2),true);
-
+echo dep2pict2depGraph($data2);
 $graph2 = new DepGraph($data,null);
 $html2 = $graph2->getHTMLImage();
 echo $html2;

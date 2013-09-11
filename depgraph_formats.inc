@@ -342,7 +342,8 @@ function getChunk($words,$chunkString){
   $group = array();
   $matches = array();
   preg_match("/(\w+)\.\.(\w+)/", $chunkString, $matches);
-  $append = false;
+  $group = array($matches[1],$matches[2]);
+  /*$append = false;
   foreach($words as $word){
     if($word['id']==trim($matches[1])){
       $append = true;
@@ -353,7 +354,7 @@ function getChunk($words,$chunkString){
     if($word['id'] == trim($matches[2])){
       return $group;
     }
-  }
+  }*/
   return $group;
 }
 

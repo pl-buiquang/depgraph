@@ -7,7 +7,41 @@
 */
 @CHARSET "UTF-8";
 
+.depgraphlib-tab-windows{
+ display:none;
+}
 
+.depgraphlib-tab-menu{
+ display:inline-block;
+ float:left;
+ padding: 2px 5px;
+ border-top-left-radius: 4px;
+ border-top-right-radius: 4px;
+ border: 1px solid #B6B6B6;
+ margin-bottom:-1px;
+ margin-left: 1px;
+}
+
+.depgraphlib-tab-menu:hover{
+ 
+}
+
+.depgraphlib-tab-menu-on{
+ border-bottom:1px solid #F0F0F0;
+}
+
+
+.depgraphlib-tab-menus{
+ width: 100%;
+ display: inline-block;
+ border-bottom:1px solid #B6B6B6;
+ margin-top:5px;
+}
+
+.depgraphlib-tabs-content{
+ clear:both;
+ padding: 5px;
+}
 
 .graph-sidebar ul{
  margin:0;
@@ -155,6 +189,10 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b3000000', e
  .depgraphlib-box-header{
   display:block;
  }
+ 
+.depgraphlib-box-content{
+ clear:both;
+}
  
 .depgraphlib-box > div {
  background:#F0F0F0;

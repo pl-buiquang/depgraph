@@ -1,247 +1,139 @@
 /**
- * Depgraphlib is a set of basic and utils function used by other scripts of DepGraph Library
- * If using requirejs, it define a convenient object containing usefull functions,
- * otherwise, it creates the global namespace that will contain every objects and function of DepGraph Library
+ * @file First include of DepGraphLib, contains declaration of major classes
+ * @author Paul Bui-Quang
  */
+
+/**
+ * The global namespace of the DepGraphLib Library
+ * @namespace DepGraphLib
+ */
+
+
 (function(depgraphlib){
   
-    
-    depgraphlib.windowOpenPost = function(data,url){
-      depgraphlib.windowOpenPostForm = '<form id="depgraphlibWindowOpenPostForm" method="post" action="'+url+'" target="_blank"></form>';
-      var existingForm = jQuery('#depgraphlibWindowOpenPostForm');
-      if(!existingForm.length){
-        existingForm = jQuery(depgraphlib.windowOpenPostForm);
-        jQuery('body').append(existingForm);
-      }
-      existingForm.html('');
-      for(param in data){
-        var stringdata = null;
-        if(typeof data[param] == 'string'){
-          stringdata = data[param];
-        }else{
-          stringdata = JSON.stringify(data[param]);
-        }
-        existingForm.append('<input type="hidden" name="'+param+'" value="">');
-        existingForm[0][param].value = stringdata;
-      }
-      document.getElementById('depgraphlibWindowOpenPostForm').submit();
-    };
-    
-    
-    /**
-     * clone an object
-     */
-    depgraphlib.clone = function(obj) {
-      if (null == obj || "object" != typeof obj)
-        return obj;
-
-      if (obj instanceof Date) {
-        var copy = new Date();
-        copy.setTime(obj.getTime());
-        return copy;
-      }
-
-      if (obj instanceof Array) {
-        var copy = [];
-        for ( var i = 0, len = obj.length; i < len; i++) {
-          copy[i] = depgraphlib.clone(obj[i]);
-        }
-        return copy;
-      }
-
-      if (obj instanceof Object) {
-        var copy = {};
-        for ( var attr in obj) {
-          if (obj.hasOwnProperty(attr))
-            copy[attr] = depgraphlib.clone(obj[attr]);
-        }
-        return copy;
-      }
-
-      throw new Error("Unable to copy obj! Its type isn't supported.");
-    };
-    
-    /**
-     * Set the position for a d3 selection of an SVGElement
-     * @param x
-     * @param y
-     */
-    depgraphlib.setGroupPosition = function(node,x,y){
-      node.attr("transform","translate("+x+","+y+")");
-    };
-
-    /**
-     * center a node in x in reference of an other
-     * @param node
-     * @param refNode
-     */
-    depgraphlib.center = function(node,refNode){
-      var refbbox = refNode.node().getBBox();
-      var bbox = node.node().getBBox();
-      node.attr('x',-bbox.width/2+refbbox.width/2);
-    };
-
-    /**
-     * get the transform value of a  g svg element
-     * @param elt
-     * @returns {Object}
-     */
-    depgraphlib.getTransformValues = function (elt){
-      var value = elt.attr("transform");
-      var pairRegex = /(\w+)\((.*?)\)/g;
-      var result = new Object();
-      var tmp;
-      while((tmp = pairRegex.exec(value)) != null){
-        var valuesRegex = /(-*\w+\.*\w*)/g;
-        result[tmp[1]] = [];
-        var values;
-        while((values= valuesRegex.exec(tmp[2]))!=null){
-          result[tmp[1]].push(parseFloat(values[1]));
-        }
-      }
-      
-      return result;
-    };
-
-    /**
-     * resolve the references in a json object
-     * the references are su objects id starting with a refPrefix 
-     * (eg. '@15' for a object of id 15 and using '@' as a refPrefix  
-     * @param obj
-     * @param refPrefix
-     */
-    depgraphlib.JSONresolveReferences = function (obj,refPrefix){
-      var refids = [];
-      var queue = [];
-      subResolveRef(obj,refPrefix,refids,queue);
-      for(elt in queue){
-        if(refids[elt] == null){
-          throw "This object has missing references!";
-        }else{
-          elt = refids[elt];
-        }
-      }
-      
-      function subResolveRef(obj,refPrefix,refids,queue){
-        for(var property in obj){
-          if(!obj.hasOwnProperty(property)){
-            continue;
-          } 
-          if(property == 'id'){
-            refids[obj[property]]=obj;
-            continue;
-          }
-          var type = typeof obj[property];
-          if(type == 'object'){
-            subResolveRef(obj[property],refPrefix,refids,queue);
-          }else if(type == 'string'){
-            if(obj[property].indexOf(refPrefix) == 0){
-              var refid = obj[property].substring(1);
-              if(refids[refid] != null){
-                //TODO resolve for uri rdf type
-                obj[property] = refids[refid];
-                subResolveRef(obj[property],refPrefix,refids,queue);
-              }else{
-                queue.push[obj[property]];
-              }
-            }
-          }
-        }
-      }
-    };
-
-    /**
-     * remove the unit 'px' from a string an returns the number as a float number
-     * @param value
-     * @returns
-     */
-    depgraphlib.removeUnit = function (value){
-      var regex_px = /(-*)(\d+\.*\d*)px/;
-      var match = regex_px.exec(value);
-      if(match != null){
-        var sign = (match[1].length%2==0)?'':'-';
-        value = sign+match[2];
-      }
-      return parseFloat(value);
-    };
-    
-    /**
-     * add multiple arguments (number or string with units) and returns their sum in a string appended by 'px'
-     * @returns {String}
-     */
-    depgraphlib.addPxs = function(){
-      var sum = 0;
-      for(var i=0; i<arguments.length;i++){
-        var arg = depgraphlib.removeUnit(arguments[i]);
-        sum += parseInt(arg);
-      }
-      return sum+'px';
-    };
-
-    /************************************************************/
-    /**                      Colors                            **/
-    /************************************************************/
-
-    depgraphlib.rgbToHex = function(r, g, b) {
-      return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-    };
-
-    depgraphlib.hexToRgb  = function(hex) {
-      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      return result ? {
-          r: parseInt(result[1], 16),
-          g: parseInt(result[2], 16),
-          b: parseInt(result[3], 16)
-      } : null;
-    };
-
-     depgraphlib.rgbToHsl = function(r, g, b){
-      r /= 255, g /= 255, b /= 255;
-      var max = Math.max(r, g, b), min = Math.min(r, g, b);
-      var h, s, l = (max + min) / 2;
-
-      if(max == min){
-          h = s = 0; // achromatic
-      }else{
-          var d = max - min;
-          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-          switch(max){
-              case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-              case g: h = (b - r) / d + 2; break;
-              case b: h = (r - g) / d + 4; break;
-          }
-          h /= 6;
-      }
-
-      return {h:h ,s: s ,l: l };
-    };
-
-    depgraphlib.hslToRgb = function(h, s, l){
-      var r, g, b;
-
-      if(s == 0){
-          r = g = b = l; // achromatic
-      }else{
-          function hue2rgb(p, q, t){
-              if(t < 0) t += 1;
-              if(t > 1) t -= 1;
-              if(t < 1/6) return p + (q - p) * 6 * t;
-              if(t < 1/2) return q;
-              if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-              return p;
-          }
-
-          var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-          var p = 2 * l - q;
-          r = hue2rgb(p, q, h + 1/3);
-          g = hue2rgb(p, q, h);
-          b = hue2rgb(p, q, h - 1/3);
-      }
-
-      return {r:Math.floor(r * 255),g: Math.floor(g * 255),b: Math.floor(b * 255)};
-    };
-    
-    
+  /**
+   * @class {object} DepGraph
+   * @alias DepGraph
+   * 
+   * @desc This is the principal class of DepGraphLib.
+   * This object handle the graph layout creation from the data and options passed as parameters.
+   * 
+   * @param {string|Object} container the dom ID or the jQuery selection object that will contain the graph
+   * (will be directly passed to the GraphViewer constructor)
+   * @param {DepGraphData} json_data the data object defining the graph 
+   * @param {object} options the options of the graph
+   * @return {object} the instance of the graph
+   *
+   * @memberof DepGraphLib
+   */
+  depgraphlib.DepGraph = function (container, json_data, options) {
+    this.init(container, json_data, options);
+  };
   
+  
+  /**
+   * @class {object} GraphViewer
+   * @alias GraphViewer
+   * 
+   * @desc This object handle the creation of the container layout in which the graph svg will be set in.
+   * It is not intended to be constructed outside of the context of DepGraph object creation.
+   *
+   * @param {string|Object} container the dom ID or the jQuery selection object that will contain the graph
+   * @param {string} [uid] an unique identifier
+   * @return {Object} the instance of the container of the graph 
+   * 
+   * @memberof DepGraphLib
+   */
+  depgraphlib.GraphViewer = function (container,uid){
+    this.init(container,uid);
+  };
+  
+  /**
+   * @class {object} EditObject
+   * @alias EditObject
+   * 
+   * @desc This object handle the edition operation provided by an {@link EditMode} object
+   * 
+   * @param {object} depgraph The DepGraph object that will use this editobject
+   * @return {object} the instance of the edit object
+   * 
+   * @memberof DepGraphLib
+   * 
+   * @see DepGraphLib.EditObject.DefaultMode
+   */
+  depgraphlib.EditObject = function (depgraph){
+    this.init(depgraph);
+  };
+  
+  /**
+   * @class {object} Box
+   * @alias Box
+   * 
+   * @desc A generic window box used to display about anything
+   * 
+   * @param {object} options
+   * @return {object} the instance of the box window
+   * 
+   * @memberof DepGraphLib
+   */
+  depgraphlib.Box = function(options){
+    this.init(options);
+  };
+    
 }(window.depgraphlib = window.depgraphlib || {}));
 
+/**
+ * The json format for graph description used to construct the {@link DepGraphLib.DepGraph} class
+ * @typedef {Object} DepGraphData
+ * @property {DepGraphStyle} [#style=] object style define the global style of the graph. object style definition contain css-like style attributes
+ * @property {DepGraphStyle} [#word-style=] object style define words style of the graph. these values can be overriden in word #style attribute definition. 
+        object style definition contain css-like style attributes
+ * @property {DepGraphStyle} [#link-style=] object style define links style of the graph. these values can be overriden in link #style attribute definition. 
+        object style definition contain css-like style attributes
+ * @property {DepGraphStyle} [#chunk-style=] object style define chunks style of the graph. these values can be overriden in chunk #style attribute definition. 
+        object style definition contain css-like style attributes
+ * @property {array.<DepGraphLink>} links array of links definition
+ * @property {array.<DepGraphWord>} words array of words definition
+ * @property {array.<DepGraphChunk>} chunks array of chunks definition
+ * 
+ */
+
+/**
+ * The object format for style description
+ * @typedef {object} DepGraphStyle
+ */
+
+/**
+ * The format of word in the {@link DepGraphData} object
+ * @typedef {object} DepGraphWord
+ * @property {string} id the id of the word
+ * @property {string} label the label of the word
+ * @property {array.<string>} [sublabels] array of sublabels
+ * @property {DepGraphStyle} [#style] style object overridding global styles 
+ */
+
+/**
+ * The format of link in the {@link DepGraphData} object 
+ * @typedef {object} DepGraphLink
+ * @property {string} source the id of the source word or chunk
+ * @property {string} target the id of the target word or chunk
+ * @property {string} label the label of the link 
+ * @property {DepGraphStyle} [#style] style object overridding global styles 
+ */
+
+/**
+ * The format of chunk in the {@link DepGraphData} object
+ * @typedef {object} DepGraphChunk
+ * @property {string} id the id of the chunk
+ * @property {array.<string>} elements the array of words id bundled in this chunk
+ * @property {string} label the label of the chunk
+ * @property {array.<string>} [sublabels] array of sublabels  
+ * @property {DepGraphStyle} [#style] style object overridding global styles 
+ */
+
+/**
+ * The options object that can be passed to the DepGraph constructor
+ * @typedef {object} DepGraphOptions
+ * @property {string} [uid=] the uid of the graph
+ * @property {string} [viewmode] the view mode of the graph. possible values are 'full', 'stretched', 'cropped'
+ */

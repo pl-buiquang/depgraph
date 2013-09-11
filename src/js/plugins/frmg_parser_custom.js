@@ -134,7 +134,7 @@
         if(depgraph.editObject.highlightMode){
           depgraph.editObject.clearSelection();
           var value = !depgraphlib.isObjectPermanentHighlighted(currentobj);
-          depgraphlib.highlightObject(currentobj,value,true);
+          depgraphlib.DepGraph.highlightObject(currentobj,value,true);
           
           if(depgraph.editObject.mode[depgraph.editObject.editMode].highlightInfos == null){
             depgraph.editObject.mode[depgraph.editObject.editMode].highlightInfos = depgraph.data.graph.highlighting?depgraph.data.graph.highlighting:[];
@@ -214,7 +214,7 @@
         }
         depgraph.update();
         depgraph.postProcesses();
-        depgraph.editObject.init();
+        depgraph.editObject.editModeInit();
         depgraph.autoHighLightOnMouseOver();
         allLinksToGrey(depgraph,node.__data__['#data']['alternatives']);
       }

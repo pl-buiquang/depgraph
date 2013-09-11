@@ -7,12 +7,13 @@ module.exports = function(grunt) {
     concat: {
 
         base : {
-          src: ['src/js/app/depgraphlib.js',
-                'src/js/app/graphviewer.js',
-                'src/js/app/editobject.js',
-                'src/js/app/graphlayout.js',
-                'src/js/app/defaulteditmode.js',
-                'src/js/app/anticross.js',],
+          src: [
+                'src/js/app/depgraphlib.js',
+                'src/js/app/utils/**/*.js',
+                'src/js/app/ui/**/*.js',
+                'src/js/app/graph/**/*.js',
+                'src/js/app/edition/**/*.js',
+               ],
           dest: 'build/<%= pkg.name %>.js'
         },
         mgwiki : {
@@ -52,7 +53,14 @@ module.exports = function(grunt) {
         css : ['build/style/*'],
       },
       
-      
+      jsdoc : {
+        dist : {
+            src: ['src/js/app/**/*.js', 'src/js/plugins/**/*.js'], 
+            options: {
+                destination: 'doc'
+            }
+        }
+      },
     
   });
   
@@ -60,6 +68,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-jsdoc');
   
   grunt.registerTask('style',['clean:css','copy:css']);
   grunt.registerTask('mgwiki_prod',['concat:base','concat:mgwiki','uglify:mgwiki']);

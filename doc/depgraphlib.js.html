@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: app/depgraphlib.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Source: app/depgraphlib.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/**
+ * @file First include of DepGraphLib, contains declaration of major classes
+ * @author Paul Bui-Quang
+ */
+
+/**
+ * The global namespace of the DepGraphLib Library
+ * @namespace DepGraphLib
+ */
+
+
+(function(depgraphlib){
+  
+  /**
+   * @class {object} DepGraph
+   * @alias DepGraph
+   * 
+   * @desc This is the principal class of DepGraphLib.
+   * This object handle the graph layout creation from the data and options passed as parameters.
+   * 
+   * @param {string|Object} container the dom ID or the jQuery selection object that will contain the graph
+   * (will be directly passed to the GraphViewer constructor)
+   * @param {DepGraphData} json_data the data object defining the graph 
+   * @param {object} options the options of the graph
+   * @return {object} the instance of the graph
+   *
+   * @memberof DepGraphLib
+   */
+  depgraphlib.DepGraph = function (container, json_data, options) {
+    this.init(container, json_data, options);
+  };
+  
+  
+  /**
+   * @class {object} GraphViewer
+   * @alias GraphViewer
+   * 
+   * @desc This object handle the creation of the container layout in which the graph svg will be set in.
+   * It is not intended to be constructed outside of the context of DepGraph object creation.
+   *
+   * @param {string|Object} container the dom ID or the jQuery selection object that will contain the graph
+   * @param {string} [uid] an unique identifier
+   * @return {Object} the instance of the container of the graph 
+   * 
+   * @memberof DepGraphLib
+   */
+  depgraphlib.GraphViewer = function (container,uid){
+    this.init(container,uid);
+  };
+  
+  /**
+   * @class {object} EditObject
+   * @alias EditObject
+   * 
+   * @desc This object handle the edition operation provided by an {@link EditMode} object
+   * 
+   * @param {object} depgraph The DepGraph object that will use this editobject
+   * @return {object} the instance of the edit object
+   * 
+   * @memberof DepGraphLib
+   * 
+   * @see DepGraphLib.EditObject.DefaultMode
+   */
+  depgraphlib.EditObject = function (depgraph){
+    this.init(depgraph);
+  };
+  
+  /**
+   * @class {object} Box
+   * @alias Box
+   * 
+   * @desc A generic window box used to display about anything
+   * 
+   * @param {object} options
+   * @return {object} the instance of the box window
+   * 
+   * @memberof DepGraphLib
+   */
+  depgraphlib.Box = function(options){
+    this.init(options);
+  };
+    
+}(window.depgraphlib = window.depgraphlib || {}));
+
+/**
+ * The json format for graph description used to construct the {@link DepGraphLib.DepGraph} class
+ * @typedef {Object} DepGraphData
+ * @property {DepGraphStyle} [#style=] object style define the global style of the graph. object style definition contain css-like style attributes
+ * @property {DepGraphStyle} [#word-style=] object style define words style of the graph. these values can be overriden in word #style attribute definition. 
+        object style definition contain css-like style attributes
+ * @property {DepGraphStyle} [#link-style=] object style define links style of the graph. these values can be overriden in link #style attribute definition. 
+        object style definition contain css-like style attributes
+ * @property {DepGraphStyle} [#chunk-style=] object style define chunks style of the graph. these values can be overriden in chunk #style attribute definition. 
+        object style definition contain css-like style attributes
+ * @property {array.&lt;DepGraphLink>} links array of links definition
+ * @property {array.&lt;DepGraphWord>} words array of words definition
+ * @property {array.&lt;DepGraphChunk>} chunks array of chunks definition
+ * 
+ */
+
+/**
+ * The object format for style description
+ * @typedef {object} DepGraphStyle
+ */
+
+/**
+ * The format of word in the {@link DepGraphData} object
+ * @typedef {object} DepGraphWord
+ * @property {string} id the id of the word
+ * @property {string} label the label of the word
+ * @property {array.&lt;string>} [sublabels] array of sublabels
+ * @property {DepGraphStyle} [#style] style object overridding global styles 
+ */
+
+/**
+ * The format of link in the {@link DepGraphData} object 
+ * @typedef {object} DepGraphLink
+ * @property {string} source the id of the source word or chunk
+ * @property {string} target the id of the target word or chunk
+ * @property {string} label the label of the link 
+ * @property {DepGraphStyle} [#style] style object overridding global styles 
+ */
+
+/**
+ * The format of chunk in the {@link DepGraphData} object
+ * @typedef {object} DepGraphChunk
+ * @property {string} id the id of the chunk
+ * @property {array.&lt;string>} elements the array of words id bundled in this chunk
+ * @property {string} label the label of the chunk
+ * @property {array.&lt;string>} [sublabels] array of sublabels  
+ * @property {DepGraphStyle} [#style] style object overridding global styles 
+ */
+
+/**
+ * The options object that can be passed to the DepGraph constructor
+ * @typedef {object} DepGraphOptions
+ * @property {string} [uid=] the uid of the graph
+ * @property {string} [viewmode] the view mode of the graph. possible values are 'full', 'stretched', 'cropped'
+ */
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="DepGraphLib.Box.html">Box</a></li><li><a href="DepGraphLib.DepGraph.html">DepGraph</a></li><li><a href="DepGraphLib.EditObject.html">EditObject</a></li><li><a href="DepGraphLib.GraphViewer.html">GraphViewer</a></li></ul><h3>Namespaces</h3><ul><li><a href="DepGraphLib.html">DepGraphLib</a></li><li><a href="DepGraphLib.EditObject.DefaultMode.html">DefaultMode</a></li><li><a href="DepGraphLib.EditObject.DefaultModeLib.html">DefaultModeLib</a></li><li><a href="DepGraphLib.UI.html">UI</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Tue Sep 10 2013 16:48:27 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

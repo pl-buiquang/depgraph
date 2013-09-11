@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: app/edition/defaulteditmode.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Source: app/edition/defaulteditmode.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>(function(depgraphlib){
+  /**
+   * @namespace DefaultMode
+   * 
+   * @desc default edit mode.
+   * This default edit mode shows how to implement an edit mode.
+   * 
+   * @memberof DepGraphLib.EditObject
+   */
+  depgraphlib.EditObject.DefaultMode = {
+      /**
+       * @member {string} name
+       * @desc [REQUIRED] the name of the mode
+       * @memberof DepGraphLib.EditObject.DefaultMode
+       */
+      name : 'default',
+      /**
+       * @member {function} name
+       * @desc called when the edit mode starts
+       * @memberof DepGraphLib.EditObject.DefaultMode
+       */
+      onInit : null,
+      /**
+       * @member {DepGraphLib.EditObject~objectselect} onWordSelect
+       * @desc called when a word is clicked
+       * @memberof DepGraphLib.EditObject.DefaultMode
+       */
+      onWordSelect : depgraphlib.EditObject.DefaultModeLib.addLinkClick,
+      /**
+       * @member {DepGraphLib.EditObject~objectselect} onLinkSelect
+       * @desc called when a link is clicked
+       * @memberof DepGraphLib.EditObject.DefaultMode
+       */
+      onLinkSelect : depgraphlib.EditObject.DefaultModeLib.selectObject,
+      /**
+       * @member {DepGraphLib.EditObject~objectselect} onChunkSelect
+       * @desc called when a chunk is clicked
+       * @memberof DepGraphLib.EditObject.DefaultMode
+       */
+      onChunkSelect : depgraphlib.EditObject.DefaultModeLib.selectObject,
+      /**
+       * @member {object} onWordContext
+       * @desc object of callback list used in the context menu of a word
+       * @memberof DepGraphLib.EditObject.DefaultMode
+       */
+      onGlobalContext : null,
+      /**
+       * @member {object} onWordContext
+       * @desc object of callback list used in the context menu of a word
+       * @memberof DepGraphLib.EditObject.DefaultMode
+       */
+      onWordContext : {
+        'Show Infos': function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
+          depgraphlib.EditObject.DefaultModeLib.showEditPanel(depgraph,element);
+        },
+        'Add Node to the left':function(depgraph,element){
+          depgraphlib.EditObject.DefaultModeLib.addWordSettings(depgraph,element[0],0);
+        },
+        'Add Node to the right':function(depgraph,element){
+          depgraphlib.EditObject.DefaultModeLib.addWordSettings(depgraph,element[0],1);
+        },
+        'Delete':function(depgraph,element){
+          var word = depgraphlib.clone(element[0].__data__);
+          var affectedLinks = depgraph.removeWord(element[0].__data__['#id']);
+          depgraph.editObject.previousSelectedObject = null;
+          return {baseAction:'wordRemoval',word:word,affectedLinks:affectedLinks};
+        }
+      },
+      /**
+       * @member {object} onLinkContext
+       * @desc object of callback list used in the context menu of a link
+       * @memberof DepGraphLib.EditObject.DefaultMode
+       */
+      onLinkContext : {
+        'Show Infos': function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
+          depgraphlib.EditObject.DefaultModeLib.showEditPanel(depgraph,element);
+        },
+        'Delete' : function(depgraph,element){
+          var link = depgraphlib.clone(element[0]);
+          link.color = depgraphlib.getStyleElement(element[0],'link-color','black');
+          var success = depgraph.removeLink(element[0].__data__['#id']);
+          depgraph.editObject.previousSelectedObject = null;
+          if(success){
+            return {baseAction:'linkRemoval',link:link};
+          }
+        }
+      },
+      /**
+       * @member {object} onChunkContext
+       * @desc object of callback list used in the context menu of a chunk
+       * @memberof DepGraphLib.EditObject.DefaultMode
+       */
+      onChunkContext : null,
+      /**
+       * @member {function} keyHandler
+       * @desc handle any key pressed when editing.
+       * (params of the callback are the current graph and an object that contains the keypressed event)
+       * @memberof DepGraphLib.EditObject.DefaultMode
+       */
+      keyHandler : depgraphlib.EditObject.DefaultModeLib.editKeyDownDefault,
+      /**
+       * @member {function} save
+       * @desc save the graph
+       * @memberof DepGraphLib.EditObject.DefaultMode
+       */
+      save : null,
+      /**
+       * @member {function} undo
+       * @memberof DepGraphLib.EditObject.DefaultMode
+       */
+      undo:depgraphlib.EditObject.DefaultModeLib.defaultUndo,
+      /**
+       * @member {function} redo
+       * @memberof DepGraphLib.EditObject.DefaultMode
+       */
+      redo:null,
+  };
+  
+}(window.depgraphlib));</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="DepGraphLib.Box.html">Box</a></li><li><a href="DepGraphLib.DepGraph.html">DepGraph</a></li><li><a href="DepGraphLib.EditObject.html">EditObject</a></li><li><a href="DepGraphLib.GraphViewer.html">GraphViewer</a></li></ul><h3>Namespaces</h3><ul><li><a href="DepGraphLib.html">DepGraphLib</a></li><li><a href="DepGraphLib.EditObject.DefaultMode.html">DefaultMode</a></li><li><a href="DepGraphLib.EditObject.DefaultModeLib.html">DefaultModeLib</a></li><li><a href="DepGraphLib.UI.html">UI</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Tue Sep 10 2013 16:48:27 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

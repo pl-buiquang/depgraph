@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: app/edition/editionlib.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Source: app/edition/editionlib.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>(function(depgraphlib){
+  /**
+   * @namespace DefaultModeLib
+   * 
+   * @desc the default edit mode function library.
+   * 
+   * @memberof DepGraphLib.EditObject
+   */
+  depgraphlib.EditObject.DefaultModeLib = {
+  
+      /**
+       * @function save
+       * @desc on save callback for default mode (implemented for mgwiki).
+       * @param {DepGraphLib.Depgraph} depgraph - the graph object
+       * 
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      save : function(depgraph){
+        depgraph.cleanData();
+        jQuery.ajax({
+          type: 'POST', 
+          url: depgraph.wsurl,
+          data: {
+            action:'save',
+            format:depgraph.dataFormat,
+            options: '',
+            data:depgraph.data,
+            uid:depgraph.options.uid
+          },
+          dataType : 'json',
+          success: function(data, textStatus, jqXHR) {
+            depgraph.editObject.lastSavedPtr = depgraph.editObject.currentPtr;
+            depgraph.editObject.needToSaveState = false;
+            depgraph.editObject.updateSaveState();
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            alert(textStatus);
+          }
+        });
+      },
+      
+      
+      
+      /**
+       * @function addLinkClick
+       * @desc on word click callback for default edit mode
+       * add a link if a previous selection was a word,
+       * select a word otherwise
+       * @param {DepGraphLib.Depgraph} depgraph - the graph object
+       * @param {object.&lt;object,number>} params - the graph data of the selected link and its index
+       * 
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      addLinkClick : function(depgraph,params){
+        if(depgraph.editObject.previousSelectedObject == null || depgraphlib.isALink(depgraph.editObject.previousSelectedObject)){
+          selectObject.call(this,depgraph,params);
+        }
+        else{
+          if(this.__data__['#id'] == depgraph.editObject.previousSelectedObject.__data__['#id']){ // don't create link when selecting twice the same node
+            depgraph.editObject.clearSelection();
+            return;
+          }
+          addLinkSettings(depgraph,depgraph.editObject.previousSelectedObject,this,params);
+        }
+      },
+      
+      /**
+       * @function selectObject
+       * @desc select an object node word, link or chunk
+       * @param {DepGraphLib.Depgraph} depgraph - the graph object
+       * @param {object.&lt;object,number>} params - the graph data of the selected link and its index
+       * 
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      selectObject : function(depgraph,params){
+        if(depgraph.editObject.highlightMode){
+          var value = !depgraphlib.isObjectPermanentHighlighted(this);
+          depgraphlib.highlightObject(this,value,true);
+          depgraph.editObject.setNeedToSave();
+          return;
+        }
+        depgraph.editObject.selectObject(this);
+      },
+      
+      /**
+       * @function showEditPanel
+       * @desc show edit properties panel for an object node (word, link or chunk)
+       * @param {DepGraphLib.Depgraph} depgraph - the graph object
+       * @param obj
+       * 
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      showEditPanel : function(depgraph,obj){
+        var coords = depgraph.viewer.screenCoordsForElt(obj[0]);
+        var point = {x:(coords.ne.x + coords.nw.x)/2,y:coords.nw.y};
+        var div = createEditPanel(depgraph,obj[0]);
+        depgraph.viewer.createBox({closeButton:true,draggable:true}).setContent(div).open(point);
+      },
+      
+
+      /**
+       * @function createEditPanel
+       * @desc create the form allowing edition of properties of an object (word, link or chunk)
+       * @param {DepGraphLib.Depgraph} depgraph - the graph object
+       * @param {object} obj - the d3js node element
+       * @return {object} a jquery selection of an edition panel
+       * 
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+       createEditPanel : function(depgraph,obj){
+        var data = obj.__data__;
+        var klass = '';
+        if(obj.classList != null && obj.classList.length > 0){
+          klass = obj.classList[0];
+        }
+        
+        var div = '&lt;div>'
+          +'&lt;h3 id="edit-info-title">Edit '+klass+' (original id: '+data.id+')&lt;/h3>'
+          +'&lt;table class="main-properties-table" ref="'+data['#id']+'">';
+        
+        if(klass == 'word'){
+          div = populateWordEditPanel(depgraph,div,data);
+        }else if(klass == 'link'){
+          div = populateLinkEditPanel(depgraph,div,data);
+        }else{
+          // TODO(paul) chunk case and error case
+        }
+        
+        div += '&lt;/table>';
+        div += '&lt;input id="'+depgraph.viewer.appendOwnID(klass+'-save-properties')+'" type="button" value="Save" onclick="depgraphlib.saveProperties.call(this,arguments);">';
+        div += '&lt;/div>';
+        
+        var jdiv = jQuery(div);
+        return jdiv;
+      },
+
+      /**
+       * @function populateLinkEditPanel
+       * @desc fill in the edit properties panel for a link object
+       * @param {DepGraphLib.Depgraph} depgraph - the graph object
+       * @param {string} editDiv - the html string that will become a panel
+       * @param {DepGraphLink} linkData - the link
+       * 
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+       populateLinkEditPanel : function(depgraph,editDiv,linkData){
+        var color = (linkData['#style']!= null && linkData['#style']['link-color']!=null)?linkData['#style']['link-color']:depgraph.data.graph['#link-style']['link-color'];
+        editDiv += '&lt;tr>&lt;td>label&lt;/td>&lt;td>&lt;input type="text" name="label" value="'+linkData.label+'">&lt;/td>&lt;/tr>';
+        editDiv += '&lt;tr>&lt;td>source&lt;/td>&lt;td>'+getOptionsListWords(depgraph,linkData.source)+'&lt;/td>&lt;/tr>';
+        editDiv += '&lt;tr>&lt;td>target&lt;/td>&lt;td>'+getOptionsListWords(depgraph,linkData.target)+'&lt;/td>&lt;/tr>';
+        editDiv += '&lt;tr>&lt;td>color&lt;/td>&lt;td>'+depgraphlib.GraphViewer.simpleColorPicker('colorPicker',color)+'&lt;/td>&lt;/tr>';
+        return editDiv;
+      },
+
+      /**
+       * @function populateWordEditPanel
+       * @desc fill in the edit properties panel for a word object 
+       * @param {DepGraphLib.Depgraph} depgraph - the graph object
+       * @param {string} editDiv - the html string that will become a panel
+       * @param {DepGraphWord} wordData - the word
+       * 
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+       populateWordEditPanel : function(depgraph,editDiv,wordData){
+        var dataModel = depgraph.editObject.dataModel;
+        if(!dataModel.words){
+          dataModel.words = [];
+          dataModel.words[0] = {name:'label'};
+          for(var i =0 ;i&lt; wordData.sublabel.length ; i++){
+            dataModel.words[i+1] = {name: 'sublabel'+i};
+          }
+        }
+        
+        editDiv += '&lt;tr>&lt;td>'+dataModel.words[0].name+'&lt;/td>&lt;td>&lt;input id="word-edit-' + dataModel.words[0].name + '" type="text" name="'+dataModel.words[0].name+'" value="'+wordData.label+'">&lt;/td>&lt;/tr>';
+    /*    if(dataModel.words[0].values){
+          $(document).ready(function(){
+            $("#word-edit-" + dataModel.words[0].name).autocomplete({source: dataModel.words[0].values});}
+          );
+        }*/
+        for(var i=1;i&lt;dataModel.words.length ; i++){
+          editDiv += '&lt;tr>&lt;td>'+dataModel.words[i].name+'&lt;/td>&lt;td>&lt;input id="word-edit-' + dataModel.words[i].name + '" type="text" name="'+dataModel.words[i].name+'" value="'+wordData.sublabel[i-1]+'">&lt;/td>&lt;/tr>';
+        }
+        return editDiv;
+      },
+
+      
+
+      
+      /**
+       * return a reference of a value from a path in an object
+       * @param obj
+       * @param path
+       * @param value
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       *
+       */
+     setAttrPath : function(obj,path,value){
+        var pathComponents = path.split('/');
+        var attr = obj;
+        for(var k = 0 ; k&lt; pathComponents.length-1; k++){
+          var tmp = attr[pathComponents[k]];
+          if(typeof tmp == 'object'){
+            if(tmp == null){
+              attr[pathComponents[k]] = new Object();
+            }
+            attr = null;
+            attr = tmp;
+          }/*else{
+            // Error;
+          }*/
+        }
+        var oldVal = depgraphlib.clone(attr[pathComponents[pathComponents.length-1]]);
+        attr[pathComponents[pathComponents.length-1]] = value;
+        return oldVal;
+      },
+
+
+      /**
+       * undo callback for the default edit mode
+       * @param depgraph
+       * @param rollbackdata
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      defaultUndo : function(depgraph,rollbackdata){
+        if(rollbackdata.baseAction == 'linkRemoval'){
+          var link = rollbackdata.link;
+          var source = depgraph.getWordNodeByOriginalId(link.__data__['source']);
+          var target = depgraph.getWordNodeByOriginalId(link.__data__['target']);
+          addLink(depgraph,source,target,link.__data__.label,link.color,link.__data__['#id']);
+        }else if(rollbackdata.baseAction == 'linkAddition'){
+          removeLink(depgraph,rollbackdata.addedLink['#id']);
+        }else if(rollbackdata.baseAction == 'wordAddition'){
+          removeWord(depgraph,rollbackdata.addedWord['#id']);
+        }else if(rollbackdata.baseAction == 'wordRemoval'){
+          var word = rollbackdata.word;
+          addWord(depgraph,word);
+          if(rollbackdata.affectedLinks!=null){
+            for(var i=0;i&lt;rollbackdata.affectedLinks.length;i++){
+              var link = rollbackdata.affectedLinks[i];
+              var source = depgraph.getWordNodeByOriginalId(link['source']);
+              var target = depgraph.getWordNodeByOriginalId(link['target']);
+              link.color = link['#style']['link-color']?link['#style']['link-color']:depgraph.data.graph['#link-style']['link-color'];
+              addLink(depgraph,source,target,link.label,link.color,link['#id']);
+            }
+          }
+        }else if(rollbackdata.baseAction == 'changeAttr'){
+          var id = rollbackdata.obj['#id'];
+          var obj = depgraph.getObjectById(id);
+          depgraph.editObject.changeAttributes(obj,rollbackdata.oldAttrs);
+          depgraph.update();
+          depgraph.postProcesses();
+        }
+      },
+
+      /**
+       * redo callback for the default edit mode
+       * TODO(paul) implement this
+       * @param depgraph
+       * @param actionData
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+       defaultRedo : function(depgraph,actionData){
+      },
+
+      /**
+       * key down handler callback for the default edit mode
+       * @param depgraph
+       * @param params
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      editKeyDownDefault  : function(depgraph,params){
+        if(params.keyCode == 46){
+          if(depgraph.editObject.previousSelectedObject!= null){
+            if(depgraphlib.isALink(depgraph.editObject.previousSelectedObject)){
+              var link = depgraphlib.clone(depgraph.editObject.previousSelectedObject);
+              link.color = depgraphlib.getStyleElement(depgraph.editObject.previousSelectedObject,'link-color','black');
+              var success = removeLink(depgraph, depgraph.editObject.previousSelectedObject.__data__['#id']);
+              depgraph.editObject.previousSelectedObject = null;
+              if(success){
+                return {baseAction:'linkRemoval',link:link};
+              }
+            }else if(depgraphlib.isAWord(depgraph.editObject.previousSelectedObject)){
+              var word = depgraphlib.clone(depgraph.editObject.previousSelectedObject.__data__);
+              var affectedLinks = removeWord(depgraph,depgraph.editObject.previousSelectedObject.__data__['#id']);
+              depgraph.editObject.previousSelectedObject = null;
+              return {baseAction:'wordRemoval',word:word,affectedLinks:affectedLinks};
+            }
+          }
+        }
+
+      },
+
+ 
+      
+
+      /**
+       * return a form of list of words
+       * @param depgraph
+       * @param selectedOriginalId
+       * @returns {String}
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      getOptionsListWords : function(depgraph,selectedOriginalId){
+        var optionList = '&lt;select>';
+        for(var i=0;i&lt;depgraph.data.graph.words.length;i++){
+          var wordData = depgraph.data.graph.words[i];
+          optionList += '&lt;option value="'+wordData.id+'" ';
+          optionList += ((wordData.id==selectedOriginalId)?'selected="true"':'');
+          optionList += '>#' + wordData['#position'] + ' ' + wordData['label'] + ' (' + wordData.id +')';
+          optionList += '&lt;/option>';
+        }
+        optionList += '&lt;/select>';
+        
+        return optionList;
+      },
+      
+      /**
+       * return a form of list of position for a newly added word
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      getOptionsPosition : function(depgraph){
+        var optionList = '&lt;select>';
+        for(var i=0;i&lt;depgraph.data.graph.words.length+1;i++){
+          var wordData = (i>0 && i&lt;depgraph.data.graph.words.length+1)?depgraph.data.graph.words[i-1]:{label:'^'};
+          var nextWordData = (i&lt;depgraph.data.graph.words.length)?depgraph.data.graph.words[i]:{label:'$'};
+          optionList += '&lt;option value="'+i+'" ';
+          optionList += '>#' + i + ' (' + wordData['label'] + ' x ' + nextWordData['label'] +')';
+          optionList += '&lt;/option>';
+        }
+        optionList += '&lt;/select>';
+        
+        return optionList;
+      },
+      
+      /**
+       * create a panel to add a new word
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      addWordPanel : function(depgraph){
+        var html = '';
+        html += '&lt;div>&lt;h3>Add a new word&lt;/h3>';
+        html += '&lt;table>&lt;tr>';
+        html += '&lt;td>&lt;label>Label&lt;/label>&lt;/td>';
+        html += '&lt;td>&lt;input type="text" name="label">&lt;/td>&lt;/tr>';
+        html += '&lt;tr>&lt;td>&lt;label>Sublabels (separated by commas, use \\, for commas)&lt;/label>&lt;/td>';
+        html += '&lt;td>&lt;input type="text" name="sublabels">&lt;/td>&lt;/tr>';
+        html += '&lt;tr>&lt;td>&lt;label>Position&lt;/label>&lt;/td>';
+        html += '&lt;td>'+getOptionsPosition(depgraph)+'&lt;/td>&lt;/tr>';
+        html += '&lt;/table>&lt;/div>';
+        return html;
+      },
+
+
+      /**
+       * save the properties entered in the edit properties panel of an object
+       * update the graph
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      saveProperties : function(){
+        var type = this.id.substring(0,this.id.indexOf('-'));
+        var depgraph = depgraphlib.DepGraph.getInstance(this);
+        var viewer = depgraph.viewer;
+        var form = jQuery(this).parent().find('table.main-properties-table');
+        
+        if(type == 'link'){
+          saveLinkProperties(depgraph,form);
+        }else if(type == 'word'){
+          saveWordProperties(depgraph,form);
+        }else {
+          // TODO(paul) error or chunk case
+        }
+        
+        depgraph.update();
+        depgraph.postProcesses();
+        var box = depgraphlib.Box.getBox(this);
+        box.destroy();
+      },
+      
+      /**
+       * save the properties for a link
+       * @param depgraph
+       * @param form
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      saveLinkProperties : function(depgraph,form){
+        var link = depgraph.getLinkById(form.attr('ref'));
+        var rows = form[0].rows;
+        var attrs = [];
+        for(var i = 0 ; i &lt; rows.length ; i++){
+          var tr = rows[i];
+          var cells = tr.cells;
+          var label = cells[0].innerHTML;
+          var value = cells[1];
+          if(label == 'label'){
+            attrs.push({path:'label',value:value.firstChild.value});
+          }else if(label == 'color'){
+            attrs.push({path:'#style/link-color',value:value.firstChild.rows[0].cells[0].firstChild.value});
+          }else if(label == 'source'){
+            attrs.push({path:'source',value:value.childNodes[0].options[value.childNodes[0].options.selectedIndex].value});
+          }else if(label == 'target'){
+            attrs.push({path:'target',value:value.childNodes[0].options[value.childNodes[0].options.selectedIndex].value});
+          }else{
+            // TODO(paul) handle error or extra field
+          }
+        }
+        depgraph.editObject.changeAttributes(link,attrs,true);
+      },
+
+      /**
+       * save the properties for a word
+       * @param depgraph
+       * @param form
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      saveWordProperties : function(depgraph,form){
+        var word = depgraph.getWordNodeById(form.attr('ref')).__data__;
+        var rows = form[0].rows;
+        var attrs = [];
+        for(var i = 0 ; i &lt; rows.length ; i++){
+          var tr = rows[i];
+          var cells = tr.cells;
+          var label = cells[0].innerHTML;
+          var value = cells[1];
+          if(i == 0){
+            attrs.push({path:'label',value:value.firstChild.value});
+          }else {
+            attrs.push({path:'sublabel/'+(i-1),value:value.firstChild.value});
+          }
+        }
+        depgraph.editObject.changeAttributes(word,attrs,true);
+      },
+
+
+
+      /**
+       * open a link creation panel
+       * @param depgraph
+       * @param obj1
+       * @param obj2
+       * @param params
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      addLinkSettings : function(depgraph,obj1,obj2,params){
+        var coords = depgraph.viewer.screenCoordsForElt(obj2);
+        var point = {x:(coords.ne.x + coords.nw.x)/2,y:coords.nw.y};
+        var div = '&lt;div>&lt;table style="margin:5px 0px 0px 0px;">'
+          + '&lt;tr>&lt;td>Link name : &lt;/td>'
+          +'&lt;td>&lt;input type="text" name="link-name" value="">&lt;/td>&lt;/tr>'
+          + '&lt;tr>&lt;td>Link color : &lt;/td>'
+          +'&lt;td>&lt;input type="text" name="link-color" value="black">&lt;/td>&lt;/tr>'
+        +'&lt;tr>&lt;td colspant="2">&lt;input id="link-settings'+depgraph.viewer.appendOwnID('')+'"  type="button" style="margin:0" value="Create Link">&lt;/td>&lt;/tr>'
+        +'&lt;/table>&lt;/div>';
+        div = jQuery(div);
+        
+        var box = depgraph.viewer.createBox({closeButton:true,draggable:true}).setContent(div).open(point);
+        
+        depgraph.editObject.clearSelection();
+        
+        jQuery('#link-settings'+depgraph.viewer.appendOwnID('')).click(function(){
+          var value = this.parentNode.parentNode.parentNode.childNodes[0].childNodes[1].childNodes[0].value;
+          var color = this.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].childNodes[0].value;
+          var link = addLink(depgraph,obj1,obj2,value,color);
+          var action = {baseAction:'linkAddition',addedLink:link};
+          depgraph.editObject.pushAction({mode:depgraph.editObject.editMode,rollbackdata:action,data:{event:'onWordSelect',params:params}});
+          box.destroy();
+        });
+        
+      },
+
+      /**
+       * add a word
+       * @param depgraph
+       * @param wordData
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      addWord : function(depgraph,wordData){
+        var position = wordData['#position'];
+        depgraph.insertWord(wordData,position);
+        depgraph.editObject.editModeInit();
+        depgraph.autoHighLightOnMouseOver();
+        return depgraphlib.clone(wordData);
+      },
+
+      /**
+       * open a word creation panel
+       * @param depgraph
+       * @param element
+       * @param offset
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      addWordSettings : function(depgraph,element,offset){
+        var coords = depgraph.viewer.screenCoordsForElt(element);
+        var point = {x:(coords.ne.x + coords.nw.x)/2,y:coords.nw.y};
+        var div = '&lt;div>&lt;table style="margin:5px 0px 0px 0px;">'
+          + '&lt;tr>&lt;td>Word label : &lt;/td>'
+          +'&lt;td>&lt;input type="text" name="word-label" value="">&lt;/td>&lt;/tr>'
+        +'&lt;tr>&lt;td colspant="2">&lt;input id="word-settings'+depgraph.viewer.appendOwnID('')+'"  type="button" style="margin:0" value="Insert Word">&lt;/td>&lt;/tr>'
+        +'&lt;/table>&lt;/div>';
+        div = jQuery(div);
+        var box = depgraph.viewer.createBox({closeButton:true,draggable:true}).setContent(div).open(point);
+
+        depgraph.editObject.clearSelection();
+        
+        jQuery('#word-settings'+depgraph.viewer.appendOwnID('')).click(function(){
+          var value = this.parentNode.parentNode.parentNode.childNodes[0].childNodes[1].childNodes[0].value;
+          if(value==null || value ==''){
+            alert('you must fill all required fields');
+            return;
+          }
+          var wordData = {label:value,sublabel:[],'#position':element.__data__['#position']+offset};
+          var word = addWord(depgraph,wordData);
+          var action = {baseAction:'wordAddition',addedWord:word};
+          depgraph.editObject.pushAction({mode:depgraph.editObject.editMode,rollbackdata:action,data:{event:'onWordContext',params:element}});
+          box.destroy();
+        });
+        
+      },
+
+      /**
+       * remove a word
+       * @param depgraph
+       * @param id
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      removeWord : function(depgraph,id){
+        var result = depgraph.removeWord(id);
+        return result;
+      },
+
+      /**
+       * add a link
+       * @param depgraph
+       * @param d1
+       * @param d2
+       * @param label
+       * @param color
+       * @param id
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      addLink : function(depgraph,d1,d2,label,color,id){
+        if(color == null){
+          color = 'black';
+        }
+        if(id == null){
+          id = depgraph.id++;
+        }
+        d1 = d1.__data__;
+        d2 = d2.__data__;
+        var link = new Object();
+        link.source = d1.id;
+        link.target = d2.id;
+        link['#style'] = {'link-color' :color};  
+        link.label = label;
+        link['#id'] = id;
+        depgraph.addLink(link);
+        depgraph.editObject.editModeInit();
+        depgraph.autoHighLightOnMouseOver();
+        return link;
+      },
+
+      /**
+       * remove a link
+       * @param depgraph
+       * @param id
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+     removeLink : function(depgraph,id){
+        var result = depgraph.removeLink(id);
+        return result;
+      },      
+      
+  };
+  
+  
+}(window.depgraphlib));</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="DepGraphLib.Box.html">Box</a></li><li><a href="DepGraphLib.DepGraph.html">DepGraph</a></li><li><a href="DepGraphLib.EditObject.html">EditObject</a></li><li><a href="DepGraphLib.GraphViewer.html">GraphViewer</a></li></ul><h3>Namespaces</h3><ul><li><a href="DepGraphLib.html">DepGraphLib</a></li><li><a href="DepGraphLib.EditObject.DefaultMode.html">DefaultMode</a></li><li><a href="DepGraphLib.EditObject.DefaultModeLib.html">DefaultModeLib</a></li></ul><h3>Global</h3><ul><li><a href="global.html#setChunkMaterial">setChunkMaterial</a></li><li><a href="global.html#setWordMaterials">setWordMaterials</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Tue Sep 10 2013 11:52:38 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
