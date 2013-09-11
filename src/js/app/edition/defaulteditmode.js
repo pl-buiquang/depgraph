@@ -104,12 +104,26 @@
         }
       },
       /**
-       * @member {function} keyHandler
+       * @member {function} onKeyDown
        * @desc handle any key pressed when editing.
        * (params of the callback are the current graph and an object that contains the keypressed event)
        * @memberof DepGraphLib.EditObject.DefaultMode
        */
-      keyHandler : depgraphlib.EditObject.DefaultModeLib.editKeyDownDefault,
+      onKeyDown : depgraphlib.EditObject.DefaultModeLib.editKeyDownDefault,
+      /**
+       * @member {function} onKeyPress
+       * @desc handle any key pressed when editing.
+       * (params of the callback are the current graph and an object that contains the keypressed event)
+       * @memberof DepGraphLib.EditObject.DefaultMode
+       */
+      onKeyPress : null,
+      /**
+       * @member {function} onKeyUp
+       * @desc handle any key pressed when editing.
+       * (params of the callback are the current graph and an object that contains the keypressed event)
+       * @memberof DepGraphLib.EditObject.DefaultMode
+       */
+      onKeyUp : null,
       /**
        * @member {function} save
        * @desc save the graph

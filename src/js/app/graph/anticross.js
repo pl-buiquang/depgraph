@@ -43,6 +43,7 @@
       var me = this;
       // factor 2, in order to take into account left and right in the positions
       this.sortLinksByLength(links[0]);
+      console.log(links[0]);
       var n = links[0].length;
       var table = [];
       for(var i=0;i<n;++i){
@@ -52,15 +53,19 @@
         while(true){
           if(table[k]==null){ // nothing exist at this strate : fill it and break
             table[k]=new Array();
-            for(var j=p.min*2;j<p.max*2;j++){
-              table[k][j]=link;
-            }
             p.strate = k;
             setMaxStrate(k);
+            for(var l=k;l>0;l--){
+              for(var j=(p.min*2)+1;j<(p.max*2)+1;j++){
+                if(!table[l][j]){
+                  table[l][j]=link;
+                }
+              }
+            }
             break;
           }
           var crossing = null;
-          for(var j=p.min*2;j<p.max*2;j++){ // see if there is something where the link lies
+          for(var j=(p.min*2)+1;j<(p.max*2)+1;j++){ // see if there is something where the link lies
             if(table[k][j]!=null){
               crossing = table[k][j];
               if(this.crossed(link,crossing)){
@@ -74,15 +79,19 @@
               while(true){
                 if(table[k]==null){ // nothing exist at this strate : fill it and break
                   table[k]=new Array();
-                  for(var j=p.min*2;j<p.max*2;j++){ // fill in the strate
-                    table[k][j]=link;
+                  for(var l=k;l<0;l++){
+                    for(var j=(p.min*2)+1;j<(p.max*2)+1;j++){ // fill in the strate
+                      if(!table[l][j]){
+                        table[l][j]=link;
+                      }
+                    }
                   }
                   p.strate = k; // set the strate
                   setMaxStrate(k);
                   break;
                 }
                 var dcrossing = null;
-                for(var j=p.min*2;j<p.max*2;j++){ // see if there is something where the link lies
+                for(var j=(p.min*2)+1;j<(p.max*2)+1;j++){ // see if there is something where the link lies
                   if(table[k][j]!=null){
                     dcrossing = table[k][j];
                     break;
@@ -91,8 +100,12 @@
                 if(dcrossing!=null){ // even if real cross, just jump next line
                   k--;
                 }else{
-                  for(var j=p.min*2;j<p.max*2;j++){
-                    table[k][j]=link;
+                  for(var l=k;l<0;l++){
+                    for(var j=(p.min*2)+1;j<(p.max*2)+1;j++){ // fill in the strate
+                      if(!table[l][j]){
+                        table[l][j]=link;
+                      }
+                    }
                   }
                   p.strate = k;
                   setMaxStrate(k);
@@ -104,8 +117,12 @@
               k++;
             }
           }else{
-            for(var j=p.min*2;j<p.max*2;j++){ // fill in the table
-              table[k][j]=link;
+            for(var l=k;l>0;l--){
+              for(var j=(p.min*2)+1;j<(p.max*2)+1;j++){
+                if(!table[l][j]){
+                  table[l][j]=link;
+                }
+              }
             }
             p.strate = k; // set the strate
             setMaxStrate(k);
@@ -124,14 +141,14 @@
           kstep = 1;
         }
         for(var k = p.strate ; k!=0 ; k+=kstep){
-          var altLink = table[k][p.min*2];
+          var altLink = table[k][(p.min*2)+1];
           if(altLink!=null && altLink!=link){
             var p2 = this.getLinkProperties(altLink);
             if(p2.min == p.min){
               p2.offsetXmin++;
             }
           }
-          altLink = table[k][p.max*2-1];
+          altLink = table[k][p.max*2];
           if(altLink!=null && altLink!=link){
             var p2 = this.getLinkProperties(altLink);
             if(p2.max == p.max){
@@ -145,6 +162,7 @@
         var absStrate = Math.abs(strate);
         me.maxLinksStrate = (me.maxLinksStrate<absStrate)?absStrate:me.maxLinksStrate;
       };
+      
     };
 
     /**
@@ -177,23 +195,30 @@
         if(properties.nodeEnd == null){
           properties.nodeEnd = this.getChunkNodeByOriginalId(d.target);
         }
-        if(depgraphlib.getNodePosition(properties.nodeStart)<depgraphlib.getNodePosition(properties.nodeEnd)){
-          properties.min = depgraphlib.getNodePosition(properties.nodeStart);
-          properties.max = depgraphlib.getNodePosition(properties.nodeEnd);
+        var startPos = depgraphlib.getNodePosition(properties.nodeStart);
+        var endPos = depgraphlib.getNodePosition(properties.nodeEnd);
+        if(startPos == -1 || endPos == -1){ // this is the root edge
+          properties.min = properties.max = (startPos!=-1)?startPos:endPos;
           properties.hdir = 1;
         }else{
-          properties.max = depgraphlib.getNodePosition(properties.nodeStart);
-          properties.min = depgraphlib.getNodePosition(properties.nodeEnd);
-          properties.hdir = -1;
+          if(startPos<endPos){
+            properties.min = startPos;
+            properties.max = endPos;
+            properties.hdir = 1;
+          }else{
+            properties.max = startPos;
+            properties.min = endPos;
+            properties.hdir = -1;
+          }
         }
         properties.vdir = 1; // oriented top
         properties.offsetXmax = 0;
         properties.offsetXmin = 0;
         properties.strate = 0;
         properties.length = properties.max-properties.min;
-        if(!properties.nodeStart){ // for orign arc to be processed first in anti crossing algo
+        /*if(!properties.nodeStart){ // for orign arc to be processed first in anti crossing algo
           properties.length = 0;
-        }
+        }*/
         properties.outer=0;
         d['#properties'] = properties;
       }

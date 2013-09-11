@@ -134,9 +134,6 @@
   depgraphlib.center = function(node,refNode){
     var refbbox = refNode.node().getBBox();
     var bbox = node.node().getBBox();
-    console.log(node);
-    console.log(refbbox.width);
-    console.log(bbox.width);
     node.attr('x',-bbox.width/2+refbbox.width/2);
   };
 

@@ -826,7 +826,7 @@
       var strateOffset = 30;
       var v0 = -vdir*height-strateOffset*p.strate;//-SchunkCase;
       if(originArc){
-        v0 = -vdir*height-strateOffset*vdir*me.maxLinksStrate;
+        v0 = -vdir*height-strateOffset*vdir*(me.maxLinksStrate+1);
       }
       var v1 = -(v0+y0-y1);//vdir*height+strateOffset*p.strate+EchunkCase+SchunkCase;
       var laf0 = (1+hdir*vdir)/2;

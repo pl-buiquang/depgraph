@@ -27,6 +27,7 @@
         this.actionsLog = []; // action log for rollback purposes
         this.currentPtr = -1; // pointer to the log if undo commands have been used
         this.lastSavedPtr = -1;
+        this.keysDown = []; // array of key that are currently down
         
         this.addEditMode(depgraphlib.EditObject.DefaultMode);
       };
@@ -339,6 +340,10 @@
       depgraphlib.EditObject.prototype.editModeInit = function(){
         var depgraph = this.depgraph;
 
+        if(this.mode[this.editMode].onInit){
+          this.mode[this.editMode].onInit.call(this,depgraph);
+        }
+        
         if(!this.editMode){
           this.depgraph.vis.selectAll('g.word').on("click",null);
           this.depgraph.vis.selectAll('g.link').on("click",null);
@@ -358,6 +363,8 @@
         this.depgraph.vis.selectAll('g.link').on("click",onLinkClick);
         this.depgraph.vis.selectAll('g.chunk').on("click",onChunkClick);
         d3.select(document).on('keydown.edit'+this.depgraph.viewer.uid,onKeyDown);
+        d3.select(document).on('keypress.edit'+this.depgraph.viewer.uid,onKeyPress);
+        d3.select(document).on('keyup.edit'+this.depgraph.viewer.uid,onKeyUp);
         if(this.mode[this.editMode].onLinkContext != null){
           var def = {};
           for(menu in this.mode[this.editMode].onLinkContext){
@@ -447,9 +454,30 @@
         
         function onKeyDown(e){
           var me = depgraph.editObject;
-          if(me.mode[me.editMode].keyHandler != null){
-            var action = me.mode[me.editMode].keyHandler.call(this,depgraph,{keyCode :d3.event.keyCode});
-            me.pushAction({mode:me.editMode,rollbackdata:action,data:{event:'keyHandler',params:{keyCode :d3.event.keyCode}}});
+          me.keysDown.push(d3.event.keyCode);
+          if(me.mode[me.editMode].onKeyDown != null){
+            var action = me.mode[me.editMode].onKeyDown.call(this,depgraph,{keyCode :d3.event.keyCode});
+            me.pushAction({mode:me.editMode,rollbackdata:action,data:{event:'onKeyDown',params:{keyCode :d3.event.keyCode}}});
+          }
+        }
+        
+        function onKeyPress(e){
+          var me = depgraph.editObject;
+          if(me.mode[me.editMode].onKeyPress != null){
+            var action = me.mode[me.editMode].onKeyPress.call(this,depgraph,{keyCode :d3.event.keyCode});
+            me.pushAction({mode:me.editMode,rollbackdata:action,data:{event:'onKeyPress',params:{keyCode :d3.event.keyCode}}});
+          }
+        }
+        
+        function onKeyUp(e){
+          var me = depgraph.editObject;
+          var index = me.keysDown.indexOf(d3.event.keyCode);
+          if(index != -1){
+            me.keysDown.splice(index,1);
+          }
+          if(me.mode[me.editMode].onKeyUp != null){
+            var action = me.mode[me.editMode].onKeyUp.call(this,depgraph,{keyCode :d3.event.keyCode});
+            me.pushAction({mode:me.editMode,rollbackdata:action,data:{event:'onKeyUp',params:{keyCode :d3.event.keyCode}}});
           }
         }
       };

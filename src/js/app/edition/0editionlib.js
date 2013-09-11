@@ -7,6 +7,12 @@
    * @memberof DepGraphLib.EditObject
    */
   depgraphlib.EditObject.DefaultModeLib = {
+      
+      /**
+       * @function init
+       * @memberof DepGraphLib.EditObject.DefaultModeLib 
+       */
+      init : null,
   
       /**
        * @function save
@@ -56,11 +62,15 @@
           depgraphlib.EditObject.DefaultModeLib.selectObject.call(this,depgraph,params);
         }
         else{
-          if(this.__data__['#id'] == depgraph.editObject.previousSelectedObject.__data__['#id']){ // don't create link when selecting twice the same node
-            depgraph.editObject.clearSelection();
-            return;
+          if(depgraph.editObject.keysDown.indexOf(17) != -1){ // ctrl key is pressed 
+            depgraphlib.EditObject.DefaultModeLib.addChunkSettings(depgraph,depgraph.editObject.previousSelectedObject,this,params);
+          }else{
+            if(this.__data__['#id'] == depgraph.editObject.previousSelectedObject.__data__['#id']){ // don't create link when selecting twice the same node
+              depgraph.editObject.clearSelection();
+              return;
+            }
+            depgraphlib.EditObject.DefaultModeLib.addLinkSettings(depgraph,depgraph.editObject.previousSelectedObject,this,params);
           }
-          depgraphlib.EditObject.DefaultModeLib.addChunkSettings(depgraph,depgraph.editObject.previousSelectedObject,this,params);
         }
       },
       
@@ -595,8 +605,7 @@
         });
         
       },
-
-     
+      
       
   };
   

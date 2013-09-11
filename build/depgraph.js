@@ -274,9 +274,6 @@
   depgraphlib.center = function(node,refNode){
     var refbbox = refNode.node().getBBox();
     var bbox = node.node().getBBox();
-    console.log(node);
-    console.log(refbbox.width);
-    console.log(bbox.width);
     node.attr('x',-bbox.width/2+refbbox.width/2);
   };
 
@@ -1567,6 +1564,7 @@
       var me = this;
       // factor 2, in order to take into account left and right in the positions
       this.sortLinksByLength(links[0]);
+      console.log(links[0]);
       var n = links[0].length;
       var table = [];
       for(var i=0;i<n;++i){
@@ -1576,15 +1574,19 @@
         while(true){
           if(table[k]==null){ // nothing exist at this strate : fill it and break
             table[k]=new Array();
-            for(var j=p.min*2;j<p.max*2;j++){
-              table[k][j]=link;
-            }
             p.strate = k;
             setMaxStrate(k);
+            for(var l=k;l>0;l--){
+              for(var j=(p.min*2)+1;j<(p.max*2)+1;j++){
+                if(!table[l][j]){
+                  table[l][j]=link;
+                }
+              }
+            }
             break;
           }
           var crossing = null;
-          for(var j=p.min*2;j<p.max*2;j++){ // see if there is something where the link lies
+          for(var j=(p.min*2)+1;j<(p.max*2)+1;j++){ // see if there is something where the link lies
             if(table[k][j]!=null){
               crossing = table[k][j];
               if(this.crossed(link,crossing)){
@@ -1598,15 +1600,19 @@
               while(true){
                 if(table[k]==null){ // nothing exist at this strate : fill it and break
                   table[k]=new Array();
-                  for(var j=p.min*2;j<p.max*2;j++){ // fill in the strate
-                    table[k][j]=link;
+                  for(var l=k;l<0;l++){
+                    for(var j=(p.min*2)+1;j<(p.max*2)+1;j++){ // fill in the strate
+                      if(!table[l][j]){
+                        table[l][j]=link;
+                      }
+                    }
                   }
                   p.strate = k; // set the strate
                   setMaxStrate(k);
                   break;
                 }
                 var dcrossing = null;
-                for(var j=p.min*2;j<p.max*2;j++){ // see if there is something where the link lies
+                for(var j=(p.min*2)+1;j<(p.max*2)+1;j++){ // see if there is something where the link lies
                   if(table[k][j]!=null){
                     dcrossing = table[k][j];
                     break;
@@ -1615,8 +1621,12 @@
                 if(dcrossing!=null){ // even if real cross, just jump next line
                   k--;
                 }else{
-                  for(var j=p.min*2;j<p.max*2;j++){
-                    table[k][j]=link;
+                  for(var l=k;l<0;l++){
+                    for(var j=(p.min*2)+1;j<(p.max*2)+1;j++){ // fill in the strate
+                      if(!table[l][j]){
+                        table[l][j]=link;
+                      }
+                    }
                   }
                   p.strate = k;
                   setMaxStrate(k);
@@ -1628,8 +1638,12 @@
               k++;
             }
           }else{
-            for(var j=p.min*2;j<p.max*2;j++){ // fill in the table
-              table[k][j]=link;
+            for(var l=k;l>0;l--){
+              for(var j=(p.min*2)+1;j<(p.max*2)+1;j++){
+                if(!table[l][j]){
+                  table[l][j]=link;
+                }
+              }
             }
             p.strate = k; // set the strate
             setMaxStrate(k);
@@ -1648,14 +1662,14 @@
           kstep = 1;
         }
         for(var k = p.strate ; k!=0 ; k+=kstep){
-          var altLink = table[k][p.min*2];
+          var altLink = table[k][(p.min*2)+1];
           if(altLink!=null && altLink!=link){
             var p2 = this.getLinkProperties(altLink);
             if(p2.min == p.min){
               p2.offsetXmin++;
             }
           }
-          altLink = table[k][p.max*2-1];
+          altLink = table[k][p.max*2];
           if(altLink!=null && altLink!=link){
             var p2 = this.getLinkProperties(altLink);
             if(p2.max == p.max){
@@ -1669,6 +1683,7 @@
         var absStrate = Math.abs(strate);
         me.maxLinksStrate = (me.maxLinksStrate<absStrate)?absStrate:me.maxLinksStrate;
       };
+      
     };
 
     /**
@@ -1701,23 +1716,30 @@
         if(properties.nodeEnd == null){
           properties.nodeEnd = this.getChunkNodeByOriginalId(d.target);
         }
-        if(depgraphlib.getNodePosition(properties.nodeStart)<depgraphlib.getNodePosition(properties.nodeEnd)){
-          properties.min = depgraphlib.getNodePosition(properties.nodeStart);
-          properties.max = depgraphlib.getNodePosition(properties.nodeEnd);
+        var startPos = depgraphlib.getNodePosition(properties.nodeStart);
+        var endPos = depgraphlib.getNodePosition(properties.nodeEnd);
+        if(startPos == -1 || endPos == -1){ // this is the root edge
+          properties.min = properties.max = (startPos!=-1)?startPos:endPos;
           properties.hdir = 1;
         }else{
-          properties.max = depgraphlib.getNodePosition(properties.nodeStart);
-          properties.min = depgraphlib.getNodePosition(properties.nodeEnd);
-          properties.hdir = -1;
+          if(startPos<endPos){
+            properties.min = startPos;
+            properties.max = endPos;
+            properties.hdir = 1;
+          }else{
+            properties.max = startPos;
+            properties.min = endPos;
+            properties.hdir = -1;
+          }
         }
         properties.vdir = 1; // oriented top
         properties.offsetXmax = 0;
         properties.offsetXmin = 0;
         properties.strate = 0;
         properties.length = properties.max-properties.min;
-        if(!properties.nodeStart){ // for orign arc to be processed first in anti crossing algo
+        /*if(!properties.nodeStart){ // for orign arc to be processed first in anti crossing algo
           properties.length = 0;
-        }
+        }*/
         properties.outer=0;
         d['#properties'] = properties;
       }
@@ -2569,7 +2591,7 @@
       var strateOffset = 30;
       var v0 = -vdir*height-strateOffset*p.strate;//-SchunkCase;
       if(originArc){
-        v0 = -vdir*height-strateOffset*vdir*me.maxLinksStrate;
+        v0 = -vdir*height-strateOffset*vdir*(me.maxLinksStrate+1);
       }
       var v1 = -(v0+y0-y1);//vdir*height+strateOffset*p.strate+EchunkCase+SchunkCase;
       var laf0 = (1+hdir*vdir)/2;
@@ -3251,6 +3273,12 @@
    * @memberof DepGraphLib.EditObject
    */
   depgraphlib.EditObject.DefaultModeLib = {
+      
+      /**
+       * @function init
+       * @memberof DepGraphLib.EditObject.DefaultModeLib 
+       */
+      init : null,
   
       /**
        * @function save
@@ -3300,11 +3328,15 @@
           depgraphlib.EditObject.DefaultModeLib.selectObject.call(this,depgraph,params);
         }
         else{
-          if(this.__data__['#id'] == depgraph.editObject.previousSelectedObject.__data__['#id']){ // don't create link when selecting twice the same node
-            depgraph.editObject.clearSelection();
-            return;
+          if(depgraph.editObject.keysDown.indexOf(17) != -1){ // ctrl key is pressed 
+            depgraphlib.EditObject.DefaultModeLib.addChunkSettings(depgraph,depgraph.editObject.previousSelectedObject,this,params);
+          }else{
+            if(this.__data__['#id'] == depgraph.editObject.previousSelectedObject.__data__['#id']){ // don't create link when selecting twice the same node
+              depgraph.editObject.clearSelection();
+              return;
+            }
+            depgraphlib.EditObject.DefaultModeLib.addLinkSettings(depgraph,depgraph.editObject.previousSelectedObject,this,params);
           }
-          depgraphlib.EditObject.DefaultModeLib.addChunkSettings(depgraph,depgraph.editObject.previousSelectedObject,this,params);
         }
       },
       
@@ -3456,8 +3488,6 @@
           klass = obj.classList[0];
         }
         
-        var tab0 = '<div><h3>HelloWorld</h3></div>';
-
         var div = '<div><div id="'+depgraph.viewer.appendOwnID(klass+'-save-properties-div')+'" onkeydown="if (event.keyCode == 13) {depgraphlib.EditObject.DefaultModeLib.saveProperties.call(this,arguments);}">'
           +'<h3 id="edit-info-title">Edit '+klass+' (original id: '+data.id+')</h3>'
           +'<table class="main-properties-table" ref="'+data['#id']+'">';
@@ -3476,7 +3506,6 @@
         div += '<input id="'+depgraph.viewer.appendOwnID(klass+'-save-properties')+'" type="button" value="Save" onclick="depgraphlib.EditObject.DefaultModeLib.saveProperties.call(this,arguments);">';
         div += '</div></div>';
         
-        div = depgraphlib.ui.makeTabs([{'name':'firsTab','content':tab0},{'name':'secondTab','content':div}]);
         
         var jdiv = jQuery(div);
         return jdiv;
@@ -3842,8 +3871,7 @@
         });
         
       },
-
-     
+      
       
   };
   
@@ -3955,12 +3983,26 @@
         }
       },
       /**
-       * @member {function} keyHandler
+       * @member {function} onKeyDown
        * @desc handle any key pressed when editing.
        * (params of the callback are the current graph and an object that contains the keypressed event)
        * @memberof DepGraphLib.EditObject.DefaultMode
        */
-      keyHandler : depgraphlib.EditObject.DefaultModeLib.editKeyDownDefault,
+      onKeyDown : depgraphlib.EditObject.DefaultModeLib.editKeyDownDefault,
+      /**
+       * @member {function} onKeyPress
+       * @desc handle any key pressed when editing.
+       * (params of the callback are the current graph and an object that contains the keypressed event)
+       * @memberof DepGraphLib.EditObject.DefaultMode
+       */
+      onKeyPress : null,
+      /**
+       * @member {function} onKeyUp
+       * @desc handle any key pressed when editing.
+       * (params of the callback are the current graph and an object that contains the keypressed event)
+       * @memberof DepGraphLib.EditObject.DefaultMode
+       */
+      onKeyUp : null,
       /**
        * @member {function} save
        * @desc save the graph
@@ -4009,6 +4051,7 @@
         this.actionsLog = []; // action log for rollback purposes
         this.currentPtr = -1; // pointer to the log if undo commands have been used
         this.lastSavedPtr = -1;
+        this.keysDown = []; // array of key that are currently down
         
         this.addEditMode(depgraphlib.EditObject.DefaultMode);
       };
@@ -4321,6 +4364,10 @@
       depgraphlib.EditObject.prototype.editModeInit = function(){
         var depgraph = this.depgraph;
 
+        if(this.mode[this.editMode].onInit){
+          this.mode[this.editMode].onInit.call(this,depgraph);
+        }
+        
         if(!this.editMode){
           this.depgraph.vis.selectAll('g.word').on("click",null);
           this.depgraph.vis.selectAll('g.link').on("click",null);
@@ -4340,6 +4387,8 @@
         this.depgraph.vis.selectAll('g.link').on("click",onLinkClick);
         this.depgraph.vis.selectAll('g.chunk').on("click",onChunkClick);
         d3.select(document).on('keydown.edit'+this.depgraph.viewer.uid,onKeyDown);
+        d3.select(document).on('keypress.edit'+this.depgraph.viewer.uid,onKeyPress);
+        d3.select(document).on('keyup.edit'+this.depgraph.viewer.uid,onKeyUp);
         if(this.mode[this.editMode].onLinkContext != null){
           var def = {};
           for(menu in this.mode[this.editMode].onLinkContext){
@@ -4429,9 +4478,30 @@
         
         function onKeyDown(e){
           var me = depgraph.editObject;
-          if(me.mode[me.editMode].keyHandler != null){
-            var action = me.mode[me.editMode].keyHandler.call(this,depgraph,{keyCode :d3.event.keyCode});
-            me.pushAction({mode:me.editMode,rollbackdata:action,data:{event:'keyHandler',params:{keyCode :d3.event.keyCode}}});
+          me.keysDown.push(d3.event.keyCode);
+          if(me.mode[me.editMode].onKeyDown != null){
+            var action = me.mode[me.editMode].onKeyDown.call(this,depgraph,{keyCode :d3.event.keyCode});
+            me.pushAction({mode:me.editMode,rollbackdata:action,data:{event:'onKeyDown',params:{keyCode :d3.event.keyCode}}});
+          }
+        }
+        
+        function onKeyPress(e){
+          var me = depgraph.editObject;
+          if(me.mode[me.editMode].onKeyPress != null){
+            var action = me.mode[me.editMode].onKeyPress.call(this,depgraph,{keyCode :d3.event.keyCode});
+            me.pushAction({mode:me.editMode,rollbackdata:action,data:{event:'onKeyPress',params:{keyCode :d3.event.keyCode}}});
+          }
+        }
+        
+        function onKeyUp(e){
+          var me = depgraph.editObject;
+          var index = me.keysDown.indexOf(d3.event.keyCode);
+          if(index != -1){
+            me.keysDown.splice(index,1);
+          }
+          if(me.mode[me.editMode].onKeyUp != null){
+            var action = me.mode[me.editMode].onKeyUp.call(this,depgraph,{keyCode :d3.event.keyCode});
+            me.pushAction({mode:me.editMode,rollbackdata:action,data:{event:'onKeyUp',params:{keyCode :d3.event.keyCode}}});
           }
         }
       };
