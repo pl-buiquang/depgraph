@@ -106,16 +106,21 @@
             if(depgraphlib.isALink(depgraph.editObject.previousSelectedObject)){
               var link = depgraphlib.clone(depgraph.editObject.previousSelectedObject);
               link.color = depgraphlib.getStyleElement(depgraph.editObject.previousSelectedObject,'link-color','black');
-              var success = removeLink(depgraph, depgraph.editObject.previousSelectedObject.__data__['#id']);
+              var success = depgraph.removeLink(depgraph.editObject.previousSelectedObject.__data__['#id']);
               depgraph.editObject.previousSelectedObject = null;
               if(success){
                 return {baseAction:'linkRemoval',link:link};
               }
             }else if(depgraphlib.isAWord(depgraph.editObject.previousSelectedObject)){
               var word = depgraphlib.clone(depgraph.editObject.previousSelectedObject.__data__);
-              var affectedLinks = removeWord(depgraph,depgraph.editObject.previousSelectedObject.__data__['#id']);
+              var affectedLinks = depgraph.removeWord(depgraph.editObject.previousSelectedObject.__data__['#id']);
               depgraph.editObject.previousSelectedObject = null;
               return {baseAction:'wordRemoval',word:word,affectedLinks:affectedLinks};
+            }else if(depgraphlib.isAChunk(depgraph.editObject.previousSelectedObject)){
+              var chunk = depgraphlib.clone(depgraph.editObject.previousSelectedObject.__data__);
+              var affectedLinks = depgraph.removeChunk(depgraph.editObject.previousSelectedObject.__data__['#id']);
+              depgraph.editObject.previousSelectedObject = null;
+              return {baseAction:'chunkRemoval',chunk:chunk,affectedLinks:affectedLinks};
             }
           }
         }
@@ -134,21 +139,21 @@
       defaultUndo : function(depgraph,rollbackdata){
         if(rollbackdata.baseAction == 'linkRemoval'){
           var link = rollbackdata.link;
-          var source = depgraph.getWordNodeByOriginalId(link.__data__['source']);
-          var target = depgraph.getWordNodeByOriginalId(link.__data__['target']);
+          var source = depgraph.getObjectNodeByOriginalId(link.__data__['source']);
+          var target = depgraph.getObjectNodeByOriginalId(link.__data__['target']);
           depgraph.addLink(source,target,link.__data__.label,link.color,link.__data__['#id']);
         }else if(rollbackdata.baseAction == 'linkAddition'){
-          removeLink(depgraph,rollbackdata.addedLink['#id']);
+          depgraph.removeLink(rollbackdata.addedLink['#id']);
         }else if(rollbackdata.baseAction == 'wordAddition'){
-          removeWord(depgraph,rollbackdata.addedWord['#id']);
+          depgraph.removeWord(rollbackdata.addedWord['#id']);
         }else if(rollbackdata.baseAction == 'wordRemoval'){
           var word = rollbackdata.word;
           depgraph.addWord(word);
           if(rollbackdata.affectedLinks!=null){
             for(var i=0;i<rollbackdata.affectedLinks.length;i++){
               var link = rollbackdata.affectedLinks[i];
-              var source = depgraph.getWordNodeByOriginalId(link['source']);
-              var target = depgraph.getWordNodeByOriginalId(link['target']);
+              var source = depgraph.getObjectNodeByOriginalId(link['source']);
+              var target = depgraph.getObjectNodeByOriginalId(link['target']);
               link.color = link['#style']['link-color']?link['#style']['link-color']:depgraph.data.graph['#link-style']['link-color'];
               depgraph.addLink(source,target,link.label,link.color,link['#id']);
             }
@@ -159,6 +164,21 @@
           depgraph.editObject.changeAttributes(obj,rollbackdata.oldAttrs);
           depgraph.update();
           depgraph.postProcesses();
+        }else if(rollbackdata.baseAction == 'chunkAddition'){
+          depgraph.removeChunk(rollbackdata.addedChunk['#id']);
+        }else if(rollbackdata.baseAction == 'chunkRemoval'){
+          var chunk = rollbackdata.chunk;
+          chunk.color = (chunk['#style'] && chunk['#style']['background-color'])?chunk['#style']['background-color']:depgraph.data.graph['#chunk-style']['background-color'];
+          depgraph.addChunk(chunk.label,chunk.elements,chunk.sublabels,chunk.color,chunk.id,chunk['#id']);
+          if(rollbackdata.affectedLinks!=null){
+            for(var i=0;i<rollbackdata.affectedLinks.length;i++){
+              var link = rollbackdata.affectedLinks[i];
+              var source = depgraph.getObjectNodeByOriginalId(link['source']);
+              var target = depgraph.getObjectNodeByOriginalId(link['target']);
+              link.color = (link['#style'] && link['#style']['link-color'])?link['#style']['link-color']:depgraph.data.graph['#link-style']['link-color'];
+              depgraph.addLink(source,target,link.label,link.color,link['#id']);
+            }
+          }
         }
       },
 
@@ -172,6 +192,30 @@
        * @memberof DepGraphLib.EditObject.DefaultModeLib
        */
        defaultRedo : function(depgraph,actionData){
+         console.log(actionData);
+         if(actionData.baseAction == 'linkAddition'){
+           var link = actionData.addedLink;
+           depgraph.insertLink(link);
+         }else if(actionData.baseAction == 'linkRemoval'){
+           depgraph.removeLink(actionData.link.__data__['#id']);
+         }else if(actionData.baseAction == 'wordRemoval'){
+           depgraph.removeWord(actionData.word['#id']);
+         }else if(actionData.baseAction == 'wordAddition'){
+           var word = actionData.addedWord;
+           depgraph.addWord(word);
+         }else if(actionData.baseAction == 'changeAttr'){
+           var id = actionData.obj['#id'];
+           var obj = depgraph.getObjectById(id);
+           depgraph.editObject.changeAttributes(obj,actionData.newAttrs);
+           depgraph.update();
+           depgraph.postProcesses();
+         }else if(actionData.baseAction == 'chunkRemoval'){
+           depgraph.removeChunk(actionData.chunk['#id']);
+         }else if(actionData.baseAction == 'chunkAddition'){
+           var chunk = actionData.addedChunk;
+           chunk.color = (chunk['#style'] && chunk['#style']['background-color'])?chunk['#style']['background-color']:depgraph.data.graph['#chunk-style']['background-color'];
+           depgraph.addChunk(chunk.label,chunk.elements,chunk.sublabels,chunk.color,chunk.id,chunk['#id']);
+         }
       },
 
       
@@ -257,7 +301,7 @@
        populateLinkEditPanel : function(depgraph,editDiv,linkData){
         var color = (linkData['#style']!= null && linkData['#style']['link-color']!=null)?linkData['#style']['link-color']:depgraph.data.graph['#link-style']['link-color'];
         
-        editDiv += depgraphlib.ui.addTextField('label',{name:'label',value:linkData.label,'data-rel':label});
+        editDiv += depgraphlib.ui.addTextField('label',{name:'label',value:linkData.label,'data-rel':'label'});
         editDiv += depgraphlib.ui.addCustomField('source',depgraphlib.EditObject.DefaultModeLib.getOptionsListWords(depgraph,linkData.source,'source'));
         editDiv += depgraphlib.ui.addCustomField('target',depgraphlib.EditObject.DefaultModeLib.getOptionsListWords(depgraph,linkData.target,'target'));
         editDiv += depgraphlib.ui.addCustomField('color',depgraphlib.ui.simpleColorPicker('colorPicker',color,'#style/link-color'));
@@ -458,6 +502,7 @@
         jQuery('#chunk-settings'+depgraph.viewer.appendOwnID('')).click(function(){
           var value = this.parentNode.parentNode.parentNode.childNodes[0].childNodes[1].childNodes[0].value;
           var chunk = depgraph.addChunk(value,[obj1.__data__.id,obj2.__data__.id]);
+          console.log(chunk);
           var action = {baseAction:'chunkAddition',addedChunk:chunk};
           depgraph.editObject.pushAction({mode:depgraph.editObject.editMode,rollbackdata:action,data:{event:'onWordSelect',params:params}});
           box.destroy();

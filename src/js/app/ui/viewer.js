@@ -34,6 +34,10 @@
       this.margin = {top:100,left:0,right:0,bottom:10};
       this.borders = true;
       
+      // toolbar params
+      this.toolbaritems = {};
+      this.toolbarindex = 0;
+      
       if(depgraphlib.GraphViewer.instances[uid]){
         uid += "_";
       }
@@ -454,147 +458,6 @@
     };
 
     /***********************************************************/
-    /**                    ToolBar                             */
-    /***********************************************************/
-
-    /**
-     * add the fullscreen mode button to the toolbar
-     */
-    depgraphlib.GraphViewer.prototype.addFullScreenButton = function(){
-      if(!this.allowFullScreen){
-        return;
-      }
-      if(typeof this.container.colorbox != 'undefined'){
-        this.addToolbarButton('fullscreen',null,'right','fullscreen','View in fullscreen');
-        this.initFullscreenMode();
-      }
-    };
-
-    /**
-     * returns true if found a toolbar button with the name 'name'
-     * @param name
-     * @returns {Boolean}
-     */
-    depgraphlib.GraphViewer.prototype.existToolbarButton = function(name){
-      return jQuery('#button-'+this.appendOwnID(name)).length > 0;
-    };
-
-    /**
-     * return the div element corresponding to the tool bar button with name 'name'
-     * @param name
-     * @return {object} the jquery selection of the toolbar button
-     */
-    depgraphlib.GraphViewer.prototype.getToolbarButton = function(name){
-      return jQuery('#button-'+this.appendOwnID(name));
-    };
-
-    /**
-     * set toolbar buttons from a array definition of buttons
-     * 0 : name, 1 : callback on click, 2: position (left or right), 3 : style (css classes)
-     * @param definition
-     */
-    depgraphlib.GraphViewer.prototype.setToolbarButtons = function(definition){
-      this.tmpLeft = [];
-      definition.forEach(function(item,index){
-        if(item[2] == 'left'){
-          this.tmpLeft.push(item);
-        }else{
-          this.addToolbarButton(item[0], item[1], item[2], item[3], item[4]);
-        }
-      },this);
-      this.tmpLeft.forEach(function(item,index){
-        this.addToolbarButton(item[0], item[1], item[2], item[3], item[4]);
-      },this);
-      this.tmpLeft = null;
-    };
-
-    /**
-     * remove all toolbar buttons
-     */
-    depgraphlib.GraphViewer.prototype.resetToolbarButtons = function(){
-      var children = this.toolbarbuttons.children();
-      children.remove();
-      this.addFullScreenButton();
-    };
-
-    /**
-     * add a button to the toolbar
-     * the button is a div that will be put either on left, or right side of the toolbar
-     * @param elt
-     * @param position
-     */
-    depgraphlib.GraphViewer.prototype.addToolbarElement = function(elt,position){
-      elt.css('float',position);
-      this.toolbarbuttons.append(elt);
-    };
-
-    /**
-     * create and add a button to the toolbar from minimal information
-     * @param name
-     * @param callback
-     * @param position
-     * @param style
-     */
-    depgraphlib.GraphViewer.prototype.addToolbarButton = function(name,callback,position,style,tooltip){
-      var text = '';
-      if(style == null){
-        style = 'tab white';
-        text = name;
-      }else{
-        style += " icon";
-      }
-      if(position == null){
-        position = 'left';
-      }
-      
-      var button='<div id="button-'+this.appendOwnID(name)+'" title="'+(tooltip || name)+'" class="'+style+' tab '+position+'">'+text+'</div>';
-      button = jQuery(button);
-      button.click(callback);
-      this.toolbarbuttons.append(button);
-    };
-
-    /**
-     * remove a toolbar button given its name
-     * @param name
-     */
-    depgraphlib.GraphViewer.prototype.removeToolbarButton = function(name){
-      jQuery('#button-'+this.appendOwnID(name)).remove();
-    };
-
-    /**
-     * create a dropdown menu given items that compose the menu
-     * items is an object of objects with at least the property 'cb' defining the callback when the item
-     * is clicked.
-     */
-    depgraphlib.GraphViewer.createDropDownMenu = function(name,items,autoslidedown,tooltip){
-      var div = jQuery('<div class="gv-menu"><div class="gv-menu-header"></div><div class="gv-menu-body"></div></div>');
-      var header = jQuery('.gv-menu-header',div);
-      var body = jQuery('.gv-menu-body',div);
-      body.hide();
-      header.html(name);
-      header.attr('title',tooltip||name);
-      header.addClass('white');
-      for(i in items){
-        var item = jQuery('<div>'+i+'</div>');
-        item.attr('title',items[i].tt || i);
-        body.append(item);
-        jQuery(item).click(items[i].cb);
-      }
-      if(autoslidedown === false){
-        jQuery('.gv-menu-header',div).click(function(event){jQuery('.gv-menu-body',event.currentTarget.parentNode).slideDown();});
-        jQuery(div).mouseleave(function(event){
-          jQuery('.gv-menu-body',event.currentTarget).slideUp();
-          });
-      }else{
-        div.hover(
-            function(event){jQuery('.gv-menu-body',event.currentTarget).slideDown();},
-            function(event){jQuery('.gv-menu-body',event.currentTarget).slideUp();}
-        );
-      }
-      return div;
-    };
-
-    /***********************************************************/
     /**                   Alt Content                          */
     /***********************************************************/
 
@@ -684,7 +547,7 @@
      */
     depgraphlib.GraphViewer.prototype.initFullscreenMode = function(){
       var graphviewer = this;
-      var button = jQuery('#button-fullscreen'+this.appendOwnID(''));
+      var button = graphviewer.getToolbarItem('fullscreen').button;
       button.colorbox(
           {
             inline:true,
@@ -692,7 +555,7 @@
             width:'95%',
             height:'95%',
             onLoad:function(){
-              graphviewer.removeToolbarButton('fullscreen');
+              graphviewer.setToolbarItemActive('fullscreen',false,true);
               graphviewer.mainpanel.width('99%');
               graphviewer.mainpanel.height('99%');
             },
@@ -703,7 +566,7 @@
             onClosed:function(){
               graphviewer.mainpanel.width(graphviewer._width);
               graphviewer.mainpanel.height(graphviewer._height);
-              graphviewer.addToolbarButton('fullscreen',null,'right','fullscreen');
+              graphviewer.setToolbarItemActive('fullscreen',true,true);
               graphviewer.adjustDebugHeight();
               graphviewer.initFullscreenMode();
               executeCallbacks(graphviewer.callbacks.fullscreen.onclose);
