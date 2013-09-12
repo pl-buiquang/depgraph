@@ -37,7 +37,7 @@
        * @desc called when a chunk is clicked
        * @memberof DepGraphLib.EditObject.DefaultMode
        */
-      onChunkSelect : depgraphlib.EditObject.DefaultModeLib.addLinkClick,
+      onChunkSelect : depgraphlib.EditObject.DefaultModeLib.selectObject,
       /**
        * @member {object} onWordContext
        * @desc object of callback list used in the context menu of a word
@@ -95,10 +95,12 @@
           depgraphlib.EditObject.DefaultModeLib.showEditPanel(depgraph,element);
         },
         'Delete' : function(depgraph,element){
-          var chunk = depgraphlib.clone(element[0].__data__);
-          var affectedLinks = depgraph.removeChunk(element[0].__data__['#id']);
+          var chunk = depgraphlib.clone(element[0]);
+          var success = depgraph.removeChunk(element[0].__data__['#id']);
           depgraph.editObject.previousSelectedObject = null;
-          return {baseAction:'chunkRemoval',chunk:chunk,affectedLinks:affectedLinks};
+          if(success){
+            return {baseAction:'chunkRemoval',chunk:chunk};
+          }
         }
       },
       /**
@@ -137,7 +139,7 @@
        * @member {function} redo
        * @memberof DepGraphLib.EditObject.DefaultMode
        */
-      redo:depgraphlib.EditObject.DefaultModeLib.defaultRedo,
+      redo:null,
   };
   
 }(window.depgraphlib));
