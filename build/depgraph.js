@@ -1016,46 +1016,6 @@
 
 
   /**
-   * @function addToolbarButton
-   * 
-   * @desc create and add a button to the toolbar from minimal information
-   * @param name
-   * @param callback
-   * @param position
-   * @param style
-   * 
-   * @memeberof DepGraphLib.GraphViewer#
-   */
-  depgraphlib.GraphViewer.prototype.addToolbarButton = function(name,callback,position,style,tooltip){
-    var text = '';
-    if(style == null){
-      style = 'tab white';
-      text = name;
-    }else{
-      style += " icon";
-    }
-    if(position == null){
-      position = 'left';
-    }
-    
-    var button='<div id="button-'+this.appendOwnID(name)+'" title="'+(tooltip || name)+'" class="'+style+' tab '+position+'">'+text+'</div>';
-    button = jQuery(button);
-    button.click(callback);
-    this.toolbarbuttons.append(button);
-  };
-
-  /**
-   * @function removeToolbarButton
-   * @desc remove a toolbar button given its name
-   * @param name
-   * 
-   * @memeberof DepGraphLib.GraphViewer#
-   */
-  depgraphlib.GraphViewer.prototype.removeToolbarButton = function(name){
-    jQuery('#button-'+this.appendOwnID(name)).remove();
-  };
-
-  /**
    * @function createDropDownMenu
    * @desc create a dropdown menu given items that compose the menu
    * items is an object of objects with at least the property 'cb' defining the callback when the item
@@ -1524,8 +1484,9 @@
      * @param height
      */
     depgraphlib.GraphViewer.prototype.setHeight = function(height){
-      height += 30;
+      height = parseFloat(height)+30;
       this._height = height;
+      console.log(height);
       this.mainpanel.css('height',height);
       this.margin.top = this.chart.height()/10 + this.basemargin + ((this.imagemode)?0:20);
       this.margin.bottom = this.basemargin + (this.imagemode)?0:20;
