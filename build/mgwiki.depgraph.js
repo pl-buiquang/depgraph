@@ -537,10 +537,22 @@
    */
   depgraphlib.Box.instances = depgraphlib.Box.instances || [];
 
+  /**
+   * @function open
+   * @param {DOMObject|object.<number,number>} position
+   * @returns {depgraphlib.Box}
+   * 
+   * @memberof DepGraphLib.Box#
+   */
   depgraphlib.Box.prototype.open = function(position){
     if(position){
-      this.object.css('top',position.y);
-      this.object.css('left',position.x);
+      var point = position;
+      if(typeof position.getBoundingClientRect == 'function'){
+        var coords = this.getBoundingClientRect();
+        point = {x:coords.left,y:coords.top + coords.height + 2};
+      }
+      this.object.css('top',point.y);
+      this.object.css('left',point.x);
     }
     this.object.show();
     return this;
@@ -733,8 +745,14 @@
   
 }(window.depgraphlib));
 (function(depgraphlib){
-  
 
+  /**
+   * This callback is displayed as part of the GraphViewer class.
+   * @callback DepGraphLib.GraphViewer~toolbarbuttonaction
+   * @param {DepGraphLib.DepGraph} depgraph - The current graph within the viewer  
+   * @param {DepGraphLib.GraphViewer} viewer - The viewer allowing the use of methods like changeState, getState
+   */
+  
   /**
    * The format of button for the toolbar
    * @typedef DepGraphLib.GraphViewer.ToolBarButton
@@ -997,6 +1015,46 @@
 
 
   /**
+   * @function addToolbarButton
+   * 
+   * @desc create and add a button to the toolbar from minimal information
+   * @param name
+   * @param callback
+   * @param position
+   * @param style
+   * 
+   * @memeberof DepGraphLib.GraphViewer#
+   */
+  depgraphlib.GraphViewer.prototype.addToolbarButton = function(name,callback,position,style,tooltip){
+    var text = '';
+    if(style == null){
+      style = 'tab white';
+      text = name;
+    }else{
+      style += " icon";
+    }
+    if(position == null){
+      position = 'left';
+    }
+    
+    var button='<div id="button-'+this.appendOwnID(name)+'" title="'+(tooltip || name)+'" class="'+style+' tab '+position+'">'+text+'</div>';
+    button = jQuery(button);
+    button.click(callback);
+    this.toolbarbuttons.append(button);
+  };
+
+  /**
+   * @function removeToolbarButton
+   * @desc remove a toolbar button given its name
+   * @param name
+   * 
+   * @memeberof DepGraphLib.GraphViewer#
+   */
+  depgraphlib.GraphViewer.prototype.removeToolbarButton = function(name){
+    jQuery('#button-'+this.appendOwnID(name)).remove();
+  };
+
+  /**
    * @function createDropDownMenu
    * @desc create a dropdown menu given items that compose the menu
    * items is an object of objects with at least the property 'cb' defining the callback when the item
@@ -1070,7 +1128,11 @@
       this.margin = {top:100,left:0,right:0,bottom:10};
       this.borders = true;
       
+<<<<<<< HEAD
       //toolbar
+=======
+      // toolbar params
+>>>>>>> 7a9e0f7c1e4c60910ff74a8e8f1d0e5e46487be7
       this.toolbaritems = {};
       this.toolbarindex = 0;
       
@@ -1465,7 +1527,7 @@
      * @param height
      */
     depgraphlib.GraphViewer.prototype.setHeight = function(height){
-      height = parseFloat(height)+30;
+      height += 30;
       this._height = height;
       this.mainpanel.css('height',height);
       this.margin.top = this.chart.height()/10 + this.basemargin + ((this.imagemode)?0:20);
@@ -1491,147 +1553,6 @@
       }else{
         this.toolbar.hide();
       }
-    };
-
-    /***********************************************************/
-    /**                    ToolBar                             */
-    /***********************************************************/
-
-    /**
-     * add the fullscreen mode button to the toolbar
-     */
-    depgraphlib.GraphViewer.prototype.addFullScreenButton = function(){
-      if(!this.allowFullScreen){
-        return;
-      }
-      if(typeof this.container.colorbox != 'undefined'){
-        this.addToolbarButton('fullscreen',null,'right','fullscreen','View in fullscreen');
-        this.initFullscreenMode();
-      }
-    };
-
-    /**
-     * returns true if found a toolbar button with the name 'name'
-     * @param name
-     * @returns {Boolean}
-     */
-    depgraphlib.GraphViewer.prototype.existToolbarButton = function(name){
-      return jQuery('#button-'+this.appendOwnID(name)).length > 0;
-    };
-
-    /**
-     * return the div element corresponding to the tool bar button with name 'name'
-     * @param name
-     * @return {object} the jquery selection of the toolbar button
-     */
-    depgraphlib.GraphViewer.prototype.getToolbarButton = function(name){
-      return jQuery('#button-'+this.appendOwnID(name));
-    };
-
-    /**
-     * set toolbar buttons from a array definition of buttons
-     * 0 : name, 1 : callback on click, 2: position (left or right), 3 : style (css classes)
-     * @param definition
-     */
-    depgraphlib.GraphViewer.prototype.setToolbarButtons = function(definition){
-      this.tmpLeft = [];
-      definition.forEach(function(item,index){
-        if(item[2] == 'left'){
-          this.tmpLeft.push(item);
-        }else{
-          this.addToolbarButton(item[0], item[1], item[2], item[3], item[4]);
-        }
-      },this);
-      this.tmpLeft.forEach(function(item,index){
-        this.addToolbarButton(item[0], item[1], item[2], item[3], item[4]);
-      },this);
-      this.tmpLeft = null;
-    };
-
-    /**
-     * remove all toolbar buttons
-     */
-    depgraphlib.GraphViewer.prototype.resetToolbarButtons = function(){
-      var children = this.toolbarbuttons.children();
-      children.remove();
-      this.addFullScreenButton();
-    };
-
-    /**
-     * add a button to the toolbar
-     * the button is a div that will be put either on left, or right side of the toolbar
-     * @param elt
-     * @param position
-     */
-    depgraphlib.GraphViewer.prototype.addToolbarElement = function(elt,position){
-      elt.css('float',position);
-      this.toolbarbuttons.append(elt);
-    };
-
-    /**
-     * create and add a button to the toolbar from minimal information
-     * @param name
-     * @param callback
-     * @param position
-     * @param style
-     */
-    depgraphlib.GraphViewer.prototype.addToolbarButton = function(name,callback,position,style,tooltip){
-      var text = '';
-      if(style == null){
-        style = 'tab white';
-        text = name;
-      }else{
-        style += " icon";
-      }
-      if(position == null){
-        position = 'left';
-      }
-      
-      var button='<div id="button-'+this.appendOwnID(name)+'" title="'+(tooltip || name)+'" class="'+style+' tab '+position+'">'+text+'</div>';
-      button = jQuery(button);
-      button.click(callback);
-      this.toolbarbuttons.append(button);
-    };
-
-    /**
-     * remove a toolbar button given its name
-     * @param name
-     */
-    depgraphlib.GraphViewer.prototype.removeToolbarButton = function(name){
-      jQuery('#button-'+this.appendOwnID(name)).remove();
-    };
-
-    /**
-     * create a dropdown menu given items that compose the menu
-     * items is an object of objects with at least the property 'cb' defining the callback when the item
-     * is clicked.
-     */
-    depgraphlib.GraphViewer.createDropDownMenu = function(name,items,autoslidedown,tooltip){
-      var div = jQuery('<div class="gv-menu"><div class="gv-menu-header"></div><div class="gv-menu-body"></div></div>');
-      var header = jQuery('.gv-menu-header',div);
-      var body = jQuery('.gv-menu-body',div);
-      body.hide();
-      header.html(name);
-      header.attr('title',tooltip||name);
-      header.addClass('white');
-      for(i in items){
-        var item = jQuery('<div>'+i+'</div>');
-        item.attr('title',items[i].tt || i);
-        body.append(item);
-        jQuery(item).click(items[i].cb);
-      }
-      if(autoslidedown === false){
-        jQuery('.gv-menu-header',div).click(function(event){jQuery('.gv-menu-body',event.currentTarget.parentNode).slideDown();});
-        jQuery(div).mouseleave(function(event){
-          jQuery('.gv-menu-body',event.currentTarget).slideUp();
-          });
-      }else{
-        div.hover(
-            function(event){jQuery('.gv-menu-body',event.currentTarget).slideDown();},
-            function(event){jQuery('.gv-menu-body',event.currentTarget).slideUp();}
-        );
-      }
-      return div;
     };
 
     /***********************************************************/
@@ -1724,7 +1645,7 @@
      */
     depgraphlib.GraphViewer.prototype.initFullscreenMode = function(){
       var graphviewer = this;
-      var button = jQuery('#button-fullscreen'+this.appendOwnID(''));
+      var button = graphviewer.getToolbarItem('fullscreen').button;
       button.colorbox(
           {
             inline:true,
@@ -1732,7 +1653,7 @@
             width:'95%',
             height:'95%',
             onLoad:function(){
-              graphviewer.removeToolbarButton('fullscreen');
+              graphviewer.setToolbarItemActive('fullscreen',false,true);
               graphviewer.mainpanel.width('99%');
               graphviewer.mainpanel.height('99%');
             },
@@ -1743,7 +1664,7 @@
             onClosed:function(){
               graphviewer.mainpanel.width(graphviewer._width);
               graphviewer.mainpanel.height(graphviewer._height);
-              graphviewer.addToolbarButton('fullscreen',null,'right','fullscreen');
+              graphviewer.setToolbarItemActive('fullscreen',true,true);
               graphviewer.adjustDebugHeight();
               graphviewer.initFullscreenMode();
               executeCallbacks(graphviewer.callbacks.fullscreen.onclose);
@@ -1864,12 +1785,18 @@
       var me = this;
       // factor 2, in order to take into account left and right in the positions
       this.sortLinksByLength(links[0]);
-      console.log(links[0]);
       var n = links[0].length;
       var table = [];
       for(var i=0;i<n;++i){
         var link = links[0][i];
         var p = this.getLinkProperties(link);
+        if(p.min == p.max){ // this is the special case when the link is the root
+          p.strate = 1;
+          setMaxStrate(1);
+          table[1]=new Array();
+          table[1][(p.min*2)+1]=link;
+          continue;
+        }
         var k = 1;
         while(true){
           if(table[k]==null){ // nothing exist at this strate : fill it and break
@@ -2524,6 +2451,8 @@
       }
       this.update();
       this.postProcesses();
+      this.editObject.editModeInit();
+      this.autoHighLightOnMouseOver();
     };
 
     /**
@@ -2537,6 +2466,8 @@
       this.data.graph.links.push(link);
       this.update();
       this.postProcesses();
+      this.editObject.editModeInit();
+      this.autoHighLightOnMouseOver();
     };
 
     /**
@@ -2548,6 +2479,8 @@
       this.data.graph.chunks.push(chunk);
       this.update();
       this.postProcesses();
+      this.editObject.editModeInit();
+      this.autoHighLightOnMouseOver();
     };
 
     /**
@@ -2612,10 +2545,24 @@
       if(index == null){
         return false;
       }
+
+      var affectedLinks = [];
+      var affectedID = this.data.graph.chunks[index].id;
+
       this.data.graph.chunks.splice(index,1);
+
+      for(var i=0;i<this.data.graph.links.length;i++){
+        var link = this.data.graph.links[i];
+        if(link.source == affectedID || link.target == affectedID){
+          affectedLinks.push(depgraphlib.clone(link));
+          this.data.graph.links.splice(i,1);
+          i--;
+        }
+      }
+      
       this.update();
       this.postProcesses();
-      return true;
+      return affectedLinks;
     };
 
 
@@ -3058,9 +3005,9 @@
           return node.__data__['#position'];
         else{ // we are dealing with a chunk
           var me = depgraphlib.DepGraph.getInstance(node);
-          var middle = Math.floor(node.__data__['elements'].length/2);
-          var middleNode = me.getWordNodeByOriginalId(node.__data__['elements'][middle]);
-          return middleNode.__data__['#position'];
+          var range = me.getChunkRange(node.__data__);
+          var middle = Math.floor(range.firstElement['#position'] + range.lastElement['#position'])/2;
+          return middle;
         }
       }else{
         return -1;
@@ -3375,6 +3322,31 @@
   };
 
   /**
+   * @function getObjectNodeByOriginalId
+   * @desc Search and return an object node (link, word or chunk) by its #id
+   * @param {string} id - the internal id of the object
+   * @returns {object|null} an object node from the links,words or chunks data list
+   * @memberof DepGraphLib.DepGraph#
+   */
+  depgraphlib.DepGraph.prototype.getObjectNodeByOriginalId = function(id){
+    var nodes = this.vis.selectAll('g.word');
+    for(var i = 0; i<nodes[0].length; i++){
+      if(nodes[0][i].__data__['id'] == id)
+        return nodes[0][i];
+    }
+    nodes = this.vis.selectAll('g.chunk');
+    for(var i = 0; i<nodes[0].length; i++){
+      if(nodes[0][i].__data__['id'] == id)
+        return nodes[0][i];
+    }
+    nodes = this.vis.selectAll('g.link');
+    for(var i = 0; i<nodes[0].length; i++){
+      if(nodes[0][i].__data__['id'] == id)
+        return nodes[0][i];
+    }
+  };
+  
+  /**
    * @function getObjectNodeFromObject
    * @desc Search and return an object node (link node, word node or chunk node) by its #id
    * @param {string} id - the internal id of the object
@@ -3463,8 +3435,6 @@
   depgraphlib.DepGraph.prototype.addWord = function(wordData){
     var position = wordData['#position'] || this.data.words.length;
     this.insertWord(wordData,position);
-    this.editObject.editModeInit();
-    this.autoHighLightOnMouseOver();
     return depgraphlib.clone(wordData);
   };
   
@@ -3498,8 +3468,6 @@
     link.label = label;
     link['#id'] = id;
     this.insertLink(link);
-    this.editObject.editModeInit();
-    this.autoHighLightOnMouseOver();
     return link;
   };
   
@@ -3521,20 +3489,18 @@
     }
     id = id || this.id++;
     custom_id = custom_id || id;
-    color = color || 'black';
+    color = color || 'transparent';
     var chunk = {
         label:label,
         sublabels:sublabels,
         elements:word_ids,
         '#style':{
-          color:color
+          'background-color':color
         },
         '#id':id,
         id : custom_id,
     };
     this.insertChunk(chunk);
-    this.editObject.editModeInit();
-    this.autoHighLightOnMouseOver();
     return chunk;
   };
   
@@ -3672,16 +3638,21 @@
             if(depgraphlib.isALink(depgraph.editObject.previousSelectedObject)){
               var link = depgraphlib.clone(depgraph.editObject.previousSelectedObject);
               link.color = depgraphlib.getStyleElement(depgraph.editObject.previousSelectedObject,'link-color','black');
-              var success = removeLink(depgraph, depgraph.editObject.previousSelectedObject.__data__['#id']);
+              var success = depgraph.removeLink(depgraph.editObject.previousSelectedObject.__data__['#id']);
               depgraph.editObject.previousSelectedObject = null;
               if(success){
                 return {baseAction:'linkRemoval',link:link};
               }
             }else if(depgraphlib.isAWord(depgraph.editObject.previousSelectedObject)){
               var word = depgraphlib.clone(depgraph.editObject.previousSelectedObject.__data__);
-              var affectedLinks = removeWord(depgraph,depgraph.editObject.previousSelectedObject.__data__['#id']);
+              var affectedLinks = depgraph.removeWord(depgraph.editObject.previousSelectedObject.__data__['#id']);
               depgraph.editObject.previousSelectedObject = null;
               return {baseAction:'wordRemoval',word:word,affectedLinks:affectedLinks};
+            }else if(depgraphlib.isAChunk(depgraph.editObject.previousSelectedObject)){
+              var chunk = depgraphlib.clone(depgraph.editObject.previousSelectedObject.__data__);
+              var affectedLinks = depgraph.removeChunk(depgraph.editObject.previousSelectedObject.__data__['#id']);
+              depgraph.editObject.previousSelectedObject = null;
+              return {baseAction:'chunkRemoval',chunk:chunk,affectedLinks:affectedLinks};
             }
           }
         }
@@ -3700,21 +3671,21 @@
       defaultUndo : function(depgraph,rollbackdata){
         if(rollbackdata.baseAction == 'linkRemoval'){
           var link = rollbackdata.link;
-          var source = depgraph.getWordNodeByOriginalId(link.__data__['source']);
-          var target = depgraph.getWordNodeByOriginalId(link.__data__['target']);
+          var source = depgraph.getObjectNodeByOriginalId(link.__data__['source']);
+          var target = depgraph.getObjectNodeByOriginalId(link.__data__['target']);
           depgraph.addLink(source,target,link.__data__.label,link.color,link.__data__['#id']);
         }else if(rollbackdata.baseAction == 'linkAddition'){
-          removeLink(depgraph,rollbackdata.addedLink['#id']);
+          depgraph.removeLink(rollbackdata.addedLink['#id']);
         }else if(rollbackdata.baseAction == 'wordAddition'){
-          removeWord(depgraph,rollbackdata.addedWord['#id']);
+          depgraph.removeWord(rollbackdata.addedWord['#id']);
         }else if(rollbackdata.baseAction == 'wordRemoval'){
           var word = rollbackdata.word;
           depgraph.addWord(word);
           if(rollbackdata.affectedLinks!=null){
             for(var i=0;i<rollbackdata.affectedLinks.length;i++){
               var link = rollbackdata.affectedLinks[i];
-              var source = depgraph.getWordNodeByOriginalId(link['source']);
-              var target = depgraph.getWordNodeByOriginalId(link['target']);
+              var source = depgraph.getObjectNodeByOriginalId(link['source']);
+              var target = depgraph.getObjectNodeByOriginalId(link['target']);
               link.color = link['#style']['link-color']?link['#style']['link-color']:depgraph.data.graph['#link-style']['link-color'];
               depgraph.addLink(source,target,link.label,link.color,link['#id']);
             }
@@ -3725,6 +3696,21 @@
           depgraph.editObject.changeAttributes(obj,rollbackdata.oldAttrs);
           depgraph.update();
           depgraph.postProcesses();
+        }else if(rollbackdata.baseAction == 'chunkAddition'){
+          depgraph.removeChunk(rollbackdata.addedChunk['#id']);
+        }else if(rollbackdata.baseAction == 'chunkRemoval'){
+          var chunk = rollbackdata.chunk;
+          chunk.color = (chunk['#style'] && chunk['#style']['background-color'])?chunk['#style']['background-color']:depgraph.data.graph['#chunk-style']['background-color'];
+          depgraph.addChunk(chunk.label,chunk.elements,chunk.sublabels,chunk.color,chunk.id,chunk['#id']);
+          if(rollbackdata.affectedLinks!=null){
+            for(var i=0;i<rollbackdata.affectedLinks.length;i++){
+              var link = rollbackdata.affectedLinks[i];
+              var source = depgraph.getObjectNodeByOriginalId(link['source']);
+              var target = depgraph.getObjectNodeByOriginalId(link['target']);
+              link.color = (link['#style'] && link['#style']['link-color'])?link['#style']['link-color']:depgraph.data.graph['#link-style']['link-color'];
+              depgraph.addLink(source,target,link.label,link.color,link['#id']);
+            }
+          }
         }
       },
 
@@ -3738,6 +3724,30 @@
        * @memberof DepGraphLib.EditObject.DefaultModeLib
        */
        defaultRedo : function(depgraph,actionData){
+         console.log(actionData);
+         if(actionData.baseAction == 'linkAddition'){
+           var link = actionData.addedLink;
+           depgraph.insertLink(link);
+         }else if(actionData.baseAction == 'linkRemoval'){
+           depgraph.removeLink(actionData.link.__data__['#id']);
+         }else if(actionData.baseAction == 'wordRemoval'){
+           depgraph.removeWord(actionData.word['#id']);
+         }else if(actionData.baseAction == 'wordAddition'){
+           var word = actionData.addedWord;
+           depgraph.addWord(word);
+         }else if(actionData.baseAction == 'changeAttr'){
+           var id = actionData.obj['#id'];
+           var obj = depgraph.getObjectById(id);
+           depgraph.editObject.changeAttributes(obj,actionData.newAttrs);
+           depgraph.update();
+           depgraph.postProcesses();
+         }else if(actionData.baseAction == 'chunkRemoval'){
+           depgraph.removeChunk(actionData.chunk['#id']);
+         }else if(actionData.baseAction == 'chunkAddition'){
+           var chunk = actionData.addedChunk;
+           chunk.color = (chunk['#style'] && chunk['#style']['background-color'])?chunk['#style']['background-color']:depgraph.data.graph['#chunk-style']['background-color'];
+           depgraph.addChunk(chunk.label,chunk.elements,chunk.sublabels,chunk.color,chunk.id,chunk['#id']);
+         }
       },
 
       
@@ -3823,7 +3833,7 @@
        populateLinkEditPanel : function(depgraph,editDiv,linkData){
         var color = (linkData['#style']!= null && linkData['#style']['link-color']!=null)?linkData['#style']['link-color']:depgraph.data.graph['#link-style']['link-color'];
         
-        editDiv += depgraphlib.ui.addTextField('label',{name:'label',value:linkData.label,'data-rel':label});
+        editDiv += depgraphlib.ui.addTextField('label',{name:'label',value:linkData.label,'data-rel':'label'});
         editDiv += depgraphlib.ui.addCustomField('source',depgraphlib.EditObject.DefaultModeLib.getOptionsListWords(depgraph,linkData.source,'source'));
         editDiv += depgraphlib.ui.addCustomField('target',depgraphlib.EditObject.DefaultModeLib.getOptionsListWords(depgraph,linkData.target,'target'));
         editDiv += depgraphlib.ui.addCustomField('color',depgraphlib.ui.simpleColorPicker('colorPicker',color,'#style/link-color'));
@@ -4024,6 +4034,7 @@
         jQuery('#chunk-settings'+depgraph.viewer.appendOwnID('')).click(function(){
           var value = this.parentNode.parentNode.parentNode.childNodes[0].childNodes[1].childNodes[0].value;
           var chunk = depgraph.addChunk(value,[obj1.__data__.id,obj2.__data__.id]);
+          console.log(chunk);
           var action = {baseAction:'chunkAddition',addedChunk:chunk};
           depgraph.editObject.pushAction({mode:depgraph.editObject.editMode,rollbackdata:action,data:{event:'onWordSelect',params:params}});
           box.destroy();
@@ -4216,7 +4227,7 @@
        * @desc called when a chunk is clicked
        * @memberof DepGraphLib.EditObject.DefaultMode
        */
-      onChunkSelect : depgraphlib.EditObject.DefaultModeLib.selectObject,
+      onChunkSelect : depgraphlib.EditObject.DefaultModeLib.addLinkClick,
       /**
        * @member {object} onWordContext
        * @desc object of callback list used in the context menu of a word
@@ -4274,12 +4285,10 @@
           depgraphlib.EditObject.DefaultModeLib.showEditPanel(depgraph,element);
         },
         'Delete' : function(depgraph,element){
-          var chunk = depgraphlib.clone(element[0]);
-          var success = depgraph.removeChunk(element[0].__data__['#id']);
+          var chunk = depgraphlib.clone(element[0].__data__);
+          var affectedLinks = depgraph.removeChunk(element[0].__data__['#id']);
           depgraph.editObject.previousSelectedObject = null;
-          if(success){
-            return {baseAction:'chunkRemoval',chunk:chunk};
-          }
+          return {baseAction:'chunkRemoval',chunk:chunk,affectedLinks:affectedLinks};
         }
       },
       /**
@@ -4318,7 +4327,7 @@
        * @member {function} redo
        * @memberof DepGraphLib.EditObject.DefaultMode
        */
-      redo:null,
+      redo:depgraphlib.EditObject.DefaultModeLib.defaultRedo,
   };
   
 }(window.depgraphlib));
@@ -4471,12 +4480,13 @@
        */
       depgraphlib.EditObject.prototype.initToolbar = function(){
         var depgraph = this.depgraph;
-        depgraph.viewer.resetToolbarButtons();
-        var buttons = [['save',save,'right','saved'],
-                       ['undo',undo,'left','undo'],
-                       ['redo',redo,'left','redo'],
-                       ['highlight',highlightmode,'left','highlightoff'],
-                       ['export',exportData,'right','export']
+        depgraph.viewer.resetToolbarItems();
+        var buttons = [
+                       {name:'undo',callback:undo,style:'undo',group:'control'},
+                       {name:'redo',callback:redo,style:'redo',group:'control'},
+                       {name:'highlight',callback:highlightmode,style:'highlightoff'},
+                       {name:'export',callback:exportData,style:'export',group:'0'},
+                       {name:'save',callback:save,style:'saved',group:'0'},
                        ];
 
         if(this.mode[this.editMode].buttons != null){
@@ -4485,12 +4495,12 @@
           }
         }
         
-        depgraph.viewer.setToolbarButtons(buttons);
+        depgraph.viewer.addToolbarItems(buttons);
         if(this.currentPtr < 0 || this.mode[this.editMode].undo == null){
-          depgraph.viewer.getToolbarButton('undo').hide();
+          depgraph.viewer.setToolbarItemActive('undo',false);
         }
         if(this.currentPtr == this.actionsLog.length-1 || this.mode[this.editMode].redo == null){
-          depgraph.viewer.getToolbarButton('redo').hide();
+          depgraph.viewer.setToolbarItemActive('redo',false);
         }/*
         if(this.mode[this.editMode].save == null){
           depgraph.viewer.getToolbarButton('redo').hide();
@@ -4504,9 +4514,9 @@
           me.highlightMode = !me.highlightMode;
           if(me.highlightMode){
             me.clearSelection();
-            depgraph.viewer.getToolbarButton('highlight').removeClass('tab').addClass('tab_on');
+            depgraph.viewer.setToolbarItemState('highlight',true);
           }else{
-            depgraph.viewer.getToolbarButton('highlight').removeClass('tab_on').addClass('tab');
+            depgraph.viewer.setToolbarItemState('highlight',false);
           }
         }
         
@@ -4526,7 +4536,7 @@
         function undo(){
           var me = depgraph.editObject;
           if(depgraph.editObject.currentPtr == 0){
-            depgraph.viewer.getToolbarButton('undo').hide();
+            depgraph.viewer.setToolbarItemActive('undo',false);
           }
           var action = depgraph.editObject.actionsLog[depgraph.editObject.currentPtr];
           if(me.mode[action.mode].undo != null){
@@ -4534,7 +4544,7 @@
           }
           depgraph.editObject.currentPtr--;
           if(me.mode[action.mode].redo != null){
-            depgraph.viewer.getToolbarButton('redo').show();
+            depgraph.viewer.setToolbarItemActive('redo',true);
           }
           me.updateSaveState();
         }
@@ -4546,13 +4556,13 @@
           var me = depgraph.editObject;
           depgraph.editObject.currentPtr++;
           if(depgraph.editObject.currentPtr == depgraph.editObject.actionsLog.length-1){
-            depgraph.viewer.getToolbarButton('redo').hide();
+            depgraph.viewer.setToolbarItemActive('redo',false);
           }
           var action = depgraph.editObject.actionsLog[depgraph.editObject.currentPtr];
           if(me.mode[action.mode].redo != null){
             me.mode[action.mode].redo.call(me,depgraph,action.rollbackdata);
           }
-          depgraph.viewer.getToolbarButton('undo').show();
+          depgraph.viewer.setToolbarItemActive('undo',true);
           me.updateSaveState();
           // TODO !!!!!!!! Change callback so that work (every callbacks should be on the form func(depgraph,params))
         }
@@ -4649,9 +4659,9 @@
        */
       depgraphlib.EditObject.prototype.updateSaveState =function(){
         if(this.lastSavedPtr == this.currentPtr && !this.needToSaveState){
-          this.depgraph.viewer.getToolbarButton('save').removeClass('save').addClass('saved');
+          this.depgraph.viewer.getToolbarItem('save').button.removeClass('save').addClass('saved');
         }else{
-          this.depgraph.viewer.getToolbarButton('save').removeClass('saved').addClass('save');
+          this.depgraph.viewer.getToolbarItem('save').button.removeClass('saved').addClass('save');
         }
       };
       
@@ -4673,7 +4683,7 @@
           this.depgraph.vis.selectAll('g.link').on("click",null);
           this.depgraph.vis.selectAll('g.chunk').on("click",null);
           d3.select(document).on('keydown.edit'+this.depgraph.viewer.uid,null);
-          this.depgraph.viewer.resetToolbarButtons();
+          this.depgraph.viewer.resetToolbarItems();
           jQuery('.link',this.depgraph.vis.node()).contextMenu('', {
            });
           jQuery('.word',this.depgraph.vis.node()).contextMenu('', {
@@ -4818,9 +4828,9 @@
        */
       depgraphlib.EditObject.prototype.pushAction = function(action){
         if(action.rollbackdata != null && this.mode[action.mode].undo != null){
-          this.depgraph.viewer.getToolbarButton('redo').hide();
-          var button = this.depgraph.viewer.getToolbarButton('undo');
-          button.show(); // TODO not to do everytime!
+          this.depgraph.viewer.setToolbarItemActive('redo',false);
+          this.depgraph.viewer.setToolbarItemActive('undo',true);// TODO not to do everytime!
+           
           this.actionsLog.splice(++this.currentPtr,this.actionsLog.length-this.currentPtr,action);
           this.updateSaveState();
         }
@@ -4877,7 +4887,7 @@
           oldAttrs.push({path:attrs[i].path,value:oldVal});
         }
         if(pushAction != null && pushAction){
-          var action = {mode:this.editMode,rollbackdata:{baseAction:'changeAttr',obj:backup,attrs:attrs,oldAttrs:oldAttrs}};
+          var action = {mode:this.editMode,rollbackdata:{baseAction:'changeAttr',obj:backup,attrs:attrs,oldAttrs:oldAttrs,newAttrs:attrs}};
           this.pushAction(action);
         }
       };
@@ -5240,9 +5250,9 @@
         url: wsurl,
         data: {
           gid:gid,
-          action:action,
+          action:'promote',
         },
-        dataType : 'json',
+        dataType : action,
         success: function(data, textStatus, jqXHR) {
           if(data.success){
             window.location = '';

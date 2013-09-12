@@ -459,6 +459,8 @@
       }
       this.update();
       this.postProcesses();
+      this.editObject.editModeInit();
+      this.autoHighLightOnMouseOver();
     };
 
     /**
@@ -472,6 +474,8 @@
       this.data.graph.links.push(link);
       this.update();
       this.postProcesses();
+      this.editObject.editModeInit();
+      this.autoHighLightOnMouseOver();
     };
 
     /**
@@ -483,6 +487,8 @@
       this.data.graph.chunks.push(chunk);
       this.update();
       this.postProcesses();
+      this.editObject.editModeInit();
+      this.autoHighLightOnMouseOver();
     };
 
     /**
@@ -547,10 +553,24 @@
       if(index == null){
         return false;
       }
+
+      var affectedLinks = [];
+      var affectedID = this.data.graph.chunks[index].id;
+
       this.data.graph.chunks.splice(index,1);
+
+      for(var i=0;i<this.data.graph.links.length;i++){
+        var link = this.data.graph.links[i];
+        if(link.source == affectedID || link.target == affectedID){
+          affectedLinks.push(depgraphlib.clone(link));
+          this.data.graph.links.splice(i,1);
+          i--;
+        }
+      }
+      
       this.update();
       this.postProcesses();
-      return true;
+      return affectedLinks;
     };
 
 
@@ -993,9 +1013,9 @@
           return node.__data__['#position'];
         else{ // we are dealing with a chunk
           var me = depgraphlib.DepGraph.getInstance(node);
-          var middle = Math.floor(node.__data__['elements'].length/2);
-          var middleNode = me.getWordNodeByOriginalId(node.__data__['elements'][middle]);
-          return middleNode.__data__['#position'];
+          var range = me.getChunkRange(node.__data__);
+          var middle = Math.floor(range.firstElement['#position'] + range.lastElement['#position'])/2;
+          return middle;
         }
       }else{
         return -1;

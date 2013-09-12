@@ -126,10 +126,10 @@
      */
     depgraphlib.DepGraph.prototype.autoHighLightOnMouseOver = function(value){
       if(value==null || value){
-        this.vis.selectAll('g.link').on("mouseover.autohighlight",function(){depgraphlib.DepGraph.highlightLink(this, true); });
-        this.vis.selectAll('g.link').on("mouseout.autohighlight",function(){depgraphlib.DepGraph.highlightLink(this, false); });
-        this.vis.selectAll('g.word').on("mouseover.autohighlight",function(){depgraphlib.DepGraph.highlightWord(this, true); });
-        this.vis.selectAll('g.word').on("mouseout.autohighlight",function(){depgraphlib.DepGraph.highlightWord(this, false); });
+        this.vis.selectAll('g.link').on("mouseover.autohighlight",function(){highlightLink(this, true); });
+        this.vis.selectAll('g.link').on("mouseout.autohighlight",function(){highlightLink(this, false); });
+        this.vis.selectAll('g.word').on("mouseover.autohighlight",function(){highlightWord(this, true); });
+        this.vis.selectAll('g.word').on("mouseout.autohighlight",function(){highlightWord(this, false); });
       }else{
         this.vis.selectAll('g.link').on("mouseover.autohighlight",null);
         this.vis.selectAll('g.link').on("mouseout.autohighlight",null);
@@ -437,11 +437,19 @@
     /**
      * @function update
      * @desc Read data and construct the graph layout (update and init)
-     * 
      * @memberof DepGraphLib.DepGraph#
      */
     depgraphlib.DepGraph.prototype.update = function(){
       
+      var chunks = null;
+      // appending chunks first for layout because they are "visually" under the words
+      if(this.data.graph.chunks!=null){
+         chunks = this.chunks = this.vis.selectAll("g.chunk")
+          .data(this.data.graph.chunks,function(d){return d['#id'];});
+         chunks.enter().append("g").classed("chunk",true);
+         var chunks_exit = chunks.exit();
+         chunks_exit.remove();
+      }
 
       var words = this.words = this.vis.selectAll("g.word")
       .data(this.data.graph.words,function(d){return d['#id'];});
@@ -450,12 +458,10 @@
       words_exit.remove();
       words.each(setWordMaterials);
       
-      var chunks = this.chunks = this.vis.selectAll("g.chunk")
-      .data(this.data.graph.chunks,function(d){return d['#id'];});
-      chunks.enter().insert("g",'g.word').classed("chunk",true);
-      var chunks_exit = chunks.exit();
-      chunks_exit.remove();
-      chunks.each(setChunkMaterials);
+      // creating the svg material of chunks after words because they need info about words layout
+      if(this.data.graph.chunks!=null){
+        chunks.each(setChunkMaterials);
+      }
 
       var links = this.links = this.vis.selectAll("g.link")
         .data(this.data.graph.links,function(d){return d['#id'];}); 
@@ -507,7 +513,6 @@
      * @param chunk
      */
     depgraphlib.DepGraph.prototype.insertChunk = function(chunk) {
-      this.data.graph.chunks.push(chunk);
       this.update();
       this.postProcesses();
     };
@@ -570,14 +575,7 @@
      * TODO(paul) à implémenter
      */
     depgraphlib.DepGraph.prototype.removeChunk = function(id){
-      var index = this.getChunkIndexById(id);
-      if(index == null){
-        return false;
-      }
-      this.data.graph.chunks.splice(index,1);
-      this.update();
-      this.postProcesses();
-      return true;
+      
     };
 
 
@@ -683,8 +681,7 @@
       var node = d3.select(this);
       var me = depgraphlib.DepGraph.getInstance(node.node());
       var elt = node.node();
-      elt.components = elt.components || {};
-      
+
       var rect = elt.components.rect || node.append("rect");
       var min = {x : 99999, y : 99999};
       var max = {x:0,y:0};
@@ -729,24 +726,16 @@
         .style('stroke-width',borderSize);
 
       var text = elt.components.text || node.append("text");
-      var label = elt.components.label || text.append("tspan");
-      var sublabels = elt.components.sublabels || [];
       text.attr('y',depgraphlib.addPxs(20,max.y,2*depgraphlib.removeUnit(margin.top)));
-      label.text(d.label)
+      text.append("tspan")
+        .text(d.label)
          .style('fill',color)
         .style('font-style',fontStyle)
         .style('font-weight',fontWeight)
         .style('font-size',fontSize);
       if(d.sublabel){
         for(var i=0;i&lt;d.sublabel.length;++i){
-          var sublabel = null;
-          if(sublabels[i]!=null){
-            sublabel = sublabels[i];
-          }else{
-            sublabel = text.append("tspan");
-            sublabels.push(sublabel);
-          }
-          sublabel
+          var tspan = text.append("tspan")
           .text(d.sublabel[i])
           .style('font-size',subfontSize)
           .style('font-style',subfontStyle)
@@ -756,6 +745,7 @@
           .attr('dy','1.25em');
         }
       }
+      depgraphlib.center(text,node);
 
       var offset = text.node().getBBox().height;
       rect.attr('x',0)
@@ -767,10 +757,8 @@
       .style('fill',backgroundColor)
       .style('stroke',borderColor)
       .style('stroke-width',borderSize);
-
-      depgraphlib.center(text,rect);
-
-      node.node().components = {text:text,rect:rect,line:line,sublabels:sublabels,label:label};
+      
+      node.node().components = {text:text,rect:rect,line:line};
 
       depgraphlib.setGroupPosition(node,min.x-depgraphlib.removeUnit(margin.left),min.y-depgraphlib.removeUnit(margin.top));
     }
@@ -853,7 +841,7 @@
       var strateOffset = 30;
       var v0 = -vdir*height-strateOffset*p.strate;//-SchunkCase;
       if(originArc){
-        v0 = -vdir*height-strateOffset*vdir*(me.maxLinksStrate+1);
+        v0 = -vdir*height-strateOffset*vdir*me.maxLinksStrate;
       }
       var v1 = -(v0+y0-y1);//vdir*height+strateOffset*p.strate+EchunkCase+SchunkCase;
       var laf0 = (1+hdir*vdir)/2;
@@ -906,7 +894,7 @@
      * switch highlight property of a link node
      * (permanently or not &lt;=> set highlighted = true or false in data or not)
      */
-    depgraphlib.DepGraph.highlightLink = function(link,value,permanent){
+    function highlightLink(link,value,permanent){
       if(!permanent && (link.selected || link.getStyle('highlighted',false))){
         return;
       }
@@ -925,13 +913,13 @@
         link.components.highlightPath.attr('stroke',"transparent");
         link.components.label.style('font-weight',fontWeight);
       }
-    };
+    }
 
     /**
      * switch highlight property of a word node
      * (permanently or not &lt;=> set highlighted = true or false in data or not)
      */
-    depgraphlib.DepGraph.highlightWord = function(word,value,permanent){
+    function highlightWord(word,value,permanent){
       if(!permanent && (word.selected || word.getStyle('highlighted',false))){
         return;
       }
@@ -942,27 +930,25 @@
       
       word.components.rect
       .style('fill',value?'yellow':'none');
-    };
-    
-    depgraphlib.DepGraph.highlightChunk = function(object,value,permanent){
-      
-    };
+    }
 
     /**
      * switch highlight property of an object node (chunk, link or word) 
      * (permanently or not &lt;=> set highlighted = true or false in data or not)
      */
-    depgraphlib.DepGraph.highlightObject = function(object,value,permanent){
+    function highlightObject(object,value,permanent){
       if(object.classList != null && object.classList.length > 0){
         var klass = object.classList[0];
         if(klass == 'link'){
-          depgraphlib.DepGraph.highlightLink(object,value,permanent);
-        }else if (klass == 'word'){
-          depgraphlib.DepGraph.highlightWord(object,value,permanent);
-        }else if (klass == 'chunk'){
-          depgraphlib.DepGraph.highlightChunk(object,value,permanent);
+          highlightLink(object,value,permanent);
+        }else if (klass ='word'){
+          highlightWord(object,value,permanent);
         }
       }
+    }
+    
+    depgraphlib.highlightObject = function(object,value,permanent){
+      return highlightObject(object,value,permanent);
     };
 
     /**
@@ -1043,13 +1029,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="DepGraphLib.Box.html">Box</a></li><li><a href="DepGraphLib.DepGraph.html">DepGraph</a></li><li><a href="DepGraphLib.EditObject.html">EditObject</a></li><li><a href="DepGraphLib.GraphViewer.html">GraphViewer</a></li></ul><h3>Namespaces</h3><ul><li><a href="DepGraphLib.html">DepGraphLib</a></li><li><a href="DepGraphLib.EditObject.DefaultMode.html">DefaultMode</a></li><li><a href="DepGraphLib.EditObject.DefaultModeLib.html">DefaultModeLib</a></li><li><a href="DepGraphLib.UI.html">UI</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addFullScreenButton">addFullScreenButton</a></li><li><a href="global.html#createDropDownMenu">createDropDownMenu</a></li><li><a href="global.html#resetToolbarItems">resetToolbarItems</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="DepGraphLib.Box.html">Box</a></li><li><a href="DepGraphLib.DepGraph.html">DepGraph</a></li><li><a href="DepGraphLib.EditObject.html">EditObject</a></li><li><a href="DepGraphLib.GraphViewer.html">GraphViewer</a></li></ul><h3>Namespaces</h3><ul><li><a href="DepGraphLib.html">DepGraphLib</a></li><li><a href="DepGraphLib.EditObject.DefaultMode.html">DefaultMode</a></li><li><a href="DepGraphLib.EditObject.DefaultModeLib.html">DefaultModeLib</a></li><li><a href="DepGraphLib.UI.html">UI</a></li></ul><h3><a href="global.html">Global</a></h3>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Thu Sep 12 2013 18:54:27 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Tue Sep 10 2013 16:48:27 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -93,10 +93,22 @@
    */
   depgraphlib.Box.instances = depgraphlib.Box.instances || [];
 
+  /**
+   * @function open
+   * @param {DOMObject|object.<number,number>} position
+   * @returns {depgraphlib.Box}
+   * 
+   * @memberof DepGraphLib.Box#
+   */
   depgraphlib.Box.prototype.open = function(position){
     if(position){
-      this.object.css('top',position.y);
-      this.object.css('left',position.x);
+      var point = position;
+      if(typeof position.getBoundingClientRect == 'function'){
+        var coords = this.getBoundingClientRect();
+        point = {x:coords.left,y:coords.top + coords.height + 2};
+      }
+      this.object.css('top',point.y);
+      this.object.css('left',point.x);
     }
     this.object.show();
     return this;

@@ -5,7 +5,7 @@
  */
 (function(depgraphlib){
 
-  
+
   depgraphlib.default_save = function(depgraph){
     depgraph.cleanData();
     jQuery.ajax({
@@ -60,9 +60,9 @@
         url: wsurl,
         data: {
           gid:gid,
-          action:action,
+          action:'promote',
         },
-        dataType : 'json',
+        dataType : action,
         success: function(data, textStatus, jqXHR) {
           if(data.success){
             window.location = '';

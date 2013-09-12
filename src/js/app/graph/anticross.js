@@ -43,12 +43,18 @@
       var me = this;
       // factor 2, in order to take into account left and right in the positions
       this.sortLinksByLength(links[0]);
-      console.log(links[0]);
       var n = links[0].length;
       var table = [];
       for(var i=0;i<n;++i){
         var link = links[0][i];
         var p = this.getLinkProperties(link);
+        if(p.min == p.max){ // this is the special case when the link is the root
+          p.strate = 1;
+          setMaxStrate(1);
+          table[1]=new Array();
+          table[1][(p.min*2)+1]=link;
+          continue;
+        }
         var k = 1;
         while(true){
           if(table[k]==null){ // nothing exist at this strate : fill it and break

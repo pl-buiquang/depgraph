@@ -147,12 +147,13 @@
        */
       depgraphlib.EditObject.prototype.initToolbar = function(){
         var depgraph = this.depgraph;
-        depgraph.viewer.resetToolbarButtons();
-        var buttons = [['save',save,'right','saved'],
-                       ['undo',undo,'left','undo'],
-                       ['redo',redo,'left','redo'],
-                       ['highlight',highlightmode,'left','highlightoff'],
-                       ['export',exportData,'right','export']
+        depgraph.viewer.resetToolbarItems();
+        var buttons = [
+                       {name:'undo',callback:undo,style:'undo',group:'control'},
+                       {name:'redo',callback:redo,style:'redo',group:'control'},
+                       {name:'highlight',callback:highlightmode,style:'highlightoff'},
+                       {name:'export',callback:exportData,style:'export',group:'0'},
+                       {name:'save',callback:save,style:'saved',group:'0'},
                        ];
 
         if(this.mode[this.editMode].buttons != null){
@@ -161,12 +162,12 @@
           }
         }
         
-        depgraph.viewer.setToolbarButtons(buttons);
+        depgraph.viewer.addToolbarItems(buttons);
         if(this.currentPtr < 0 || this.mode[this.editMode].undo == null){
-          depgraph.viewer.getToolbarButton('undo').hide();
+          depgraph.viewer.setToolbarItemActive('undo',false);
         }
         if(this.currentPtr == this.actionsLog.length-1 || this.mode[this.editMode].redo == null){
-          depgraph.viewer.getToolbarButton('redo').hide();
+          depgraph.viewer.setToolbarItemActive('redo',false);
         }/*
         if(this.mode[this.editMode].save == null){
           depgraph.viewer.getToolbarButton('redo').hide();
@@ -180,9 +181,9 @@
           me.highlightMode = !me.highlightMode;
           if(me.highlightMode){
             me.clearSelection();
-            depgraph.viewer.getToolbarButton('highlight').removeClass('tab').addClass('tab_on');
+            depgraph.viewer.setToolbarItemState('highlight',true);
           }else{
-            depgraph.viewer.getToolbarButton('highlight').removeClass('tab_on').addClass('tab');
+            depgraph.viewer.setToolbarItemState('highlight',false);
           }
         }
         
@@ -202,7 +203,7 @@
         function undo(){
           var me = depgraph.editObject;
           if(depgraph.editObject.currentPtr == 0){
-            depgraph.viewer.getToolbarButton('undo').hide();
+            depgraph.viewer.setToolbarItemActive('undo',false);
           }
           var action = depgraph.editObject.actionsLog[depgraph.editObject.currentPtr];
           if(me.mode[action.mode].undo != null){
@@ -210,7 +211,7 @@
           }
           depgraph.editObject.currentPtr--;
           if(me.mode[action.mode].redo != null){
-            depgraph.viewer.getToolbarButton('redo').show();
+            depgraph.viewer.setToolbarItemActive('redo',true);
           }
           me.updateSaveState();
         }
@@ -222,13 +223,13 @@
           var me = depgraph.editObject;
           depgraph.editObject.currentPtr++;
           if(depgraph.editObject.currentPtr == depgraph.editObject.actionsLog.length-1){
-            depgraph.viewer.getToolbarButton('redo').hide();
+            depgraph.viewer.setToolbarItemActive('redo',false);
           }
           var action = depgraph.editObject.actionsLog[depgraph.editObject.currentPtr];
           if(me.mode[action.mode].redo != null){
             me.mode[action.mode].redo.call(me,depgraph,action.rollbackdata);
           }
-          depgraph.viewer.getToolbarButton('undo').show();
+          depgraph.viewer.setToolbarItemActive('undo',true);
           me.updateSaveState();
           // TODO !!!!!!!! Change callback so that work (every callbacks should be on the form func(depgraph,params))
         }
@@ -325,9 +326,9 @@
        */
       depgraphlib.EditObject.prototype.updateSaveState =function(){
         if(this.lastSavedPtr == this.currentPtr && !this.needToSaveState){
-          this.depgraph.viewer.getToolbarButton('save').removeClass('save').addClass('saved');
+          this.depgraph.viewer.getToolbarItem('save').button.removeClass('save').addClass('saved');
         }else{
-          this.depgraph.viewer.getToolbarButton('save').removeClass('saved').addClass('save');
+          this.depgraph.viewer.getToolbarItem('save').button.removeClass('saved').addClass('save');
         }
       };
       
@@ -349,7 +350,7 @@
           this.depgraph.vis.selectAll('g.link').on("click",null);
           this.depgraph.vis.selectAll('g.chunk').on("click",null);
           d3.select(document).on('keydown.edit'+this.depgraph.viewer.uid,null);
-          this.depgraph.viewer.resetToolbarButtons();
+          this.depgraph.viewer.resetToolbarItems();
           jQuery('.link',this.depgraph.vis.node()).contextMenu('', {
            });
           jQuery('.word',this.depgraph.vis.node()).contextMenu('', {
@@ -494,9 +495,9 @@
        */
       depgraphlib.EditObject.prototype.pushAction = function(action){
         if(action.rollbackdata != null && this.mode[action.mode].undo != null){
-          this.depgraph.viewer.getToolbarButton('redo').hide();
-          var button = this.depgraph.viewer.getToolbarButton('undo');
-          button.show(); // TODO not to do everytime!
+          this.depgraph.viewer.setToolbarItemActive('redo',false);
+          this.depgraph.viewer.setToolbarItemActive('undo',true);// TODO not to do everytime!
+           
           this.actionsLog.splice(++this.currentPtr,this.actionsLog.length-this.currentPtr,action);
           this.updateSaveState();
         }
@@ -553,7 +554,7 @@
           oldAttrs.push({path:attrs[i].path,value:oldVal});
         }
         if(pushAction != null && pushAction){
-          var action = {mode:this.editMode,rollbackdata:{baseAction:'changeAttr',obj:backup,attrs:attrs,oldAttrs:oldAttrs}};
+          var action = {mode:this.editMode,rollbackdata:{baseAction:'changeAttr',obj:backup,attrs:attrs,oldAttrs:oldAttrs,newAttrs:attrs}};
           this.pushAction(action);
         }
       };

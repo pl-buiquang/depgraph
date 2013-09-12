@@ -1,9 +1,7 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html> 
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Tests</title>
-
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <!-- Lib includes js -->
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.8.1.min.js"></script>
 <script type="text/javascript" src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
@@ -29,13 +27,6 @@ href="../build/style/depgraph.css" />
 
 </head>
 <body>
-
-<script>
-var foo_obj = {'foo':{'bar':[{'x':'fail'}]}};
-var foo_obj2 = {'foo2':{'bar':[{'x':'fail'}]}};
-depgraphlib.setAttrPath(foo_obj2,"foo/bar/0/x",'success');
-
-</script>
-
+<?php include "toolbar.html"?>
 </body>
 </html>
