@@ -35,14 +35,14 @@
    */
   depgraphlib.ui = {
     
-      /**
-       * @function addTextField 
-       * @param {string} label 
-       * @param {object} attrs - Object bundle of pairs of attribute name and value for the input tag
-       * @returns {String} the html string of the field
-       * 
-       * @memberof DepGraphLib.UI
-       */
+    /**
+     * @function addTextField 
+     * @param {string} label 
+     * @param {object} attrs - Object bundle of pairs of attribute name and value for the input tag
+     * @returns {String} the html string of the field
+     * 
+     * @memberof DepGraphLib.UI
+     */
     addTextField : function(label,attrs){
       var field = '&lt;tr>&lt;td>&lt;label>'+label+'&lt;/label>&lt;/td>&lt;td>&lt;input type="text" '; 
       for(var name in attrs){
@@ -53,11 +53,48 @@
       return field;
     },
 
-    
+    /**
+     * @function addCustomField 
+     * @param {string} label 
+     * @param {string} customfield - html string of the custom field
+     * @returns {String} the html string of the field
+     * 
+     * @memberof DepGraphLib.UI
+     */
     addCustomField : function(label,customfield){
       var field = '&lt;tr>&lt;td>&lt;label>'+label+'&lt;/label> &lt;/td>&lt;td>';
       field += customfield;
       field += '&lt;/td>&lt;/tr>';
+      return field;
+    },
+    
+    /**
+     * @function groupFields
+     * @param {string} label
+     * @param {object} attrs - Object bundle of pairs of attribute name and value for the input tag
+     * @param {string|array.&lt;string>} fields
+     * @returns {String} the html string of the field
+     * 
+     * @memberof DepGraphLib.UI
+     */
+    groupFields : function(label,attrs,fields){
+      var field = '&lt;tr>&lt;td>&lt;label>'+label+'&lt;/label>&lt;/td>&lt;td>&lt;table '; 
+      for(var name in attrs){
+        field += name + '="' + attrs[name] + '" ';
+      }
+      field += '>';
+      if(typeof fields == 'string'){
+        field += fields;
+      }else if(typeof fields == 'array'){
+        for(var i=0;i&lt;fields.length;i++){
+          field += fields[i];
+        }
+      }else{
+        throw 'Wrong parameter type for fields in function groupFields'; 
+      }
+      
+      field += '&lt;/table>&lt;/td>&lt;/tr>';
+      
       return field;
     },
     
@@ -76,10 +113,38 @@
     },
 
 
+    /**
+     * @function makeTabs 
+     * @desc Create tabs from a set of div
+     * @param {array.&lt;object.&lt;string,string>>} tabs - array of object (name and content) tabs 
+     * @returns {String} the html tabs window
+     * @memberof DepGraphLib.UI
+     */
+    makeTabs : function(tabs){
+      var tabmenus = '&lt;div class="depgraphlib-tab-menus">';
+      var tabwindows = '&lt;div class="depgraphlib-tab-windows">';
+      for(var i=0;i&lt;tabs.length;i++){
+        tabmenus += '&lt;div class="depgraphlib-tab-menu" tab-index="'+i+'" onclick="depgraphlib.ui.changetab(this);">' + tabs[i].name + '&lt;/div>';
+        tabwindows += '&lt;div class="depgraphlib-tab-window">' + tabs[i].content + '&lt;/div>';
+      }
+      tabmenus += '&lt;/div>';
+      tabwindows += '&lt;/div>';
+      tabcontent = '&lt;div class="depgraphlib-tabs-content">' + tabs[0].content + '&lt;/div>';
+      var tab = '&lt;div>&lt;div class="depgraphlib-tabs" selected="0">' + tabmenus + tabcontent + tabwindows + '&lt;/div>&lt;/div>';
+      return tab;
+      
+    },
     
-    
-    
-    
+    changetab : function(element){
+      var i = element.getAttribute('tab-index');
+      var parent = element.parentNode.parentNode;
+      parent.firstChild.childNodes[parent.getAttribute('selected')].setAttribute('class','depgraphlib-tab-menu');
+      parent.setAttribute('selected',i);
+      parent.firstChild.childNodes[i].setAttribute('class','depgraphlib-tab-menu depgraphlib-tab-menu-on');
+      var newContent = parent.childNodes[2].childNodes[i].cloneNode();
+      var oldContent = parent.childNodes[1].firstChild;
+      parent.childNodes[1].replaceChild(newContent,oldContent);
+    },
     
     
     
@@ -102,13 +167,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="DepGraphLib.Box.html">Box</a></li><li><a href="DepGraphLib.DepGraph.html">DepGraph</a></li><li><a href="DepGraphLib.EditObject.html">EditObject</a></li><li><a href="DepGraphLib.GraphViewer.html">GraphViewer</a></li></ul><h3>Namespaces</h3><ul><li><a href="DepGraphLib.html">DepGraphLib</a></li><li><a href="DepGraphLib.EditObject.DefaultMode.html">DefaultMode</a></li><li><a href="DepGraphLib.EditObject.DefaultModeLib.html">DefaultModeLib</a></li><li><a href="DepGraphLib.UI.html">UI</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="DepGraphLib.Box.html">Box</a></li><li><a href="DepGraphLib.DepGraph.html">DepGraph</a></li><li><a href="DepGraphLib.EditObject.html">EditObject</a></li><li><a href="DepGraphLib.GraphViewer.html">GraphViewer</a></li></ul><h3>Namespaces</h3><ul><li><a href="DepGraphLib.html">DepGraphLib</a></li><li><a href="DepGraphLib.EditObject.DefaultMode.html">DefaultMode</a></li><li><a href="DepGraphLib.EditObject.DefaultModeLib.html">DefaultModeLib</a></li><li><a href="DepGraphLib.UI.html">UI</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addFullScreenButton">addFullScreenButton</a></li><li><a href="global.html#createDropDownMenu">createDropDownMenu</a></li><li><a href="global.html#resetToolbarItems">resetToolbarItems</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Tue Sep 10 2013 16:48:27 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Thu Sep 12 2013 18:54:27 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>

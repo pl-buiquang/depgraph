@@ -425,7 +425,7 @@
      * @param height
      */
     depgraphlib.GraphViewer.prototype.setHeight = function(height){
-      height += 30;
+      height = parseFloat(height)+30;
       this._height = height;
       this.mainpanel.css('height',height);
       this.margin.top = this.chart.height()/10 + this.basemargin + ((this.imagemode)?0:20);

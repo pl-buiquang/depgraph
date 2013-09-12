@@ -43,16 +43,19 @@
     
     // Assign #id (and #position for words)
     this.id = 0;
-    for(var i = 0 ; this.data.graph.words && i&lt;this.data.graph.words.length ; i++){
+    this.data.graph.words = this.data.graph.words || [];
+    this.data.graph.links = this.data.graph.links || [];
+    this.data.graph.chunks = this.data.graph.chunks || [];
+    for(var i = 0 ; i&lt;this.data.graph.words.length ; i++){
       var word = this.data.graph.words[i]; 
       word['#id']=this.id++;
       word['#position']=i;
     }
-    for(var i = 0 ; this.data.graph.links && i&lt;this.data.graph.links.length ; i++){
+    for(var i = 0 ; i&lt;this.data.graph.links.length ; i++){
       this.data.graph.links[i]['#id']=this.id++;
       this.data.graph.links[i]['#properties']=null;
     }
-    for(var i = 0 ; this.data.graph.chunks && i&lt;this.data.graph.chunks.length ; i++){
+    for(var i = 0 ; i&lt;this.data.graph.chunks.length ; i++){
       this.data.graph.chunks[i]['#id']=this.id++;
     }
     
@@ -193,7 +196,7 @@
 
   /**
    * @function getWordNodeById
-   * @desc Search and return a word by its #id
+   * @desc Search and return a word node by its #id
    * @param {string} id - the internal id (#id) of the word
    * @returns {object|null} a word svg element
    * @memberof DepGraphLib.DepGraph#
@@ -203,6 +206,21 @@
     for(var i = 0; i&lt;nodes[0].length; i++){
       if(nodes[0][i].__data__['#id'] == id)
         return nodes[0][i];
+    }
+  };
+  
+  /**
+   * @function getWordNodeById
+   * @desc Search and return a word by its original id
+   * @param {string} id - the original id of the word
+   * @returns {object|null} a word data
+   * @memberof DepGraphLib.DepGraph#
+   */
+  depgraphlib.DepGraph.prototype.getWordByOriginalId = function(id){
+    for(var i in this.data.graph.words){
+      if(this.data.graph.words[i]['id'] == id){
+        return this.data.graph.words[i];
+      }
     }
   };
 
@@ -266,6 +284,23 @@
       }
     }
   };
+  
+  /**
+   * @function getChunkIndexById
+   * @desc Search and return a chunk index by its #id
+   * @param {string} id - the internal id of the chunk
+   * @returns {number|null} the link index in the chunks data list
+   * @memberof DepGraphLib.DepGraph#
+   */
+  depgraphlib.DepGraph.prototype.getChunkIndexById = function(id){
+    for(var i in this.data.graph.chunks){
+      if(this.data.graph.chunks[i]['#id'] == id){
+        return i;
+      }
+    }
+  };
+  
+  
 
   /**
    * @function getObjectById
@@ -378,7 +413,7 @@
    * 
    * @memberof DepGraphLib.DepGraph#
    */
-  addWord = function(wordData){
+  depgraphlib.DepGraph.prototype.addWord = function(wordData){
     var position = wordData['#position'] || this.data.words.length;
     this.insertWord(wordData,position);
     this.editObject.editModeInit();
@@ -396,10 +431,11 @@
    * @param label
    * @param color
    * @param id
+   * @return {DepGraphLink}
    *
    * @memberof DepGraphLib.DepGraph#
    */
-  addLink = function(d1,d2,label,color,id){
+  depgraphlib.DepGraph.prototype.addLink = function(d1,d2,label,color,id){
     if(color == null){
       color = 'black';
     }
@@ -420,7 +456,64 @@
     return link;
   };
   
+  /**
+   * @function addChunk
+   * @param label
+   * @param {array.&lt;string>} word_ids - the list of the elements in the chunk or simply the first and last element of the chunk
+   * @param sublabels
+   * @param color
+   * @param id
+   * @param custom_id
+   * @returns {DepGraphChunk}
+   * 
+   * @memberof DepGraphLib.DepGraph#
+   */
+  depgraphlib.DepGraph.prototype.addChunk = function(label,word_ids,sublabels,color,id,custom_id){
+    if(!label || !word_ids || word_ids.length == 0){
+      throw 'Missing required field.';
+    }
+    id = id || this.id++;
+    custom_id = custom_id || id;
+    color = color || 'black';
+    var chunk = {
+        label:label,
+        sublabels:sublabels,
+        elements:word_ids,
+        '#style':{
+          color:color
+        },
+        '#id':id,
+        id : custom_id,
+    };
+    this.insertChunk(chunk);
+    this.editObject.editModeInit();
+    this.autoHighLightOnMouseOver();
+    return chunk;
+  };
   
+  /**
+   * @function getChunkRange
+   * @param {DepGraphChunk} chunk
+   * @returns {object.&lt;DepGraphWord,DepGraphWord>} the first and last element of the chunk element range
+   * @memberof DepGraphLib.DepGraph#
+   */
+  depgraphlib.DepGraph.prototype.getChunkRange = function(chunk){
+    var range = {'firstElement':null,'lastElement':null};
+    var min = this.data.graph.words.length;
+    var max = 0;
+    for(var i = 0 ; i &lt; chunk.elements.length ; i++){
+      var word = this.getWordByOriginalId(chunk.elements[i]);
+      if(word['#position']&lt;=min){
+        range.firstElement = word;
+        min = word['#position'];
+      }
+      if(word['#position']>=max){
+        range.lastElement = word;
+        max = word['#position'];
+      }
+    }
+    return range;
+  };
   
   
 }(window.depgraphlib));</code></pre>
@@ -433,13 +526,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="DepGraphLib.Box.html">Box</a></li><li><a href="DepGraphLib.DepGraph.html">DepGraph</a></li><li><a href="DepGraphLib.EditObject.html">EditObject</a></li><li><a href="DepGraphLib.GraphViewer.html">GraphViewer</a></li></ul><h3>Namespaces</h3><ul><li><a href="DepGraphLib.html">DepGraphLib</a></li><li><a href="DepGraphLib.EditObject.DefaultMode.html">DefaultMode</a></li><li><a href="DepGraphLib.EditObject.DefaultModeLib.html">DefaultModeLib</a></li><li><a href="DepGraphLib.UI.html">UI</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="DepGraphLib.Box.html">Box</a></li><li><a href="DepGraphLib.DepGraph.html">DepGraph</a></li><li><a href="DepGraphLib.EditObject.html">EditObject</a></li><li><a href="DepGraphLib.GraphViewer.html">GraphViewer</a></li></ul><h3>Namespaces</h3><ul><li><a href="DepGraphLib.html">DepGraphLib</a></li><li><a href="DepGraphLib.EditObject.DefaultMode.html">DefaultMode</a></li><li><a href="DepGraphLib.EditObject.DefaultModeLib.html">DefaultModeLib</a></li><li><a href="DepGraphLib.UI.html">UI</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addFullScreenButton">addFullScreenButton</a></li><li><a href="global.html#createDropDownMenu">createDropDownMenu</a></li><li><a href="global.html#resetToolbarItems">resetToolbarItems</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Tue Sep 10 2013 16:48:27 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Thu Sep 12 2013 18:54:27 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>

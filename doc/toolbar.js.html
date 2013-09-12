@@ -1,4 +1,31 @@
-(function(depgraphlib){
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: app/ui/toolbar.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Source: app/ui/toolbar.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>(function(depgraphlib){
   
 
   /**
@@ -17,7 +44,7 @@
    * The format of item that can be added to the toolbar 
    * @typedef DepGraphLib.GraphViewer.ToolBarItem
    * @property {string} name - the name of the item
-   * @property {array.<DepGraphLib.GraphViewer.ToolBarButton>|DepGraphLib.GraphViewer.ToolBarButton} element - the button or array of button defining this item
+   * @property {array.&lt;DepGraphLib.GraphViewer.ToolBarButton>|DepGraphLib.GraphViewer.ToolBarButton} element - the button or array of button defining this item
    * @property {string} [group] - the group of the button 
    * @property {boolean} [active=true]
    * @property {boolean} [state=false]
@@ -54,13 +81,13 @@
   /**
    * @function addToolbarItems
    * @desc add an array of items to the toolbar
-   * @param {array.<DepGraphLib.GraphViewer.ToolBarItem>} items
+   * @param {array.&lt;DepGraphLib.GraphViewer.ToolBarItem>} items
    * @param {boolean} [apply=false] - apply immediatly the change made to the toolbar
    * 
    * @memberof DepGraphLib.GraphViewer#
    */
   depgraphlib.GraphViewer.prototype.addToolbarItems = function(items){
-    for(var i=0; i< items.length; i++){
+    for(var i=0; i&lt; items.length; i++){
       this.addToolbarItem(items[i]);
     }
     
@@ -70,13 +97,13 @@
   /**
    * @function removeToolbarItems
    * @desc remove an array of items to the toolbar
-   * @param {array.<DepGraphLib.GraphViewer.ToolBarItem>} items
+   * @param {array.&lt;DepGraphLib.GraphViewer.ToolBarItem>} items
    * @param {boolean} [apply=false] - apply immediatly the change made to the toolbar
    * 
    * @memberof DepGraphLib.GraphViewer#
    */
   depgraphlib.GraphViewer.prototype.removeToolbarItems = function(items){
-    for(var i = 0; i<items.length; i++){
+    for(var i = 0; i&lt;items.length; i++){
       this.removeToolbarItem(items[i],false);
     }
     
@@ -86,7 +113,7 @@
   /**
    * @function removeToolbarItem
    * @desc remove a item to the toolbar
-   * @param {array.<DepGraphLib.GraphViewer.ToolBarItem>} items
+   * @param {array.&lt;DepGraphLib.GraphViewer.ToolBarItem>} items
    * @param {boolean} [apply=false] - apply immediatly the change made to the toolbar
    * 
    * @memberof DepGraphLib.GraphViewer#
@@ -94,7 +121,7 @@
   depgraphlib.GraphViewer.prototype.removeToolbarItem = function(item){
     var index = null;
     for(var i in this.toolbaritems){
-      for(var j=0;j<this.toolbaritems[i].length;j++){
+      for(var j=0;j&lt;this.toolbaritems[i].length;j++){
         if(this.toolbaritems[i][j].name == name){
           index =  this.toolbaritems[i][j];
           break;
@@ -119,7 +146,7 @@
    */
   depgraphlib.GraphViewer.prototype.getToolbarItem = function(name){
     for(var i in this.toolbaritems){
-      for(var j=0;j<this.toolbaritems[i].length;j++){
+      for(var j=0;j&lt;this.toolbaritems[i].length;j++){
         if(this.toolbaritems[i][j].name == name){
           return this.toolbaritems[i][j];
         }
@@ -156,9 +183,9 @@
     for(var i in this.toolbaritems){
       var group = jQuery('#tb-group-'+this.appendOwnID(i));
       if(!group || !group.length){
-        group = jQuery('<div id="tb-group-'+this.appendOwnID(i)+'" class="tab"></div>');
+        group = jQuery('&lt;div id="tb-group-'+this.appendOwnID(i)+'" class="tab">&lt;/div>');
       }
-      for(var j = 0 ; j< this.toolbaritems[i].length;j++){
+      for(var j = 0 ; j&lt; this.toolbaritems[i].length;j++){
         var item = this.toolbaritems[i][j];
         var button = null;
         if(Object.prototype.toString.call( item.elements ) === '[object Array]'){
@@ -170,7 +197,7 @@
             continue;
           }
           if(!button || !button.length){
-            button = jQuery('<div id="button-'+this.appendOwnID(item.name)+'"></div>');
+            button = jQuery('&lt;div id="button-'+this.appendOwnID(item.name)+'">&lt;/div>');
           }else{
             continue;
           }
@@ -275,7 +302,7 @@
     var items = menuitem.elements;
     var tooltip = menuitem.tooltip;
     
-    var div = jQuery('<div><div class="gv-menu"><div class="gv-menu-header"></div><div class="gv-menu-body"></div></div></div>');
+    var div = jQuery('&lt;div>&lt;div class="gv-menu">&lt;div class="gv-menu-header">&lt;/div>&lt;div class="gv-menu-body">&lt;/div>&lt;/div>&lt;/div>');
     var header = jQuery('.gv-menu-header',div);
     var body = jQuery('.gv-menu-body',div);
     body.hide();
@@ -283,7 +310,7 @@
     header.attr('title',tooltip||name);
     header.addClass('white');
     for(i in items){
-      var item = jQuery('<div>'+i+'</div>');
+      var item = jQuery('&lt;div>'+i+'&lt;/div>');
       item.attr('title',items[i].tooltip || items[i].name);
       body.append(item);
       jQuery(item).click(items[i].callback);
@@ -299,3 +326,26 @@
   
   
 }(window.depgraphlib));
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="DepGraphLib.Box.html">Box</a></li><li><a href="DepGraphLib.DepGraph.html">DepGraph</a></li><li><a href="DepGraphLib.EditObject.html">EditObject</a></li><li><a href="DepGraphLib.GraphViewer.html">GraphViewer</a></li></ul><h3>Namespaces</h3><ul><li><a href="DepGraphLib.html">DepGraphLib</a></li><li><a href="DepGraphLib.EditObject.DefaultMode.html">DefaultMode</a></li><li><a href="DepGraphLib.EditObject.DefaultModeLib.html">DefaultModeLib</a></li><li><a href="DepGraphLib.UI.html">UI</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addFullScreenButton">addFullScreenButton</a></li><li><a href="global.html#createDropDownMenu">createDropDownMenu</a></li><li><a href="global.html#resetToolbarItems">resetToolbarItems</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Thu Sep 12 2013 18:54:27 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
