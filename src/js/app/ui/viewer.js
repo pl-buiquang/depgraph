@@ -34,6 +34,10 @@
       this.margin = {top:100,left:0,right:0,bottom:10};
       this.borders = true;
       
+      //toolbar
+      this.toolbaritems = {};
+      this.toolbarindex = 0;
+      
       if(depgraphlib.GraphViewer.instances[uid]){
         uid += "_";
       }

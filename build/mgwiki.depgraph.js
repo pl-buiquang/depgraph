@@ -939,7 +939,6 @@
   /**
    * @function
    * @param name
-   * @returns
    * 
    * @memberof DepGraphLib.GraphViewer#
    */
@@ -1070,6 +1069,10 @@
       this.basemargin = 10;
       this.margin = {top:100,left:0,right:0,bottom:10};
       this.borders = true;
+      
+      //toolbar
+      this.toolbaritems = {};
+      this.toolbarindex = 0;
       
       if(depgraphlib.GraphViewer.instances[uid]){
         uid += "_";
@@ -5182,6 +5185,30 @@
  */
 (function(depgraphlib){
 
+  
+  depgraphlib.default_save = function(depgraph){
+    depgraph.cleanData();
+    jQuery.ajax({
+      type: 'POST', 
+      url: 'edit/save',
+      data: {
+        format:depgraph.dataFormat,
+        options: '',
+        data:depgraph.data,
+      },
+      dataType : 'json',
+      success: function(data, textStatus, jqXHR) {
+        depgraph.editObject.lastSavedPtr = depgraph.editObject.currentPtr;
+        depgraph.editObject.needToSaveState = false;
+        depgraph.editObject.updateSaveState();
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        alert(textStatus);
+      }
+    });
+
+  };
+  
     /**
      * Callback to use in a toolbar button.
      * Display a box containing informations about the current graph.
