@@ -301,6 +301,31 @@
   };
 
   /**
+   * @function getObjectNodeByOriginalId
+   * @desc Search and return an object node (link, word or chunk) by its #id
+   * @param {string} id - the internal id of the object
+   * @returns {object|null} an object node from the links,words or chunks data list
+   * @memberof DepGraphLib.DepGraph#
+   */
+  depgraphlib.DepGraph.prototype.getObjectNodeByOriginalId = function(id){
+    var nodes = this.vis.selectAll('g.word');
+    for(var i = 0; i<nodes[0].length; i++){
+      if(nodes[0][i].__data__['id'] == id)
+        return nodes[0][i];
+    }
+    nodes = this.vis.selectAll('g.chunk');
+    for(var i = 0; i<nodes[0].length; i++){
+      if(nodes[0][i].__data__['id'] == id)
+        return nodes[0][i];
+    }
+    nodes = this.vis.selectAll('g.link');
+    for(var i = 0; i<nodes[0].length; i++){
+      if(nodes[0][i].__data__['id'] == id)
+        return nodes[0][i];
+    }
+  };
+  
+  /**
    * @function getObjectNodeFromObject
    * @desc Search and return an object node (link node, word node or chunk node) by its #id
    * @param {string} id - the internal id of the object
@@ -389,8 +414,6 @@
   depgraphlib.DepGraph.prototype.addWord = function(wordData){
     var position = wordData['#position'] || this.data.words.length;
     this.insertWord(wordData,position);
-    this.editObject.editModeInit();
-    this.autoHighLightOnMouseOver();
     return depgraphlib.clone(wordData);
   };
   
@@ -424,8 +447,6 @@
     link.label = label;
     link['#id'] = id;
     this.insertLink(link);
-    this.editObject.editModeInit();
-    this.autoHighLightOnMouseOver();
     return link;
   };
   
@@ -447,20 +468,18 @@
     }
     id = id || this.id++;
     custom_id = custom_id || id;
-    color = color || 'black';
+    color = color || 'transparent';
     var chunk = {
         label:label,
         sublabels:sublabels,
         elements:word_ids,
         '#style':{
-          color:color
+          'background-color':color
         },
         '#id':id,
         id : custom_id,
     };
     this.insertChunk(chunk);
-    this.editObject.editModeInit();
-    this.autoHighLightOnMouseOver();
     return chunk;
   };
   

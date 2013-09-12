@@ -81,4 +81,6 @@ module.exports = function(grunt) {
                                   'concat:base','uglify:base',
                                   'concat:base'
                                   ]);
+  
+  grunt.registerTask('dev',['clean:css','copy:css','concat:base','concat:mgwiki']);
 };

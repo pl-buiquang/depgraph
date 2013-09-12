@@ -1,6 +1,12 @@
 (function(depgraphlib){
-  
 
+  /**
+   * This callback is displayed as part of the GraphViewer class.
+   * @callback DepGraphLib.GraphViewer~toolbarbuttonaction
+   * @param {DepGraphLib.DepGraph} depgraph - The current graph within the viewer  
+   * @param {DepGraphLib.GraphViewer} viewer - The viewer allowing the use of methods like changeState, getState
+   */
+  
   /**
    * The format of button for the toolbar
    * @typedef DepGraphLib.GraphViewer.ToolBarButton
@@ -205,6 +211,7 @@
   /**
    * @function
    * @param name
+   * @returns
    * 
    * @memberof DepGraphLib.GraphViewer#
    */
@@ -261,6 +268,46 @@
     this.addFullScreenButton();
   };
 
+
+  /**
+   * @function addToolbarButton
+   * 
+   * @desc create and add a button to the toolbar from minimal information
+   * @param name
+   * @param callback
+   * @param position
+   * @param style
+   * 
+   * @memeberof DepGraphLib.GraphViewer#
+   */
+  depgraphlib.GraphViewer.prototype.addToolbarButton = function(name,callback,position,style,tooltip){
+    var text = '';
+    if(style == null){
+      style = 'tab white';
+      text = name;
+    }else{
+      style += " icon";
+    }
+    if(position == null){
+      position = 'left';
+    }
+    
+    var button='<div id="button-'+this.appendOwnID(name)+'" title="'+(tooltip || name)+'" class="'+style+' tab '+position+'">'+text+'</div>';
+    button = jQuery(button);
+    button.click(callback);
+    this.toolbarbuttons.append(button);
+  };
+
+  /**
+   * @function removeToolbarButton
+   * @desc remove a toolbar button given its name
+   * @param name
+   * 
+   * @memeberof DepGraphLib.GraphViewer#
+   */
+  depgraphlib.GraphViewer.prototype.removeToolbarButton = function(name){
+    jQuery('#button-'+this.appendOwnID(name)).remove();
+  };
 
   /**
    * @function createDropDownMenu

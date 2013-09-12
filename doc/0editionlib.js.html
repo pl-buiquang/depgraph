@@ -34,12 +34,6 @@
    * @memberof DepGraphLib.EditObject
    */
   depgraphlib.EditObject.DefaultModeLib = {
-      
-      /**
-       * @function init
-       * @memberof DepGraphLib.EditObject.DefaultModeLib 
-       */
-      init : null,
   
       /**
        * @function save
@@ -89,15 +83,11 @@
           depgraphlib.EditObject.DefaultModeLib.selectObject.call(this,depgraph,params);
         }
         else{
-          if(depgraph.editObject.keysDown.indexOf(17) != -1){ // ctrl key is pressed 
-            depgraphlib.EditObject.DefaultModeLib.addChunkSettings(depgraph,depgraph.editObject.previousSelectedObject,this,params);
-          }else{
-            if(this.__data__['#id'] == depgraph.editObject.previousSelectedObject.__data__['#id']){ // don't create link when selecting twice the same node
-              depgraph.editObject.clearSelection();
-              return;
-            }
-            depgraphlib.EditObject.DefaultModeLib.addLinkSettings(depgraph,depgraph.editObject.previousSelectedObject,this,params);
+          if(this.__data__['#id'] == depgraph.editObject.previousSelectedObject.__data__['#id']){ // don't create link when selecting twice the same node
+            depgraph.editObject.clearSelection();
+            return;
           }
+          depgraphlib.EditObject.DefaultModeLib.addLinkSettings(depgraph,depgraph.editObject.previousSelectedObject,this,params);
         }
       },
       
@@ -112,7 +102,7 @@
       selectObject : function(depgraph,params){
         if(depgraph.editObject.highlightMode){
           var value = !depgraphlib.isObjectPermanentHighlighted(this);
-          depgraphlib.DepGraph.highlightObject(this,value,true);
+          depgraphlib.highlightObject(this,value,true);
           depgraph.editObject.setNeedToSave();
           return;
         }
@@ -148,8 +138,148 @@
         }
 
       },
+
       
+      /**
+       * @function addNewWord
+       * @param depgraph
+       * @param obj
+       * 
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      addNewWord : function(depgraph,obj){
+        var coords = depgraph.viewer.screenCoordsForElt(obj[0]);
+        var point = {x:(coords.ne.x + coords.nw.x)/2,y:coords.nw.y};
+        var div = jQuery(depgraphlib.EditObject.DefaultModeLib.addWordPanel(depgraph));
+        
+        depgraph.viewer.createBox({closeButton:true,draggable:true}).setContent(div).open(point);
+      },
       
+      /**
+       * @function showEditPanel
+       * @desc show edit properties panel for an object node (word, link or chunk)
+       * @param {DepGraphLib.Depgraph} depgraph - the graph object
+       * @param obj
+       * 
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      showEditPanel : function(depgraph,obj){
+        var coords = depgraph.viewer.screenCoordsForElt(obj[0]);
+        var point = {x:(coords.ne.x + coords.nw.x)/2,y:coords.nw.y};
+        var div = depgraphlib.EditObject.DefaultModeLib.createEditPanel(depgraph,obj[0]);
+        depgraph.viewer.createBox({closeButton:true,draggable:true}).setContent(div).open(point);
+      },
+      
+
+      /**
+       * @function createEditPanel
+       * @desc create the form allowing edition of properties of an object (word, link or chunk)
+       * @param {DepGraphLib.Depgraph} depgraph - the graph object
+       * @param {object} obj - the d3js node element
+       * @return {object} a jquery selection of an edition panel
+       * 
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+       createEditPanel : function(depgraph,obj){
+        var data = obj.__data__;
+        var klass = '';
+        if(obj.classList != null && obj.classList.length > 0){
+          klass = obj.classList[0];
+        }
+        
+        var div = '&lt;div>'
+          +'&lt;h3 id="edit-info-title">Edit '+klass+' (original id: '+data.id+')&lt;/h3>'
+          +'&lt;table class="main-properties-table" ref="'+data['#id']+'">';
+        
+        if(klass == 'word'){
+          div = depgraphlib.EditObject.DefaultModeLib.populateWordEditPanel(depgraph,div,data);
+        }else if(klass == 'link'){
+          div = depgraphlib.EditObject.DefaultModeLib.populateLinkEditPanel(depgraph,div,data);
+        }else{
+          // TODO(paul) chunk case and error case
+        }
+        
+        div += '&lt;/table>';
+        div += '&lt;input id="'+depgraph.viewer.appendOwnID(klass+'-save-properties')+'" type="button" value="Save" onclick="depgraphlib.EditObject.DefaultModeLib.saveProperties.call(this,arguments);">';
+        div += '&lt;/div>';
+        
+        var jdiv = jQuery(div);
+        return jdiv;
+      },
+
+      /**
+       * @function populateLinkEditPanel
+       * @desc fill in the edit properties panel for a link object
+       * @param {DepGraphLib.Depgraph} depgraph - the graph object
+       * @param {string} editDiv - the html string that will become a panel
+       * @param {DepGraphLink} linkData - the link
+       * 
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+       populateLinkEditPanel : function(depgraph,editDiv,linkData){
+        var color = (linkData['#style']!= null && linkData['#style']['link-color']!=null)?linkData['#style']['link-color']:depgraph.data.graph['#link-style']['link-color'];
+        
+        editDiv += depgraphlib.ui.addTextField('label',{name:'label',value:linkData.label});
+        editDiv += depgraphlib.ui.addCustomField('source',depgraphlib.EditObject.DefaultModeLib.getOptionsListWords(depgraph,linkData.source,'source'));
+        editDiv += depgraphlib.ui.addCustomField('target',depgraphlib.EditObject.DefaultModeLib.getOptionsListWords(depgraph,linkData.target,'target'));
+        editDiv += depgraphlib.ui.addCustomField('color',depgraphlib.ui.simpleColorPicker('colorPicker',color,'#style/link-color'));
+        return editDiv;
+      },
+      
+      /**
+       * @function populateWordEditPanel
+       * @desc fill in the edit properties panel for a word object 
+       * @param {DepGraphLib.Depgraph} depgraph - the graph object
+       * @param {string} editDiv - the html string that will become a panel
+       * @param {DepGraphWord} wordData - the word
+       * 
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+       populateWordEditPanel : function(depgraph,editDiv,wordData){
+        var dataModel = depgraph.editObject.dataModel;
+        if(!dataModel.words){
+          dataModel.words = [];
+          dataModel.words[0] = {name:'label'};
+          for(var i =0 ;i&lt; wordData.sublabel.length ; i++){
+            dataModel.words[i+1] = {name: 'sublabel'+i};
+          }
+        }
+        
+        editDiv += depgraphlib.ui.addTextField(dataModel.words[0].name,{
+          'id' : 'word-edit-' + dataModel.words[0].name,
+          'data-rel':'label',
+          'name':dataModel.words[0].name,
+          'value':wordData.label,
+        }); 
+    /*    if(dataModel.words[0].values){
+          $(document).ready(function(){
+            $("#word-edit-" + dataModel.words[0].name).autocomplete({source: dataModel.words[0].values});}
+          );
+        }*/
+        var sublabel_index = 0;
+        for(var i=1;i&lt;dataModel.words.length ; i++){
+          var value;
+          var data_rel;
+          if(dataModel.words[i].hidden){
+            value = (wordData['#data'])?wordData['#data'][dataModel.words[i].name]:'';
+            data_rel = '#data/'+dataModel.words[i].name;
+          }else{
+            value = wordData.sublabel[sublabel_index];
+            data_rel = 'sublabel/'+sublabel_index;
+            sublabel_index++;
+          }
+          editDiv += depgraphlib.ui.addTextField(dataModel.words[i].name,{
+            'id' : 'word-edit-' + dataModel.words[i].name,
+            'data-rel':data_rel,
+            'name':dataModel.words[i].name,
+            'value':value,
+          });
+        }
+        return editDiv;
+      },
+
+
+
       /**
        * @function defaultUndo
        * @desc undo callback for the default edit mode
@@ -201,298 +331,6 @@
        defaultRedo : function(depgraph,actionData){
       },
 
-      
-      /**
-       * @function addNewWord
-       * @param depgraph
-       * @param obj
-       * 
-       * @memberof DepGraphLib.EditObject.DefaultModeLib
-       */
-      addNewWord : function(depgraph,obj){
-        var coords = depgraph.viewer.screenCoordsForElt(obj[0]);
-        var point = {x:(coords.ne.x + coords.nw.x)/2,y:coords.nw.y};
-        var div = jQuery(depgraphlib.EditObject.DefaultModeLib.addWordPanel(depgraph));
-        
-        depgraph.viewer.createBox({closeButton:true,draggable:true}).setContent(div).open(point);
-      },
-      
-      /**
-       * @function showEditPanel
-       * @desc show edit properties panel for an object node (word, link or chunk)
-       * @param {DepGraphLib.Depgraph} depgraph - the graph object
-       * @param obj
-       * 
-       * @memberof DepGraphLib.EditObject.DefaultModeLib
-       */
-      showEditPanel : function(depgraph,obj){
-        var coords = depgraph.viewer.screenCoordsForElt(obj[0]);
-        var point = {x:(coords.ne.x + coords.nw.x)/2,y:coords.nw.y};
-        var div = depgraphlib.EditObject.DefaultModeLib.createEditPanel(depgraph,obj[0]);
-        depgraph.viewer.createBox({closeButton:true,draggable:true}).setContent(div).open(point);
-      },
-      
-
-      /**
-       * @function createEditPanel
-       * @desc create the form allowing edition of properties of an object (word, link or chunk)
-       * @param {DepGraphLib.Depgraph} depgraph - the graph object
-       * @param {object} obj - the d3js node element
-       * @return {object} a jquery selection of an edition panel
-       * 
-       * @memberof DepGraphLib.EditObject.DefaultModeLib
-       */
-       createEditPanel : function(depgraph,obj){
-        var data = obj.__data__;
-        var klass = '';
-        if(obj.classList != null && obj.classList.length > 0){
-          klass = obj.classList[0];
-        }
-        
-        var div = '&lt;div>&lt;div id="'+depgraph.viewer.appendOwnID(klass+'-save-properties-div')+'" onkeydown="if (event.keyCode == 13) {depgraphlib.EditObject.DefaultModeLib.saveProperties.call(this,arguments);}">'
-          +'&lt;h3 id="edit-info-title">Edit '+klass+' (original id: '+data.id+')&lt;/h3>'
-          +'&lt;table class="main-properties-table" ref="'+data['#id']+'">';
-        
-        if(klass == 'word'){
-          div = depgraphlib.EditObject.DefaultModeLib.populateWordEditPanel(depgraph,div,data);
-        }else if(klass == 'link'){
-          div = depgraphlib.EditObject.DefaultModeLib.populateLinkEditPanel(depgraph,div,data);
-        }else if(klass == 'chunk'){
-          div = depgraphlib.EditObject.DefaultModeLib.populateChunkEditPanel(depgraph,div,data);
-        }else{
-          throw 'unknown object type : "' + klass + '"';
-        }
-        
-        div += '&lt;/table>';
-        div += '&lt;input id="'+depgraph.viewer.appendOwnID(klass+'-save-properties')+'" type="button" value="Save" onclick="depgraphlib.EditObject.DefaultModeLib.saveProperties.call(this,arguments);">';
-        div += '&lt;/div>&lt;/div>';
-        
-        
-        var jdiv = jQuery(div);
-        return jdiv;
-      },
-
-      /**
-       * @function populateLinkEditPanel
-       * @desc fill in the edit properties panel for a link object
-       * @param {DepGraphLib.Depgraph} depgraph - the graph object
-       * @param {string} editDiv - the html string that will become a panel
-       * @param {DepGraphLink} linkData - the link
-       * 
-       * @memberof DepGraphLib.EditObject.DefaultModeLib
-       */
-       populateLinkEditPanel : function(depgraph,editDiv,linkData){
-        var color = (linkData['#style']!= null && linkData['#style']['link-color']!=null)?linkData['#style']['link-color']:depgraph.data.graph['#link-style']['link-color'];
-        
-        editDiv += depgraphlib.ui.addTextField('label',{name:'label',value:linkData.label,'data-rel':label});
-        editDiv += depgraphlib.ui.addCustomField('source',depgraphlib.EditObject.DefaultModeLib.getOptionsListWords(depgraph,linkData.source,'source'));
-        editDiv += depgraphlib.ui.addCustomField('target',depgraphlib.EditObject.DefaultModeLib.getOptionsListWords(depgraph,linkData.target,'target'));
-        editDiv += depgraphlib.ui.addCustomField('color',depgraphlib.ui.simpleColorPicker('colorPicker',color,'#style/link-color'));
-        return editDiv;
-      },
-      
-      /**
-       * @function populateWordEditPanel
-       * @desc fill in the edit properties panel for a word object 
-       * @param {DepGraphLib.Depgraph} depgraph - the graph object
-       * @param {string} editDiv - the html string that will become a panel
-       * @param {DepGraphWord} wordData - the word
-       * 
-       * @memberof DepGraphLib.EditObject.DefaultModeLib
-       */
-       populateWordEditPanel : function(depgraph,editDiv,wordData){
-        var dataModel = depgraph.editObject.dataModel;
-        if(!dataModel.words){
-          dataModel.words = [];
-          dataModel.words[0] = {name:'label'};
-          for(var i =0 ; wordData.sublabel &&  i&lt; wordData.sublabel.length ; i++){
-            dataModel.words[i+1] = {name: 'sublabel'+i};
-          }
-        }
-        
-        editDiv += depgraphlib.ui.addTextField(dataModel.words[0].name,{
-          'id' : 'word-edit-' + dataModel.words[0].name,
-          'data-rel':'label',
-          'name':dataModel.words[0].name,
-          'value':wordData.label,
-        }); 
-    /*    if(dataModel.words[0].values){
-          $(document).ready(function(){
-            $("#word-edit-" + dataModel.words[0].name).autocomplete({source: dataModel.words[0].values});}
-          );
-        }*/
-        var sublabel_index = 0;
-        for(var i=1;i&lt;dataModel.words.length ; i++){
-          var value;
-          var data_rel;
-          if(dataModel.words[i].hidden){
-            value = (wordData['#data'])?wordData['#data'][dataModel.words[i].name]:'';
-            data_rel = '#data/'+dataModel.words[i].name;
-          }else{
-            value = wordData.sublabel[sublabel_index];
-            data_rel = 'sublabel/'+sublabel_index;
-            sublabel_index++;
-          }
-          editDiv += depgraphlib.ui.addTextField(dataModel.words[i].name,{
-            'id' : 'word-edit-' + dataModel.words[i].name,
-            'data-rel':data_rel,
-            'name':dataModel.words[i].name,
-            'value':value,
-          });
-        }
-        return editDiv;
-      },
-
-
-      populateChunkEditPanel : function (depgraph,editDiv,chunkData){
-        var dataModel = depgraph.editObject.dataModel;
-        if(!dataModel.chunks){
-          dataModel.chunks = [];
-          dataModel.chunks[0] = {name:'label'};
-          for(var i =0 ; chunkData.sublabel && i&lt; chunkData.sublabel.length ; i++){
-            dataModel.chunks[i+1] = {name: 'sublabel'+i};
-          }
-        }
-        
-        editDiv += depgraphlib.ui.addTextField(dataModel.chunks[0].name,{
-          'id' : 'chunk-edit-' + dataModel.chunks[0].name,
-          'data-rel':'label',
-          'name':dataModel.chunks[0].name,
-          'value':chunkData.label,
-        });
-        
-        var chunkRange = depgraph.getChunkRange(chunkData);
-        var chunkRangeField = depgraphlib.ui.addCustomField('first element',depgraphlib.EditObject.DefaultModeLib.getOptionsListWords(depgraph,chunkRange.firstElement.id,'first-element'));
-        chunkRangeField += depgraphlib.ui.addCustomField('last element',depgraphlib.EditObject.DefaultModeLib.getOptionsListWords(depgraph,chunkRange.lastElement.id,'last-element'));
-        editDiv += depgraphlib.ui.groupFields('Elements Range',{'name':'chunkRange','data-rel':'elements'},chunkRangeField);
-        
-        var bgcolor = (chunkData['#style'] && chunkData['#style']['background-color'])?chunkData['#style']['background-color']:depgraph.data.graph['#chunk-style']['background-color'];
-        editDiv += depgraphlib.ui.addCustomField('color',depgraphlib.ui.simpleColorPicker('colorPicker',bgcolor,'#style/background-color'));
-
-    /*    if(dataModel.words[0].values){
-          $(document).ready(function(){
-            $("#word-edit-" + dataModel.words[0].name).autocomplete({source: dataModel.words[0].values});}
-          );
-        }*/
-        var sublabel_index = 0;
-        for(var i=1;i&lt;dataModel.chunks.length ; i++){
-          var value;
-          var data_rel;
-          if(dataModel.chunks[i].hidden){
-            value = (wordData['#data'])?chunkData['#data'][dataModel.chunks[i].name]:'';
-            data_rel = '#data/'+dataModel.chunks[i].name;
-          }else{
-            value = chunkData.sublabel[sublabel_index];
-            data_rel = 'sublabel/'+sublabel_index;
-            sublabel_index++;
-          }
-          editDiv += depgraphlib.ui.addTextField(dataModel.chunks[i].name,{
-            'id' : 'chunk-edit-' + dataModel.chunks[i].name,
-            'data-rel':data_rel,
-            'name':dataModel.chunks[i].name,
-            'value':value,
-          });
-        }
-        return editDiv;
-      },
-
-
-
-
-
-
-      /**
-       * @function saveProperties
-       * 
-       * @desc save the properties entered in the edit properties panel of an object
-       * update the graph
-       *
-       * @memberof DepGraphLib.EditObject.DefaultModeLib
-       */
-      saveProperties : function(){
-        var depgraph = depgraphlib.DepGraph.getInstance(this);
-        var form = jQuery(this).parent().find('table.main-properties-table');
-        var obj = depgraph.getObjectById(form.attr('ref'));
-        var rows = form[0].rows;
-        var attrs = [];
-        for(var i = 0 ; i &lt; rows.length ; i++){
-          var tr = rows[i];
-          var cells = tr.cells;
-          //var label = cells[0].firstChild.innerHTML;
-          var value_form = cells[1].firstChild;
-          var value;
-          var path;
-          var inputType = value_form.nodeName.toUpperCase();
-          if(!value_form.getAttribute('data-rel')){
-            throw 'missing attribute data-rel in edit form';
-          }else{
-            path = value_form.getAttribute('data-rel');
-          }
-          if(inputType == 'SELECT'){
-            value = value_form.options[value_form.options.selectedIndex].value;
-          }else if(inputType == 'INPUT'){
-            value = value_form.value;
-          }else {
-            if(value_form.getAttribute('name') == 'simpleColorPicker'){
-              value = value_form.firstChild.rows[0].cells[0].firstChild.value;
-            }else if(value_form.getAttribute('name') == 'chunkRange'){
-              var i1 = value_form.firstChild.rows[0].cells[1].firstChild.options.selectedIndex;
-              var firstElement = value_form.firstChild.rows[0].cells[1].firstChild.options[i1].value;
-              var i2 = value_form.firstChild.rows[1].cells[1].firstChild.options.selectedIndex;
-              var lastElement = value_form.firstChild.rows[1].cells[1].firstChild.options[i2].value;
-              value = [firstElement,lastElement];
-            }
-            else{
-              throw 'unknown form element';
-            }
-          }
-          attrs.push({path:path,value:value});
-        }
-        depgraph.editObject.changeAttributes(obj,attrs,true);
-        depgraph.update();
-        depgraph.postProcesses();
-        var box = depgraphlib.Box.getBox(this);
-        box.destroy();
-      },
-      
- 
-
-      /**
-       * @function addChunkSettings
-       * @param depgraph
-       * @param obj1
-       * @param obj2
-       * @param params
-       * 
-       * @memberof DepGraphLib.EditObject.DefaultModeLib
-       */
-      addChunkSettings : function(depgraph,obj1,obj2,params){
-        var coords = depgraph.viewer.screenCoordsForElt(obj2);
-        var point = {x:(coords.ne.x + coords.nw.x)/2,y:coords.nw.y};
-        var div = '&lt;div>&lt;table style="margin:5px 0px 0px 0px;">';
-        div += depgraphlib.ui.addTextField('Chunk name :',{
-          name:'chunk-name',
-          'data-ref':'label',
-        });
-        div += '&lt;tr>&lt;td colspant="2">&lt;input id="chunk-settings'+depgraph.viewer.appendOwnID('')+'"  type="button" style="margin:0" value="Create Link">&lt;/td>&lt;/tr>';
-        div +='&lt;/table>&lt;/div>';
-        div = jQuery(div);
-        
-        var box = depgraph.viewer.createBox({closeButton:true,draggable:true}).setContent(div).open(point);
-        
-        depgraph.editObject.clearSelection();
-        
-        jQuery('#chunk-settings'+depgraph.viewer.appendOwnID('')).click(function(){
-          var value = this.parentNode.parentNode.parentNode.childNodes[0].childNodes[1].childNodes[0].value;
-          var chunk = depgraph.addChunk(value,[obj1.__data__.id,obj2.__data__.id]);
-          var action = {baseAction:'chunkAddition',addedChunk:chunk};
-          depgraph.editObject.pushAction({mode:depgraph.editObject.editMode,rollbackdata:action,data:{event:'onWordSelect',params:params}});
-          box.destroy();
-        });
-        
-        
-      },
-      
       /**
        * @function getOptionsListWords
        * @desc return a form of list of words
@@ -555,7 +393,58 @@
         html += '&lt;/table>&lt;/div>';
         return html;
       },
+
+
+      /**
+       * @function saveProperties
+       * 
+       * @desc save the properties entered in the edit properties panel of an object
+       * update the graph
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      saveProperties : function(){
+        var depgraph = depgraphlib.DepGraph.getInstance(this);
+        var form = jQuery(this).parent().find('table.main-properties-table');
+        var obj = depgraph.getObjectById(form.attr('ref'));
+        var rows = form[0].rows;
+        var attrs = [];
+        for(var i = 0 ; i &lt; rows.length ; i++){
+          var tr = rows[i];
+          var cells = tr.cells;
+          //var label = cells[0].firstChild.innerHTML;
+          var value_form = cells[1].firstChild;
+          var value;
+          var path;
+          var inputType = value_form.nodeName.toUpperCase();
+          if(!value_form.attributes['data-rel']){
+            throw 'missing attribute data-rel in edit form';
+          }else{
+            path = value_form.attributes['data-rel'];
+          }
+          if(inputType == 'SELECT'){
+            value = value_form.options[value_form.options.selectedIndex].value;
+          }else if(inputType == 'INPUT'){
+            value = value_form.value;
+          }else {
+            if(value_form.attributes['name'] == 'simpleColorPicker'){
+              value = value_form.firstChild.rows[0].cells[0].firstChild.value;
+            }else{
+              throw 'unknown form element';
+            }
+          }
+          attrs.push({path:path,value:value});
+        }
+        depgraph.editObject.changeAttributes(obj,attrs,true);
+        depgraph.update();
+        depgraph.postProcesses();
+        var box = depgraphlib.Box.getBox(this);
+        box.destroy();
+      },
       
+ 
+
+
 
       /**
        * @function addLinkSettings
@@ -632,7 +521,8 @@
         });
         
       },
-      
+
+     
       
   };
   
@@ -647,13 +537,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="DepGraphLib.Box.html">Box</a></li><li><a href="DepGraphLib.DepGraph.html">DepGraph</a></li><li><a href="DepGraphLib.EditObject.html">EditObject</a></li><li><a href="DepGraphLib.GraphViewer.html">GraphViewer</a></li></ul><h3>Namespaces</h3><ul><li><a href="DepGraphLib.html">DepGraphLib</a></li><li><a href="DepGraphLib.EditObject.DefaultMode.html">DefaultMode</a></li><li><a href="DepGraphLib.EditObject.DefaultModeLib.html">DefaultModeLib</a></li><li><a href="DepGraphLib.UI.html">UI</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addFullScreenButton">addFullScreenButton</a></li><li><a href="global.html#createDropDownMenu">createDropDownMenu</a></li><li><a href="global.html#resetToolbarItems">resetToolbarItems</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="DepGraphLib.Box.html">Box</a></li><li><a href="DepGraphLib.DepGraph.html">DepGraph</a></li><li><a href="DepGraphLib.EditObject.html">EditObject</a></li><li><a href="DepGraphLib.GraphViewer.html">GraphViewer</a></li></ul><h3>Namespaces</h3><ul><li><a href="DepGraphLib.html">DepGraphLib</a></li><li><a href="DepGraphLib.EditObject.DefaultMode.html">DefaultMode</a></li><li><a href="DepGraphLib.EditObject.DefaultModeLib.html">DefaultModeLib</a></li><li><a href="DepGraphLib.UI.html">UI</a></li></ul><h3><a href="global.html">Global</a></h3>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Thu Sep 12 2013 18:54:27 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0</a> on Tue Sep 10 2013 16:48:27 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
