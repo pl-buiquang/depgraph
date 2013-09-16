@@ -62,14 +62,7 @@
           gid:gid,
           action:action,
         },
-        dataType : action,
-        complete: function(xhr,status){
-          console.log(xhr);
-          var answer = xhr.responseText;
-          if(answer.success){
-            window.location = '';
-          }
-        },
+        dataType : 'json',
         success: function(data, textStatus, jqXHR) {
           console.log(data);
           if(data.success){
@@ -78,6 +71,9 @@
             alert(data.error);
           }
         },
+        error: function(jqXHR, textStatus, errorThrown) {
+          alert(textStatus);
+        }
       });
     };
     
