@@ -60,7 +60,7 @@
         url: wsurl,
         data: {
           gid:gid,
-          action:'promote',
+          action:action,
         },
         dataType : action,
         success: function(data, textStatus, jqXHR) {
