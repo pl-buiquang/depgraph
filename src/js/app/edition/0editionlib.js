@@ -491,7 +491,7 @@
           name:'chunk-name',
           'data-ref':'label',
         });
-        div += '<tr><td colspant="2"><input id="chunk-settings'+depgraph.viewer.appendOwnID('')+'"  type="button" style="margin:0" value="Create Link"></td></tr>';
+        div += '<tr><td colspant="2"><input id="chunk-settings'+depgraph.viewer.appendOwnID('')+'"  type="button" style="margin:0" value="Create Chunk"></td></tr>';
         div +='</table></div>';
         div = jQuery(div);
         

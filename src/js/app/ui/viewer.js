@@ -419,6 +419,9 @@
      * @param width
      */
     depgraphlib.GraphViewer.prototype.setWidth = function(width){
+      if(!width){
+        width = this.mainpanel.width();
+      }
       this._width = width;
       this.mainpanel.css('width',width);
       if(this.ajaxLoader){
@@ -427,8 +430,8 @@
       // here is a magical number 50 : a height not to be greater than
       if(this.toolbar){
         while(this.toolbar.height()>50){
-          var baseWidth = this.mainpanel.width();
-          this.setWidth(baseWidth += 50);
+          width += 50;
+          this.setWidth(width);
         }
       }
       //

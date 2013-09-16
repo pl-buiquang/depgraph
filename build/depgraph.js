@@ -903,6 +903,7 @@
    * @memberof DepGraphLib.GraphViewer#
    */
   depgraphlib.GraphViewer.prototype.setToolbarItemActive = function(name,active){
+    console.log(this.getToolbarItem(name));
     if(!active){
       this.getToolbarItem(name).active = false;
     }else{
@@ -924,6 +925,7 @@
       if(!group || !group.length){
         group = jQuery('<div id="tb-group-'+this.appendOwnID(i)+'" class="tab"></div>');
       }
+      var hideGroup = true;
       for(var j = 0 ; j< this.toolbaritems[i].length;j++){
         var item = this.toolbaritems[i][j];
         var button = null;
@@ -931,29 +933,28 @@
           button = this.createDropDownMenu(item);
         }else{
           button = jQuery('#button-'+this.appendOwnID(item.name));
-          if(!item.active){
-            button.remove();
-            continue;
-          }
           if(!button || !button.length){
             button = jQuery('<div id="button-'+this.appendOwnID(item.name)+'"></div>');
+            button.attr('title',item.tooltip || item.name);
+            button.attr('class','');
+            button.addClass('button');
+            button.addClass('button_off');
+            if(item.style){
+              button.addClass(item.style).addClass('icon');
+            }else{
+              button.html(item.name);
+            }
+            
+            if(item.callback){
+              button.click(item.callback);
+            }
+          }
+          if(!item.active){
+            button.hide();
           }else{
-            continue;
+            hideGroup = false;
+            button.show();
           }
-          button.attr('title',item.tooltip || item.name);
-          button.attr('class','');
-          button.addClass('button');
-          button.addClass('button_off');
-          if(item.style){
-            button.addClass(item.style).addClass('icon');
-          }else{
-            button.html(item.name);
-          }
-          
-          if(item.callback){
-            button.click(item.callback);
-          }
-          
         }
         
         item.button = button;
@@ -964,6 +965,11 @@
         this.toolbarbuttons.append(group);
       }else{
         group.remove();
+      }
+      if(hideGroup){
+        group.hide();
+      }else{
+        group.show();
       }
     }
     
@@ -1531,6 +1537,9 @@
      * @param width
      */
     depgraphlib.GraphViewer.prototype.setWidth = function(width){
+      if(!width){
+        width = this.mainpanel.width();
+      }
       this._width = width;
       this.mainpanel.css('width',width);
       if(this.ajaxLoader){
@@ -1539,8 +1548,8 @@
       // here is a magical number 50 : a height not to be greater than
       if(this.toolbar){
         while(this.toolbar.height()>50){
-          var baseWidth = this.mainpanel.width();
-          this.setWidth(baseWidth += 50);
+          width += 50;
+          this.setWidth(width);
         }
       }
       //
@@ -4048,7 +4057,7 @@
           name:'chunk-name',
           'data-ref':'label',
         });
-        div += '<tr><td colspant="2"><input id="chunk-settings'+depgraph.viewer.appendOwnID('')+'"  type="button" style="margin:0" value="Create Link"></td></tr>';
+        div += '<tr><td colspant="2"><input id="chunk-settings'+depgraph.viewer.appendOwnID('')+'"  type="button" style="margin:0" value="Create Chunk"></td></tr>';
         div +='</table></div>';
         div = jQuery(div);
         
