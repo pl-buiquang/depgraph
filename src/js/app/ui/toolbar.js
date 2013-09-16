@@ -164,6 +164,7 @@
       if(!group || !group.length){
         group = jQuery('<div id="tb-group-'+this.appendOwnID(i)+'" class="tab"></div>');
       }
+      var hideGroup = true;
       for(var j = 0 ; j< this.toolbaritems[i].length;j++){
         var item = this.toolbaritems[i][j];
         var button = null;
@@ -171,29 +172,28 @@
           button = this.createDropDownMenu(item);
         }else{
           button = jQuery('#button-'+this.appendOwnID(item.name));
-          if(!item.active){
-            button.remove();
-            continue;
-          }
           if(!button || !button.length){
             button = jQuery('<div id="button-'+this.appendOwnID(item.name)+'"></div>');
+            button.attr('title',item.tooltip || item.name);
+            button.attr('class','');
+            button.addClass('button');
+            button.addClass('button_off');
+            if(item.style){
+              button.addClass(item.style).addClass('icon');
+            }else{
+              button.html(item.name);
+            }
+            
+            if(item.callback){
+              button.click(item.callback);
+            }
+          }
+          if(!item.active){
+            button.hide();
           }else{
-            continue;
+            hideGroup = false;
+            button.show();
           }
-          button.attr('title',item.tooltip || item.name);
-          button.attr('class','');
-          button.addClass('button');
-          button.addClass('button_off');
-          if(item.style){
-            button.addClass(item.style).addClass('icon');
-          }else{
-            button.html(item.name);
-          }
-          
-          if(item.callback){
-            button.click(item.callback);
-          }
-          
         }
         
         item.button = button;
@@ -205,7 +205,15 @@
       }else{
         group.remove();
       }
+      if(hideGroup){
+        group.hide();
+      }else{
+        group.show();
+      }
     }
+    
+
+    this.setWidth();
   };
   
   /**

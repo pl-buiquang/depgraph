@@ -5,6 +5,7 @@
  */
 (function(depgraphlib){
 
+
   depgraphlib.default_save = function(depgraph){
     depgraph.cleanData();
     jQuery.ajax({
@@ -41,7 +42,7 @@
       + 'Back Links : ' + me.refs
       +'</div>';
       div = jQuery(div);
-      me.viewer.createBox({closeButton:true,position:point}).setContent(div).open();
+      me.viewer.createBox({closeButton:true,position:point,autodestroy:true,forceToolbar:true}).setContent(div).open();
     };
 
     function fix_missing_a_closing_tag(link){

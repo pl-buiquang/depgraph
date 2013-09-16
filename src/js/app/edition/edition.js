@@ -307,6 +307,32 @@
         };
 
       };
+      
+      /**
+       * @function undo
+       * @todo clean the dirty mess...
+       * @memberof DepGraphLib.EditObject#
+       */
+      depgraphlib.EditObject.prototype.undo = function(){
+        var me = this;
+        var depgraph = this.depgraph;
+        if(depgraph.editObject.currentPtr == 0){
+          depgraph.viewer.setToolbarItemActive('undo',false);
+        }
+        var action = depgraph.editObject.actionsLog[depgraph.editObject.currentPtr];
+        if(action){
+          if(me.mode[action.mode].undo != null){
+            me.mode[action.mode].undo.call(me,depgraph,action.rollbackdata);
+          }
+          depgraph.editObject.currentPtr--;
+          if(me.mode[action.mode].redo != null){
+            depgraph.viewer.setToolbarItemActive('redo',true);
+          }
+          me.updateSaveState();
+        }else{
+          console.log('warning, there was no actions found at edit pointer "'+depgraph.editObject.currentPtr+'"');
+        }
+      };
 
       /**
        * @function setNeedToSave
@@ -568,7 +594,7 @@
        */
       depgraphlib.EditObject.prototype.addEditModeSwitcher = function(){
         var me = this;
-        this.depgraph.viewer.addToolbarItem({name:'Custom Edit Mode',callback:function(){
+        this.depgraph.viewer.addToolbarItem({name:'customeditmode',tooltip:'Custom Edit Mode',callback:function(){
           var r=confirm("You will not be able to get back to frmg edit mode, are you sure you want to edit manually the graph?");
           if (r==true){
             depgraphlib.hideAltLinks(me.depgraph,me.depgraph.editObject.previousSelectedObject);

@@ -296,8 +296,9 @@ background: rgba(0,0,0,0.5) url('img/ajax-loader.gif') no-repeat center;
   display:block;
  }
  
- .default-edit{
-  background: url('img/wizard-icon.png') no-repeat center !important;
+
+  .default-edit{
+  background: url('img/Blackboard-icon.png') no-repeat center !important;
  }
  
  .edit{
@@ -345,12 +346,9 @@ background: rgba(0,0,0,0.5) url('img/ajax-loader.gif') no-repeat center;
  }
  
  .fullscreen{
-  background: url('img/fullscreen-12-24w.png') no-repeat center !important;
+  background: url('img/fullscreen.png') no-repeat center !important;
  }
  
- .fullscreen:hover{
-  background: url('img/fullscreen-12-24r.png') no-repeat center !important;
- }
  
   .home{
   background: url('img/home-24w.png') no-repeat center !important;

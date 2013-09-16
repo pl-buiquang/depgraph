@@ -29,6 +29,8 @@
   depgraphlib.Box.prototype.init = function(options){
     var me = this;
     
+    me.options = options;
+    
     if(options.viewer != null){
       depgraphlib.Box.instances.push(this);
       this.viewer = options.viewer;
@@ -62,7 +64,7 @@
       this.tooltipCreationBug = true;
       d3.select(document).on('click.box_'+depgraphlib.Box.instances.length,function(e){
         if(!me.tooltipCreationBug && !jQuery.contains( me.object[0], d3.event.originalTarget )){
-          me.destroy();
+          me.close(true);
         }
         delete me.tooltipCreationBug;
       });
@@ -110,6 +112,13 @@
       this.object.css('top',point.y);
       this.object.css('left',point.x);
     }
+    if(this.options.forceToolbar){
+      if(this.viewer){
+        this.oldFixedToolbarValue = this.viewer.fixedToolbar; 
+        this.viewer.fixedToolbar = true;
+        this.viewer.toolbar.show();
+      }
+    }
     this.object.show();
     return this;
   };
@@ -141,6 +150,11 @@
    * @param destroy if true, destroy the window, else just hide it
    */
   depgraphlib.Box.prototype.close = function(destroy){
+    if(this.options.forceToolbar){
+      if(this.viewer){
+        this.viewer.fixedToolbar = this.oldFixedToolbarValue; 
+      }
+    }
     if(destroy){
       this.destroy();
     }else{

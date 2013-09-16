@@ -111,7 +111,7 @@
         if(depgraphlib.isALink(this) && true == this.__data__['#data'].virtual){
           var params = "";
           for(id  in this.__data__['ref_ids']){
-            params += "eid=" + this.__data__['ref_ids'][id] + "&+8000";
+            params += "eid=" + this.__data__['ref_ids'][id] + "&+99999";
             getNewData(depgraph,depgraph.sentence,params);
             return {baseAction:'selectAlternative',previousParams:getPreviousParams(depgraph),currentParams:params};
           }

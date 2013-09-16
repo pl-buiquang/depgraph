@@ -63,7 +63,9 @@
         }
         else{
           if(depgraph.editObject.keysDown.indexOf(17) != -1){ // ctrl key is pressed 
-            depgraphlib.EditObject.DefaultModeLib.addChunkSettings(depgraph,depgraph.editObject.previousSelectedObject,this,params);
+            if(depgraphlib.isAWord(depgraph.editObject.previousSelectedObject) && depgraphlib.isAWord(this)){
+              depgraphlib.EditObject.DefaultModeLib.addChunkSettings(depgraph,depgraph.editObject.previousSelectedObject,this,params);
+            }
           }else{
             if(this.__data__['#id'] == depgraph.editObject.previousSelectedObject.__data__['#id']){ // don't create link when selecting twice the same node
               depgraph.editObject.clearSelection();
@@ -101,6 +103,11 @@
        * @memberof DepGraphLib.EditObject.DefaultModeLib
        */
       editKeyDownDefault  : function(depgraph,params){
+        if(depgraph.editObject.keysDown.indexOf(17) != -1){
+          if(params.keyCode == 90){
+            depgraph.editObject.undo();
+          }
+        }
         if(params.keyCode == 46){
           if(depgraph.editObject.previousSelectedObject!= null){
             if(depgraphlib.isALink(depgraph.editObject.previousSelectedObject)){
@@ -192,7 +199,6 @@
        * @memberof DepGraphLib.EditObject.DefaultModeLib
        */
        defaultRedo : function(depgraph,actionData){
-         console.log(actionData);
          if(actionData.baseAction == 'linkAddition'){
            var link = actionData.addedLink;
            depgraph.insertLink(link);
@@ -491,7 +497,7 @@
           name:'chunk-name',
           'data-ref':'label',
         });
-        div += '<tr><td colspant="2"><input id="chunk-settings'+depgraph.viewer.appendOwnID('')+'"  type="button" style="margin:0" value="Create Link"></td></tr>';
+        div += '<tr><td colspant="2"><input id="chunk-settings'+depgraph.viewer.appendOwnID('')+'"  type="button" style="margin:0" value="Create Chunk"></td></tr>';
         div +='</table></div>';
         div = jQuery(div);
         
@@ -502,7 +508,6 @@
         jQuery('#chunk-settings'+depgraph.viewer.appendOwnID('')).click(function(){
           var value = this.parentNode.parentNode.parentNode.childNodes[0].childNodes[1].childNodes[0].value;
           var chunk = depgraph.addChunk(value,[obj1.__data__.id,obj2.__data__.id]);
-          console.log(chunk);
           var action = {baseAction:'chunkAddition',addedChunk:chunk};
           depgraph.editObject.pushAction({mode:depgraph.editObject.editMode,rollbackdata:action,data:{event:'onWordSelect',params:params}});
           box.destroy();
