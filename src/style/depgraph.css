@@ -296,6 +296,10 @@ background: rgba(0,0,0,0.5) url('img/ajax-loader.gif') no-repeat center;
   display:block;
  }
  
+ .default-edit{
+  background: url('img/wizard-icon.png') no-repeat center !important;
+ }
+ 
  .edit{
   background: url('img/pencil-icon.png') no-repeat center !important;
  }

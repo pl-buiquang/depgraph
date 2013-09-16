@@ -568,13 +568,13 @@
        */
       depgraphlib.EditObject.prototype.addEditModeSwitcher = function(){
         var me = this;
-        this.depgraph.viewer.addToolbarButton('Custom Edit Mode',function(){
+        this.depgraph.viewer.addToolbarItem({name:'Custom Edit Mode',callback:function(){
           var r=confirm("You will not be able to get back to frmg edit mode, are you sure you want to edit manually the graph?");
           if (r==true){
             depgraphlib.hideAltLinks(me.depgraph,me.depgraph.editObject.previousSelectedObject);
             me.setEditMode('default');
           }
-        },'left');
+        },style:'default-edit'});
       };
 
       
