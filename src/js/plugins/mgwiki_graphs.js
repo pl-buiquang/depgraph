@@ -63,16 +63,21 @@
           action:action,
         },
         dataType : action,
+        complete: function(xhr,status){
+          console.log(xhr);
+          var answer = xhr.responseText;
+          if(answer.success){
+            window.location = '';
+          }
+        },
         success: function(data, textStatus, jqXHR) {
+          console.log(data);
           if(data.success){
             window.location = '';
           }else{
             alert(data.error);
           }
         },
-        error: function(jqXHR, textStatus, errorThrown) {
-          alert(textStatus);
-        }
       });
     };
     
