@@ -161,6 +161,7 @@
      * @param json_data
      */
     depgraphlib.DepGraph.prototype.resetData = function(json_data){
+      console.log(json_data);
       this.setData(json_data);
       this.createLayout();
       this.update();

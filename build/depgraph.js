@@ -473,6 +473,8 @@
   depgraphlib.Box.prototype.init = function(options){
     var me = this;
     
+    me.options = options;
+    
     if(options.viewer != null){
       depgraphlib.Box.instances.push(this);
       this.viewer = options.viewer;
@@ -506,7 +508,7 @@
       this.tooltipCreationBug = true;
       d3.select(document).on('click.box_'+depgraphlib.Box.instances.length,function(e){
         if(!me.tooltipCreationBug && !jQuery.contains( me.object[0], d3.event.originalTarget )){
-          me.destroy();
+          me.close(true);
         }
         delete me.tooltipCreationBug;
       });
@@ -554,6 +556,13 @@
       this.object.css('top',point.y);
       this.object.css('left',point.x);
     }
+    if(this.options.forceToolbar){
+      if(this.viewer){
+        this.oldFixedToolbarValue = this.viewer.fixedToolbar; 
+        this.viewer.fixedToolbar = true;
+        this.viewer.toolbar.show();
+      }
+    }
     this.object.show();
     return this;
   };
@@ -585,6 +594,11 @@
    * @param destroy if true, destroy the window, else just hide it
    */
   depgraphlib.Box.prototype.close = function(destroy){
+    if(this.options.forceToolbar){
+      if(this.viewer){
+        this.viewer.fixedToolbar = this.oldFixedToolbarValue; 
+      }
+    }
     if(destroy){
       this.destroy();
     }else{
@@ -952,11 +966,15 @@
         group.remove();
       }
     }
+    
+
+    this.setWidth();
   };
   
   /**
    * @function
    * @param name
+   * @returns
    * 
    * @memberof DepGraphLib.GraphViewer#
    */
@@ -1128,11 +1146,7 @@
       this.margin = {top:100,left:0,right:0,bottom:10};
       this.borders = true;
       
-<<<<<<< HEAD
-      //toolbar
-=======
       // toolbar params
->>>>>>> 7a9e0f7c1e4c60910ff74a8e8f1d0e5e46487be7
       this.toolbaritems = {};
       this.toolbarindex = 0;
       
@@ -1191,7 +1205,7 @@
           function(){
             var me = depgraphlib.GraphViewer.getInstance(this);
             if(!me.fixedToolbar){
-              if(me.toolbar.queue().length == 0){
+              if(me.toolbar.queue('depgraph_toolbar_hiding_bufferqueue').length == 0){
                 me.toolbar.slideDown(100,function(){
                   if(me.toolbar.queue('depgraph_toolbar_hiding_bufferqueue').length %2 == 1){
                     me.toolbar.dequeue('depgraph_toolbar_hiding_bufferqueue');
@@ -1207,7 +1221,7 @@
           function(){
             var me = depgraphlib.GraphViewer.getInstance(this);
             if(!me.fixedToolbar){
-              if(me.toolbar.queue().length == 0){
+              if(me.toolbar.queue('depgraph_toolbar_hiding_bufferqueue').length == 0){
                 me.toolbar.slideUp(100,function(){
                   if(me.toolbar.queue('depgraph_toolbar_hiding_bufferqueue').length %2 == 1){
                     me.toolbar.dequeue('depgraph_toolbar_hiding_bufferqueue');
@@ -1519,7 +1533,17 @@
     depgraphlib.GraphViewer.prototype.setWidth = function(width){
       this._width = width;
       this.mainpanel.css('width',width);
-      this.ajaxLoader.width(width);
+      if(this.ajaxLoader){
+        this.ajaxLoader.width(width);
+      }
+      // here is a magical number 50 : a height not to be greater than
+      if(this.toolbar){
+        while(this.toolbar.height()>50){
+          var baseWidth = this.mainpanel.width();
+          this.setWidth(baseWidth += 50);
+        }
+      }
+      //
     };
 
     /**
@@ -2153,6 +2177,7 @@
      * @param json_data
      */
     depgraphlib.DepGraph.prototype.resetData = function(json_data){
+      console.log(json_data);
       this.setData(json_data);
       this.createLayout();
       this.update();
@@ -4901,13 +4926,13 @@
        */
       depgraphlib.EditObject.prototype.addEditModeSwitcher = function(){
         var me = this;
-        this.depgraph.viewer.addToolbarButton('Custom Edit Mode',function(){
+        this.depgraph.viewer.addToolbarItem({name:'customeditmode',tooltip:'Custom Edit Mode',callback:function(){
           var r=confirm("You will not be able to get back to frmg edit mode, are you sure you want to edit manually the graph?");
           if (r==true){
             depgraphlib.hideAltLinks(me.depgraph,me.depgraph.editObject.previousSelectedObject);
             me.setEditMode('default');
           }
-        },'left');
+        },style:'default-edit'});
       };
 
       

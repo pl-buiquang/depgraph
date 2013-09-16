@@ -93,7 +93,7 @@
           function(){
             var me = depgraphlib.GraphViewer.getInstance(this);
             if(!me.fixedToolbar){
-              if(me.toolbar.queue().length == 0){
+              if(me.toolbar.queue('depgraph_toolbar_hiding_bufferqueue').length == 0){
                 me.toolbar.slideDown(100,function(){
                   if(me.toolbar.queue('depgraph_toolbar_hiding_bufferqueue').length %2 == 1){
                     me.toolbar.dequeue('depgraph_toolbar_hiding_bufferqueue');
@@ -109,7 +109,7 @@
           function(){
             var me = depgraphlib.GraphViewer.getInstance(this);
             if(!me.fixedToolbar){
-              if(me.toolbar.queue().length == 0){
+              if(me.toolbar.queue('depgraph_toolbar_hiding_bufferqueue').length == 0){
                 me.toolbar.slideUp(100,function(){
                   if(me.toolbar.queue('depgraph_toolbar_hiding_bufferqueue').length %2 == 1){
                     me.toolbar.dequeue('depgraph_toolbar_hiding_bufferqueue');
@@ -421,7 +421,17 @@
     depgraphlib.GraphViewer.prototype.setWidth = function(width){
       this._width = width;
       this.mainpanel.css('width',width);
-      this.ajaxLoader.width(width);
+      if(this.ajaxLoader){
+        this.ajaxLoader.width(width);
+      }
+      // here is a magical number 50 : a height not to be greater than
+      if(this.toolbar){
+        while(this.toolbar.height()>50){
+          var baseWidth = this.mainpanel.width();
+          this.setWidth(baseWidth += 50);
+        }
+      }
+      //
     };
 
     /**

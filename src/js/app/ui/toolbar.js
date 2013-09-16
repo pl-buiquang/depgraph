@@ -206,6 +206,9 @@
         group.remove();
       }
     }
+    
+
+    this.setWidth();
   };
   
   /**
