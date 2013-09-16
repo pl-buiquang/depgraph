@@ -143,7 +143,6 @@
    * @memberof DepGraphLib.GraphViewer#
    */
   depgraphlib.GraphViewer.prototype.setToolbarItemActive = function(name,active){
-    console.log(this.getToolbarItem(name));
     if(!active){
       this.getToolbarItem(name).active = false;
     }else{

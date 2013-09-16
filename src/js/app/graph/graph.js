@@ -161,7 +161,6 @@
      * @param json_data
      */
     depgraphlib.DepGraph.prototype.resetData = function(json_data){
-      console.log(json_data);
       this.setData(json_data);
       this.createLayout();
       this.update();
@@ -850,6 +849,14 @@
         v0 = -vdir*height-strateOffset*vdir*(me.maxLinksStrate+1);
       }
       var v1 = -(v0+y0-y1);//vdir*height+strateOffset*p.strate+EchunkCase+SchunkCase;
+      while(v1*v0 > 0){
+        if(v0 < 0){
+          v0 -= 10;
+        }else{
+          v0 += 10;
+        }
+        v1 = -(v0+y0-y1);
+      }
       var laf0 = (1+hdir*vdir)/2;
       var laf1 = (1+hdir*vdir)/2;
       var color2 = "transparent";
