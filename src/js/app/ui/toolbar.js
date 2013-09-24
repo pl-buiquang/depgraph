@@ -269,8 +269,22 @@
    * 
    * @memeberof DepGraphLib.GraphViewer#
    */
-  depgraphlib.GraphViewer.prototype.resetToolbarItems = function(){
-    this.toolbaritems = {};
+  depgraphlib.GraphViewer.prototype.resetToolbarItems = function(forceall){
+    var newtoolbaritems = {};
+    if(!forceall){
+      var toolbaritems = this.toolbaritems;
+      for(var group in toolbaritems){
+        for(var i =0 ;i<toolbaritems[group].length;i++){
+          if(toolbaritems[group][i]['static']){
+            if(!newtoolbaritems[group]){
+              newtoolbaritems[group] = [];
+            }
+            newtoolbaritems[group].push(toolbaritems[group][i]);
+          }
+        }
+      }
+    }
+    this.toolbaritems = newtoolbaritems;
     var children = this.toolbarbuttons.children();
     children.remove();
     this.addFullScreenButton();
