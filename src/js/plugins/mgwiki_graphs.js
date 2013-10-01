@@ -60,10 +60,11 @@
         url: wsurl,
         data: {
           gid:gid,
-          action:'promote',
+          action:action,
         },
-        dataType : action,
+        dataType : 'json',
         success: function(data, textStatus, jqXHR) {
+          console.log(data);
           if(data.success){
             window.location = '';
           }else{

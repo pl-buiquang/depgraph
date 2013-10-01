@@ -308,8 +308,8 @@
         var color = (linkData['#style']!= null && linkData['#style']['link-color']!=null)?linkData['#style']['link-color']:depgraph.data.graph['#link-style']['link-color'];
         
         editDiv += depgraphlib.ui.addTextField('label',{name:'label',value:linkData.label,'data-rel':'label'});
-        editDiv += depgraphlib.ui.addCustomField('source',depgraphlib.EditObject.DefaultModeLib.getOptionsListWords(depgraph,linkData.source,'source'));
-        editDiv += depgraphlib.ui.addCustomField('target',depgraphlib.EditObject.DefaultModeLib.getOptionsListWords(depgraph,linkData.target,'target'));
+        editDiv += depgraphlib.ui.addCustomField('source',depgraphlib.EditObject.DefaultModeLib.getOptionsListWordsAndChunks(depgraph,linkData.source,'source'));
+        editDiv += depgraphlib.ui.addCustomField('target',depgraphlib.EditObject.DefaultModeLib.getOptionsListWordsAndChunks(depgraph,linkData.target,'target'));
         editDiv += depgraphlib.ui.addCustomField('color',depgraphlib.ui.simpleColorPicker('colorPicker',color,'#style/link-color'));
         return editDiv;
       },
@@ -532,6 +532,37 @@
           optionList += '<option value="'+wordData.id+'" ';
           optionList += ((wordData.id==selectedOriginalId)?'selected="true"':'');
           optionList += '>#' + wordData['#position'] + ' ' + wordData['label'] + ' (' + wordData.id +')';
+          optionList += '</option>';
+        }
+        optionList += '</select>';
+        
+        return optionList;
+      },
+      
+      /**
+       * @function getOptionsListWordsAndChunks
+       * @desc return the form select element listing all words and chunks
+       * @param depgraph
+       * @param selectedOriginalId
+       * @param data_rel
+       * @returns {String}
+       * 
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       */
+      getOptionsListWordsAndChunks : function(depgraph,selectedOriginalId,data_rel){
+        var optionList = '<select data-rel="'+data_rel+'">';
+        for(var i=0;i<depgraph.data.graph.words.length;i++){
+          var wordData = depgraph.data.graph.words[i];
+          optionList += '<option value="'+wordData.id+'" ';
+          optionList += ((wordData.id==selectedOriginalId)?'selected="true"':'');
+          optionList += '>#' + wordData['#position'] + ' ' + wordData['label'] + ' (' + wordData.id +')';
+          optionList += '</option>';
+        }
+        for(var i=0;i<depgraph.data.graph.chunks.length;i++){
+          var chunkData = depgraph.data.graph.chunks[i];
+          optionList += '<option value="'+chunkData.id+'" ';
+          optionList += ((chunkData.id==selectedOriginalId)?'selected="true"':'');
+          optionList += '>c#' + i + ' ' + chunkData['label'] + ' (' + chunkData.id +')';
           optionList += '</option>';
         }
         optionList += '</select>';
