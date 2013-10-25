@@ -92,6 +92,7 @@
       this.vis.attr("transform","translate(" + 
           (x-visBBox.x) + "," + 
           (y-visBBox.y)+") scale("+previousValues.scale[0]+")");
+      this.createScrollBar();
     };
 
     /**
@@ -255,6 +256,9 @@
       var graphWidth = graphBBox.width + 2*depgraphlib.removeUnit(this.data.graph['#style']['margin'].right); 
       var viewerWidth = this.viewer.mainpanel.width();
       
+      if(this.scrollbar){
+        jQuery(this.scrollbar.node()).remove();
+      }
       if(graphWidth > viewerWidth){
         var scrollBarWidth = 2*viewerWidth - graphWidth;
         var k = 1;
@@ -299,6 +303,15 @@
 
         
         d3.select(document).on('click.focus',function(e){
+          var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget);
+          if(depgraph){
+            depgraphlib.DepGraph.depgraphActive = '-' + depgraph.viewer.uid;
+          }else{
+            depgraphlib.DepGraph.depgraphActive = null;
+          }
+        });
+        
+        d3.select(document).on('mousedown.scrollbar',function(e){
           var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget);
           if(depgraph){
             depgraphlib.DepGraph.depgraphActive = '-' + depgraph.viewer.uid;

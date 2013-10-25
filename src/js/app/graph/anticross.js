@@ -146,21 +146,25 @@
         }else{
           kstep = 1;
         }
+        var prevLeftLink = null;
+        var prevRightLink = null;
         for(var k = p.strate ; k!=0 ; k+=kstep){
           var altLink = table[k][(p.min*2)+1];
-          if(altLink!=null && altLink!=link){
+          if(altLink != prevLeftLink && altLink!=null && altLink!=link){
             var p2 = this.getLinkProperties(altLink);
             if(p2.min == p.min){
               p2.offsetXmin++;
             }
           }
+          prevLeftLink = altLink;
           altLink = table[k][p.max*2];
-          if(altLink!=null && altLink!=link){
+          if(altLink != prevRightLink && altLink!=null && altLink!=link){
             var p2 = this.getLinkProperties(altLink);
             if(p2.max == p.max){
               p2.offsetXmax++;
             }
           }
+          prevRightLink = altLink;
         }
       }
       

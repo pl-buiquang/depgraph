@@ -219,7 +219,7 @@
   /**
    * @function
    * @param name
-   * @returns
+   * @returns {object}
    * 
    * @memberof DepGraphLib.GraphViewer#
    */

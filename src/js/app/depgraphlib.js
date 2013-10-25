@@ -85,12 +85,12 @@
 /**
  * The json format for graph description used to construct the {@link DepGraphLib.DepGraph} class
  * @typedef {Object} DepGraphData
- * @property {DepGraphStyle} [#style=] object style define the global style of the graph. object style definition contain css-like style attributes
- * @property {DepGraphStyle} [#word-style=] object style define words style of the graph. these values can be overriden in word #style attribute definition. 
+ * @property {DepGraphStyle} [#style] object style define the global style of the graph. object style definition contain css-like style attributes
+ * @property {DepGraphStyle} [#word-style] object style define words style of the graph. these values can be overriden in word #style attribute definition. 
         object style definition contain css-like style attributes
- * @property {DepGraphStyle} [#link-style=] object style define links style of the graph. these values can be overriden in link #style attribute definition. 
+ * @property {DepGraphStyle} [#link-style] object style define links style of the graph. these values can be overriden in link #style attribute definition. 
         object style definition contain css-like style attributes
- * @property {DepGraphStyle} [#chunk-style=] object style define chunks style of the graph. these values can be overriden in chunk #style attribute definition. 
+ * @property {DepGraphStyle} [#chunk-style] object style define chunks style of the graph. these values can be overriden in chunk #style attribute definition. 
         object style definition contain css-like style attributes
  * @property {array.<DepGraphLink>} links array of links definition
  * @property {array.<DepGraphWord>} words array of words definition
@@ -134,6 +134,6 @@
 /**
  * The options object that can be passed to the DepGraph constructor
  * @typedef {object} DepGraphOptions
- * @property {string} [uid=] the uid of the graph
+ * @property {string} [uid] the uid of the graph
  * @property {string} [viewmode] the view mode of the graph. possible values are 'full', 'stretched', 'cropped'
  */
