@@ -61,6 +61,7 @@ function getSentence($graph){
 
 function conll2depGraph($data){
   if(is_string($data)){
+    $data = preg_replace("/^#(.*?)\n/m", '', $data);
     $data = preg_split('/\n/',$data);
   }
   

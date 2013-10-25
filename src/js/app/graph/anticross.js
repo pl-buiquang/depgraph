@@ -146,8 +146,8 @@
         }else{
           kstep = 1;
         }
-        var prevLeftLink = null;
-        var prevRightLink = null;
+        var prevLeftLink = null; // prevent multiple offset increases on the same link
+        var prevRightLink = null; // same for right edge
         for(var k = p.strate ; k!=0 ; k+=kstep){
           var altLink = table[k][(p.min*2)+1];
           if(altLink != prevLeftLink && altLink!=null && altLink!=link){

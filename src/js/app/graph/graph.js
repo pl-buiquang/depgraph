@@ -303,7 +303,7 @@
 
         
         d3.select(document).on('click.focus',function(e){
-          var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget);
+          var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget || d3.event.srcElement);
           if(depgraph){
             depgraphlib.DepGraph.depgraphActive = '-' + depgraph.viewer.uid;
           }else{
@@ -312,7 +312,7 @@
         });
         
         d3.select(document).on('mousedown.scrollbar',function(e){
-          var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget);
+          var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget || d3.event.srcElement);
           if(depgraph){
             depgraphlib.DepGraph.depgraphActive = '-' + depgraph.viewer.uid;
           }else{
@@ -320,6 +320,16 @@
           }
         });
         
+        // chrome
+        d3.select(document).on('mousewheel.scrollbar',function(e){
+          var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.DepGraph.depgraphActive);
+          if(depgraph && depgraph.scrollbar){
+            depgraph.translateGraph(3*d3.event.wheelDeltaY/(-40),0);
+            d3.event.preventDefault ? d3.event.preventDefault() : d3.event.returnValue = false;
+          }
+        });
+        
+        // FF
         d3.select(document).on('wheel.scrollbar',function(e){
           var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.DepGraph.depgraphActive);
           if(depgraph && depgraph.scrollbar){
@@ -327,7 +337,7 @@
             d3.event.preventDefault ? d3.event.preventDefault() : d3.event.returnValue = false;
           }
         });
-        
+
         d3.select(document).on('mousemove.scrollbar'+me.viewer.uid,function(e){
           var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.DepGraph.depgraphActive);
           if(depgraph && (depgraph.scrollMouseSelected || depgraph.scrollMouseSelected === 0)){
