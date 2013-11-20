@@ -4,9 +4,28 @@
       
   };
   
+  depgraphlib.tpl.notes = function(comments,uid){
+    var container = jQuery("#notes-"+uid);
+    console.log(container);
+    container.on("click",function(){
+      var content = jQuery('.notes-content',this);
+      if(content.hasClass('hidden')){
+        content.removeClass('hidden');
+      }else{
+        content.addClass('hidden');
+      }
+    });
+    var div = '<div class="notes-content hidden"><table title="comments">';
+    for(var i=0;i<comments.length;i++){
+      div += "<tr><td>"+comments[i].comment_body_value+"</td></tr>";
+    }
+    div += "</tr></table>";
+    container.append(div);
+  };
+  
   depgraphlib.tpl.base = function(){
     
-  }
+  };
   
   depgraphlib.tpl.editmode = function(graphInfo,format_origin,frmgserver_url){
     depGraph = depgraphlib.tpl.full(graphInfo);
