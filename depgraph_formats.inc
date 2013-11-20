@@ -115,7 +115,11 @@ function conll2depGraph($data){
       $rel = $relations[1][$i];
       $source = $heads[1][$i];
       if($source === '0'){
-        continue; //TODO
+        $link = &$graph['links'][];
+        $link['source'] = $source;
+        $link['target'] = $items[0];
+        $link['label'] = $rel;
+        continue;
       }
       $link = &$graph['links'][];
       $link['source'] = $source;
@@ -433,7 +437,7 @@ function depXML2depGraph($xml_data){
   if(is_string($xml_data)){
     $xml_data = new SimpleXMLElement($xml_data);    
   }
-  if(isset($xml_data['options']) && $xml_data['options'] != ''){
+  if(isset($xml_data['options']) && (string)$xml_data['options'] != ''){
     $graph['options'] = (string) $xml_data['options'];
     if(!isset($graph['#style'])){
       $graph['#style'] = array();
@@ -594,7 +598,6 @@ function depXML2depGraph($xml_data){
       );
     }
   }
-  
   return json_encode($dep_graph_array);
 }
 

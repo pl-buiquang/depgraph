@@ -97,7 +97,7 @@
    * 
    * @memberof DepGraphLib.GraphViewer#
    */
-  depgraphlib.GraphViewer.prototype.removeToolbarItem = function(item){
+  depgraphlib.GraphViewer.prototype.removeToolbarItem = function(name){
     var index = null;
     for(var i in this.toolbaritems){
       for(var j=0;j<this.toolbaritems[i].length;j++){
