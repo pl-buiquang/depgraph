@@ -430,7 +430,7 @@
       // here is a magical number 50 : a height not to be greater than
       if(this.toolbar){
         while(this.toolbar.height()>50){
-          width += 50;
+          width = parseInt(width) + 50;
           this.setWidth(width);
         }
       }
@@ -442,7 +442,7 @@
      * @param height
      */
     depgraphlib.GraphViewer.prototype.setHeight = function(height){
-      height += 30;
+      height = 30 + parseInt(height);
       this._height = height;
       this.mainpanel.css('height',height);
       this.margin.top = this.chart.height()/10 + this.basemargin + ((this.imagemode)?0:20);
@@ -483,14 +483,14 @@
     depgraphlib.GraphViewer.prototype.hideAltPanel = function(){
       this.chart.show();
       this.altpanel.hide();
-      this.removeToolbarButton('back');
+      this.removeToolbarItem('back');
       executeCallbacks(this.callbacks.hidealtpanel);
     };
 
     depgraphlib.GraphViewer.prototype.showAltPanel = function(callbacks){
       this.chart.hide();
       this.altpanel.show();
-      this.addToolbarButton('back',function(){depgraphlib.GraphViewer.getInstance(this.id).hideAltPanel();},'left','back');
+      this.addToolbarItem({name:'back',callback:function(){depgraphlib.GraphViewer.getInstance(this.id).hideAltPanel();},style:'back',tooltip:'back'});
       executeCallbacks(this.callbacks.showaltpanel);
 
     };
@@ -498,7 +498,7 @@
     depgraphlib.GraphViewer.prototype.addContentToAltPanel = function(divid,title){
       this.altpanelcontent.html(jQuery('#'+this.appendOwnID(divid)).html());
       if(title!=null){
-        this.addToolbarButton(title,function(){depgraphlib.GraphViewer.getInstance(this.id).addContentOnAltPanel(divid);},'left');
+        this.addToolbarItem({name:title,callback:function(){depgraphlib.GraphViewer.getInstance(this.id).addContentOnAltPanel(divid);},tooltip:title});
       }
     };
 
