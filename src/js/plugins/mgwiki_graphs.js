@@ -5,6 +5,49 @@
  */
 (function(depgraphlib){
 
+  
+  depgraphlib.allowNotes = function(graph_id){
+    var depgraph = depgraphlib.DepGraph.getInstance(graph_id);
+    depgraph.viewer.addToolbarItem({name:'add note',callback:depgraphlib.addNote,style:'add-note','static':true});
+    jQuery(document).on("click","#note-submit-"+depgraph.options.uid,function(){depgraphlib.submitNote(depgraph);});
+  };
+  
+  depgraphlib.addNote = function(){
+    var me = depgraphlib.DepGraph.getInstance(this);
+    var coords = this.getBoundingClientRect();
+    var point = {x:coords.left,y:coords.top + coords.height + 2};
+    var form = '<form id="note-form-'+me.options.uid+'">';
+    form += '<textarea id="note-text-'+me.options.uid+'" name="note" rows="4" cols="50"></textarea><br>';
+    form += '<input id="note-submit-'+me.options.uid+'" name="note-submit" type="button" value="Add note">';
+    form +='</form>';
+    var div ='<div></div>';
+    div = jQuery(div);
+    div.append(form);
+    me.viewer.createBox({closeButton:true,position:point,autodestroy:false,forceToolbar:true}).setContent(div).open();
+  };
+  
+  depgraphlib.submitNote = function(depgraph){
+    var textarea = jQuery("#note-text-"+depgraph.options.uid);
+    var data = textarea.val();
+    var box = depgraphlib.Box.getBox(textarea[0]);
+    jQuery.ajax({
+      type: 'POST', 
+      url: depgraph.wsurl,
+      data: {
+        gnid:depgraph.gnid,
+        action:'add note',
+        data:data
+      },
+      dataType : 'json',
+      success: function(data, textStatus, jqXHR) {
+        console.log(data);
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        alert(textStatus);
+      }
+    });
+    box.close(true);
+  };
 
   depgraphlib.default_save = function(depgraph){
     depgraph.cleanData();

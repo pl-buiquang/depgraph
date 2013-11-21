@@ -114,7 +114,9 @@ a.gv-wrapper{
   background-color:#203254;
   
   background: -moz-linear-gradient(center top , #F5F5F5, #CFD1CF) repeat scroll 0 0 #CFD1CF;
-  border-bottom: 1px solid #B6B6B6;
+background: -webkit-gradient(linear, center top, center bottom, color-stop(0%,#F5F5F5), color-stop(100%,#CFD1CF)); /* Chrome,Safari4+ */
+
+border-bottom: 1px solid #B6B6B6;
   /*box-shadow: 0 1px 0 #FFFFFF inset;*/
   
   z-index:100;
@@ -296,6 +298,9 @@ background: rgba(0,0,0,0.5) url('img/ajax-loader.gif') no-repeat center;
   display:block;
  }
  
+ .add-note{
+ background: url('img/note-add-icon.png') no-repeat center !important;
+ }
 
   .default-edit{
   background: url('img/Blackboard-icon.png') no-repeat center !important;

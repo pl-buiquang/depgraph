@@ -6,14 +6,9 @@
   
   depgraphlib.tpl.notes = function(comments,uid){
     var container = jQuery("#notes-"+uid);
-    console.log(container);
     container.on("click",function(){
       var content = jQuery('.notes-content',this);
-      if(content.hasClass('hidden')){
-        content.removeClass('hidden');
-      }else{
-        content.addClass('hidden');
-      }
+      content.toggle();
     });
     var div = '<div class="notes-content hidden"><table title="comments">';
     for(var i=0;i<comments.length;i++){
