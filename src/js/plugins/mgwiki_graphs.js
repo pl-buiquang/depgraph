@@ -8,7 +8,7 @@
   
   depgraphlib.allowNotes = function(graph_id){
     var depgraph = depgraphlib.DepGraph.getInstance(graph_id);
-    depgraph.viewer.addToolbarItem({name:'add note',callback:depgraphlib.addNote,style:'add-note','static':true});
+    depgraph.viewer.addToolbarItem({name:'add-note',callback:depgraphlib.addNote,style:'add-note','static':true});
     jQuery(document).on("click","#note-submit-"+depgraph.options.uid,function(){depgraphlib.submitNote(depgraph);});
   };
   
