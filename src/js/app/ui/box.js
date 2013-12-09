@@ -56,10 +56,6 @@
     }
     
     
-    if(options.draggable){
-      this.object.draggable();
-    }
-    
     if(options.autodestroy){
       this.tooltipCreationBug = true;
       d3.select(document).on('click.box_'+depgraphlib.Box.instances.length,function(e){
@@ -72,6 +68,10 @@
     
     
     jQuery('body').append(this.object);
+
+    if(options.draggable){
+      this.object.draggable({ cancel: ".depgraphlib-box-content" })
+    }
     
     return this;
   };
@@ -103,15 +103,7 @@
    * @memberof DepGraphLib.Box#
    */
   depgraphlib.Box.prototype.open = function(position){
-    if(position){
-      var point = position;
-      if(typeof position.getBoundingClientRect == 'function'){
-        var coords = this.getBoundingClientRect();
-        point = {x:coords.left,y:coords.top + coords.height + 2};
-      }
-      this.object.css('top',point.y);
-      this.object.css('left',point.x);
-    }
+    this.move(position);
     if(this.options.forceToolbar){
       if(this.viewer){
         this.oldFixedToolbarValue = this.viewer.fixedToolbar; 
@@ -122,6 +114,18 @@
     this.object.show();
     return this;
   };
+
+  depgraphlib.Box.prototype.move = function(position){
+    if(position){
+      var point = position;
+      if(typeof position.getBoundingClientRect == 'function'){
+        var coords = this.getBoundingClientRect();
+        point = {x:coords.left,y:coords.top + coords.height + 2};
+      }
+      this.object.css('top',point.y);
+      this.object.css('left',point.x);
+    }
+  }
   
   /**
    * 
