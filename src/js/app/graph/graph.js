@@ -1027,7 +1027,7 @@
         .attr('markerWidth','3')
         .attr('markerHeight','3')
         .append('polyline')
-          .attr('points','0,0 10,5 0,10 1,5');
+          .attr('points','0,0 10,5 0,10');
     };
 
 

@@ -199,6 +199,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b3000000', e
 .depgraphlib-box-content{
  clear:both;
  padding: 5px;
+ overflow: auto;
 }
  
 .depgraphlib-box > div {

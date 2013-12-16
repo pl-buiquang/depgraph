@@ -81,6 +81,16 @@
     boxcontent.html(content.html());
     return this;
   };
+
+  depgraphlib.Box.prototype.setFixedSize = function(width,height){
+    if(height){
+      this.object.height(height);  
+    }
+    if(width){
+      this.object.width(width);
+    }
+    return this;
+  };
   
   depgraphlib.Box.prototype.setHeader = function(content){
     return this;
