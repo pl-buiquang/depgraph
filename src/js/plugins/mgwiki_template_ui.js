@@ -6,16 +6,44 @@
   
   depgraphlib.tpl.notes = function(comments,uid){
     var container = jQuery("#notes-"+uid);
-    container.on("click",function(){
+    container.on("click",function(event){
+      if(jQuery(event.target).hasClass("note-delete")){
+        return;
+      }
       var content = jQuery('.notes-content',this);
       content.toggle();
     });
     var div = '<div class="notes-content hidden"><table title="comments">';
     for(var i=0;i<comments.length;i++){
-      div += "<tr><td>"+comments[i].comment_body_value+"</td></tr>";
+      div += "<tr><td>["+comments[i].name+"] : "+comments[i].comment_body_value;
+      if(comments[i].canDelete){
+        div += "<div id=\""+i+"note-"+uid+"\" cid=\""+comments[i].cid+"\" class=\"note-delete\"></div>";
+      }
+      div += "</td></tr>";
     }
     div += "</tr></table>";
     container.append(div);
+    jQuery('.note-delete').click(function(event){
+      var note = this;
+      var depgraph = depgraphlib.DepGraph.getInstance("#notes-"+uid);
+      jQuery.ajax({
+        type: 'POST', 
+        url: depgraph.wsurl,
+        data: {
+          gnid:depgraph.gnid,
+          action:'delete note',
+          cid:jQuery(this).attr('cid')
+        },
+        dataType : 'json',
+        success: function(data, textStatus, jqXHR) {
+          jQuery(note.parentNode.parentNode).remove();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          alert(textStatus);
+        }
+      });
+      console.log(this);
+    });
   };
   
   depgraphlib.tpl.base = function(){

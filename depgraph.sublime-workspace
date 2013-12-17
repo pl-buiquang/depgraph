@@ -19,15 +19,7 @@
 			"file": "src/js/app/ui/box.js",
 			"settings":
 			{
-				"buffer_size": 4922,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/js/app/ui/viewer.js",
-			"settings":
-			{
-				"buffer_size": 21905,
+				"buffer_size": 5219,
 				"line_ending": "Unix"
 			}
 		}
@@ -56,6 +48,7 @@
 	},
 	"file_history":
 	[
+		"/var/www/mgwiki/sites/all/modules/custom/d3js/js/depgraph/src/js/app/ui/viewer.js",
 		"/var/www/mgwiki-dev/sites/all/modules/custom/mgwiki_corpus/js/cma/src/app/corpusUpload.js"
 	],
 	"find":
@@ -64,7 +57,7 @@
 	},
 	"find_in_files":
 	{
-		"height": 0.0,
+		"height": 93.0,
 		"where_history":
 		[
 		]
@@ -91,7 +84,7 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -99,15 +92,15 @@
 					"file": "src/js/app/ui/box.js",
 					"settings":
 					{
-						"buffer_size": 4922,
+						"buffer_size": 5219,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								3386,
-								3386
+								0,
+								0
 							]
 						],
 						"settings":
@@ -118,34 +111,6 @@
 						},
 						"translation.x": 0.0,
 						"translation.y": 1553.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "src/js/app/ui/viewer.js",
-					"settings":
-					{
-						"buffer_size": 21905,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								14464,
-								14464
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 6645.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -208,7 +173,7 @@
 		[
 			[
 				"",
-				"/var/www/mgwiki-dev/sites/all/modules/custom/mgwiki_corpus/js/cma/cma.sublime-project"
+				"/home/paul/projects/depgraph-sublime/depgraph.sublime-project"
 			]
 		],
 		"width": 380.0

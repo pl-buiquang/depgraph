@@ -393,6 +393,14 @@ background: rgba(0,0,0,0.5) url('img/ajax-loader.gif') no-repeat center;
  background-color:#EEEEEE;
  padding:5px;
  }
+
+ .note-delete{
+  float:right;
+  display:inline-block;
+  width:16px;
+  height:16px;
+  background: url('img/Trash-2-icon.png') no-repeat center !important;
+ }
  
  .slider-button{
     position:relative;
