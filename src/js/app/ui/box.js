@@ -41,12 +41,13 @@
     if(options.id){
       this.object.attr('id',options.id);
     }
+    
 
     if(options.closeButton){
       var tooltipExitButton = jQuery('<div class="tooltip-exit-button"/>');
       tooltipExitButton.css('float','right');
       tooltipExitButton.css('display','block');
-      tooltipExitButton.click(function(){me.close(true);});
+      tooltipExitButton.click(function(){me.close(true); if(options.onclose){options.onclose.call();}});
       jQuery('.depgraphlib-box-header',this.object).append(tooltipExitButton);
     }
     
@@ -70,7 +71,10 @@
     jQuery('body').append(this.object);
 
     if(options.draggable){
-      this.object.draggable({ cancel: ".depgraphlib-box-content" })
+      if(this.object.draggable){
+        this.object.draggable({ cancel: ".depgraphlib-box-content" });
+      }
+      
     }
     
     return this;
@@ -78,7 +82,7 @@
   
   depgraphlib.Box.prototype.setContent = function(content){
     var boxcontent = jQuery('.depgraphlib-box-content',this.object);
-    boxcontent.html(content.html());
+    boxcontent.append(content);
     return this;
   };
 
