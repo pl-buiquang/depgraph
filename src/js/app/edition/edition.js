@@ -152,7 +152,6 @@
                        {name:'undo',callback:undo,style:'undo',group:'control'},
                        {name:'redo',callback:redo,style:'redo',group:'control'},
                        {name:'highlight',callback:highlightmode,style:'highlightoff'},
-                       {name:'export',callback:exportData,style:'export',group:'0'},
                        {name:'save',callback:save,style:'saved',group:'0'},
                        ];
 
@@ -234,78 +233,6 @@
           // TODO !!!!!!!! Change callback so that work (every callbacks should be on the form func(depgraph,params))
         }
         
-        /**
-         * export the data
-         * TODO(paul) add callback to handle the action of this function
-         */
-        function exportData(){
-          var coords = this.getBoundingClientRect();
-          var point = {x:coords.left,y:coords.top + coords.height + 2};
-          var div ='<div>';
-      /*    if(depgraph.gid != null){
-            div += 'Wiki reference (copy paste to create a reference to this graph):<br> &lt;st uid="'+depgraph.gid+'"&gt;&lt;/st&gt;<br>';
-          }*/
-          div += 'Export Format : '
-            + '<select name="type">'
-          +'<option value="png">png</option>'
-          +'<option value="json" selected>json</option>'
-          +'<option value="depxml">depxml</option>'
-          +'<option value="dep2pict">dep2pict</option>'
-          +'<option value="conll">conll</option>'
-          +'</select><br/>'
-          +'<input id="export-data'+depgraph.viewer.appendOwnID('')+'"  type="button" value="Export"></div>';
-          div = jQuery(div);
-          var box = depgraph.viewer.createBox({closeButton:true,autodestroy:true});
-          box.setContent(jQuery(div));
-          jQuery('#export-data'+depgraph.viewer.appendOwnID('')).click(function(){
-            var select = jQuery('select',this.parentNode);
-            var format = select[0].options[select[0].selectedIndex].value;
-            if(format == 'png'){
-              exportPng();
-            }else{
-              //TODO(paul) : send raw parameter if not in custom edit mode
-              depgraph.cleanData();
-              depgraphlib.windowOpenPost(
-                  {'action':'export',
-                    'data':depgraph.data,
-                    'source_format':'json',
-                    'target_format':format},
-                  depgraph.wsurl);
-//              window.open('edit/export/'+format);
-            }
-            box.destroy();
-          });
-          
-          box.open(point);
-        }
-        
-        function exportPng(){
-          d3.select('rect.export_bg').attr('width','100%').attr('height','100%');
-          var svgBBox = depgraph.svg.node().getBBox();
-          depgraph.svg.attr('width',svgBBox.width);
-          depgraph.svg.attr('height',svgBBox.height);
-          var svg_xml = (new XMLSerializer).serializeToString(depgraph.svg.node());
-
-          /*
-          var form = document.getElementById("export_png");
-          if(!form){
-            depgraph.viewer.chart.append('<form id="export_png" method="post" action="edit/export/png" target="_blank">'+
-                '<input type="hidden" name="data" value="" />'+
-                '</form>');
-            form = document.getElementById("export_png");
-          }
-          form['data'].value = svg_xml ;
-          form.submit();*/
-          depgraphlib.windowOpenPost(
-              {'action':'export',
-                'data':svg_xml,
-                'source_format':'json',
-                'target_format':'png'},
-              depgraph.wsurl);
-          
-          d3.select('rect.export_bg').attr('width','0').attr('height','0');
-        };
-
       };
       
       /**

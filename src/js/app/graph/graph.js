@@ -393,8 +393,87 @@
       this.vis = this.svg.append("g").attr("transform","translate(" + 
           depgraphlib.removeUnit(this.data.graph['#style'].margin.left) + "," + 
           depgraphlib.removeUnit(this.data.graph['#style'].margin.top)+") scale(1)");
+
+      this.viewer.addToolbarItem({name:'export',callback:exportData,style:'export',group:'0'});
       
+      var me = this;
+      /**
+       * export the data
+       * TODO(paul) add callback to handle the action of this function
+       */
+      function exportData(){
+        var coords = this.getBoundingClientRect();
+        var point = {x:coords.left,y:coords.top + coords.height + 2};
+        var div ='<div>';
+      /*    if(depgraph.gid != null){
+          div += 'Wiki reference (copy paste to create a reference to this graph):<br> &lt;st uid="'+depgraph.gid+'"&gt;&lt;/st&gt;<br>';
+        }*/
+        div += 'Export Format : '
+          + '<select name="type">'
+        +'<option value="png">png</option>'
+        +'<option value="json" selected>json</option>'
+        +'<option value="depxml">depxml</option>'
+        +'<option value="dep2pict">dep2pict</option>'
+        +'<option value="conll">conll</option>'
+        +'</select><br/>'
+        +'<input id="export-data'+me.viewer.appendOwnID('')+'"  type="button" value="Export"></div>';
+        div = jQuery(div);
+        var box = me.viewer.createBox({closeButton:true,autodestroy:true});
+        box.setContent(jQuery(div));
+        jQuery('#export-data'+me.viewer.appendOwnID('')).click(function(){
+          var select = jQuery('select',this.parentNode);
+          var format = select[0].options[select[0].selectedIndex].value;
+          if(format == 'png'){
+            exportPng();
+          }else{
+            //TODO(paul) : send raw parameter if not in custom edit mode
+            me.cleanData();
+            depgraphlib.windowOpenPost(
+                {'action':'export',
+                  'data':me.data,
+                  'source_format':'json',
+                  'target_format':format},
+                me.wsurl);
+//              window.open('edit/export/'+format);
+          }
+          box.destroy();
+        });
+        
+        box.open(point);
+      }
+      
+      function exportPng(){
+        d3.select('rect.export_bg').attr('width','100%').attr('height','100%');
+        var svgBBox = me.svg.node().getBBox();
+        me.svg.attr('width',svgBBox.width);
+        me.svg.attr('height',svgBBox.height);
+        me.scrollbar.style("display","none");
+
+        var svg_xml = (new XMLSerializer).serializeToString(me.svg.node());
+        me.scrollbar.style("display","block");
+        /*
+        var form = document.getElementById("export_png");
+        if(!form){
+          depgraph.viewer.chart.append('<form id="export_png" method="post" action="edit/export/png" target="_blank">'+
+              '<input type="hidden" name="data" value="" />'+
+              '</form>');
+          form = document.getElementById("export_png");
+        }
+        form['data'].value = svg_xml ;
+        form.submit();*/
+        depgraphlib.windowOpenPost(
+            {'action':'export',
+              'data':svg_xml,
+              'source_format':'json',
+              'target_format':'png'},
+            me.wsurl);
+        
+        d3.select('rect.export_bg').attr('width','0').attr('height','0');
+      };
+
     };
+
+
 
     
     depgraphlib.DepGraph.prototype.scale = function(scale){
@@ -595,7 +674,6 @@
       this.postProcesses();
       return affectedLinks;
     };
-
 
 
     /************************************************************/
