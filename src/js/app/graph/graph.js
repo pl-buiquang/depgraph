@@ -300,6 +300,9 @@
           var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget);
           depgraph.setViewMode();
         });*/
+        this.vis.selectAll('g.link').on("click",function(){
+          me.displayFullLinkSpan(this);
+        });
 
         
         d3.select(document).on('click.focus',function(e){
@@ -760,7 +763,7 @@
         var y = depgraphlib.removeUnit(margin.top);
         depgraphlib.setGroupPosition(node,x,y);
       }
-      
+
       node.node().components = {text:text,label:label,rect:rect,sublabels:sublabels};
     }
 
@@ -863,7 +866,6 @@
       .style('stroke-width',borderSize);
 
       depgraphlib.center(text,rect);
-
       node.node().components = {text:text,rect:rect,line:line,sublabels:sublabels,label:label};
 
       depgraphlib.setGroupPosition(node,min.x-depgraphlib.removeUnit(margin.left),min.y-depgraphlib.removeUnit(margin.top));
@@ -966,6 +968,18 @@
       }
       var highlightPath = elt.components!= null ? elt.components.highlightPath : node.append('path');
       var path = elt.components != null ? elt.components.path : node.append('path');
+      elt.drawingData = {
+        x0:x0,
+        y0:y0,
+        v0:v0,
+        laf0:laf0,
+        hdir:hdir,
+        arcSize:arcSize,
+        h:h,
+        laf1:laf1,
+        vdir:vdir,
+        v1:v1
+      };
       if(originArc){
         highlightPath
         .attr('d',"M "+x0+","+(y0+v0)+" v "+(-v0));
