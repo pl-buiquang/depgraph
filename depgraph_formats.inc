@@ -452,7 +452,17 @@ function depXML2depGraph($xml_data){
     $graph['highlighting'] = preg_split("/,/", $graph['highlighting']);
   }
   
-  $tokens = array();
+  
+  $duplicatedTokenEdgeIndex = 0;
+  foreach($xml_data->cluster as $cluster){
+    $cluster;
+  }
+  
+  
+  $clusters = array();
+  $merged_nodes = array();
+  
+  $i = 0;
   foreach($xml_data->node as $node){
     $node_obj = &$graph['words'][];
     $node_obj['sublabel'] = array();
@@ -460,18 +470,31 @@ function depXML2depGraph($xml_data){
       $value = "$value";
       if($key == "cluster"){
         $node_obj["#data"][$key] = $value;
-        $associated_clusters = $xml_data->xpath("//cluster[@id = '$value']");
-        foreach($associated_clusters as $cluster){ // should be only one
-          $lex = (string) $cluster['lex'];
-          $lexparts = preg_split("/\|/",$lex);
-          if($lexparts == null || count($lexparts)<2){
-            $node_obj['label'] = $cluster['token'];
+        
+        // merge some nodes
+        $node_ids = array_keys($clusters,$value);
+        $mergeHappened = false;
+        foreach($node_ids as $nodeid){
+          $mergeCond = $graph['words'][$nodeid]['#data']['cat'] == (string)$node['cat'];
+          if($mergeCond){
+            unset($graph['words'][$i]);
+            $merged_nodes[(string)$node['id']] = $graph['words'][$nodeid]['id'];
+            $mergeHappened = true;
+            break;
           }
-          if(array_search($lexparts[0], $tokens) === false){
-            $tokens[] = $lexparts[0];
-            $node_obj['label'] = (string) $cluster['token'];
-          }else{
-            $node_obj['label'] = "_";
+        }
+        if($mergeHappened){
+           break;
+        }else{
+          $clusters[$i] = $value; 
+        }
+        
+        
+        $associated_clusters = $xml_data->xpath("//cluster[@id = '$value']");
+        
+        foreach($associated_clusters as $cluster){ // should be only one
+          if(count($associated_clusters)>1 && (string)$cluster['token']!=(string)$node['form']){
+            continue;
           }
           foreach($cluster->attributes() as $ckey => $cvalue){
             if($ckey == 'id'){ 
@@ -512,9 +535,31 @@ function depXML2depGraph($xml_data){
       }
     }
     $node_obj['sublabel'] = array_reverse($node_obj['sublabel']);
+    $i++;
   }
-  Logger::Log($tokens);
   usort($graph['words'],'comp_node_position');
+  
+  $tokens = array();
+  foreach($graph['words'] as &$word){
+    $lex = $word['#data']['lex'];
+    $lexparts = preg_split("/\|/",$lex);
+    if($lexparts == null || count($lexparts)<2){
+      $word['label'] = $word['#data']['token'];
+    }
+    
+    if(!isset($tokens[$lexparts[0]]) || empty($lexparts[0])){
+      $tokens[$lexparts[0]] = $word['id'];
+      $word['label'] = $word['#data']['token'];
+    }else{
+      $duplicatedTokenEdge = $xml_data->addChild("edge");
+      $duplicatedTokenEdge->addAttribute("id","C".$duplicatedTokenEdgeIndex++);
+      $duplicatedTokenEdge->addAttribute("source",$tokens[$lexparts[0]]);
+      $duplicatedTokenEdge->addAttribute("target",$word['id']);
+      $duplicatedTokenEdge->addAttribute("type","ellipsis");
+      $word['label'] = "_";
+    }
+  }
+  
   $n= count($graph['words']);
   for($i = 0;$i<$n; $i++){
     $node_obj = &$graph['words'][$i];
@@ -527,6 +572,14 @@ function depXML2depGraph($xml_data){
       if($key=='id'){
         $link_obj[$key] = $value;
       }else if(array_search($key, $edge_used_keys)!==false){
+        if($key == "source" || $key == "target"){
+          foreach($merged_nodes as $origin => $target){
+            if($origin == $value){
+              $value = $target;
+              break;
+            }
+          }
+        }
         $link_obj[$key] = $value;
       }else{
         if($key=='type'){
@@ -534,6 +587,10 @@ function depXML2depGraph($xml_data){
             $link_obj['#style'] = array();
           }
           $color = getTypeColor($value);
+          if($value=="ellipsis"){
+            $link_obj['#style']['oriented'] = false;
+            $link_obj['#style']['stroke-dasharray'] = "5, 5, 1, 5"; // dash <dash-length>,<gap-length>,... if not pair then the list is concatenated with itself
+          }
           $link_obj['#style']['link-color'] = $color;
         }
         $link_obj["#data"][$key] = $value;
@@ -626,6 +683,8 @@ function getTypeColor($type){
     $color = '#FF73E4';
   }else if($type == 'adj'){
     $color = '#FF4040';
+  }else if($type == 'ellipsis'){
+    $color = '#AAAAAA';
   }
   return $color;
 }

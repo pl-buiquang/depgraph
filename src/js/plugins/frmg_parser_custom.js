@@ -51,9 +51,13 @@
           },
           dataType : 'json',
           success: function(data, textStatus, jqXHR) {
-            depgraph.editObject.lastSavedPtr = depgraph.editObject.currentPtr;
-            depgraph.editObject.needToSaveState = false;
-            depgraph.editObject.updateSaveState();
+            if(data.success){
+              depgraph.editObject.lastSavedPtr = depgraph.editObject.currentPtr;
+              depgraph.editObject.needToSaveState = false;
+              depgraph.editObject.updateSaveState();
+            }else{
+              alert("error happened, couldn't save the modifications");
+            }
           },
           error: function(jqXHR, textStatus, errorThrown) {
             alert(textStatus);
@@ -121,7 +125,7 @@
       function getPreviousParams(depgraph){
         var eo = depgraph.editObject;
         if(eo.currentPtr == -1){
-          return '';
+          return depgraph.options.frmgparserparams||'';
         }else{
           var action = eo.actionsLog[eo.currentPtr];
           return action.rollbackdata.currentParams;
@@ -196,7 +200,11 @@
           },
           dataType : 'json',
           success: function(data, textStatus, jqXHR) {
-            depgraph.resetData(data);
+            if(!data.error){
+              depgraph.resetData(data);
+            }else{
+              alert("Error happened");
+            }
             depgraph.viewer.ajaxFinished();
           },
           error: function(jqXHR, textStatus, errorThrown) {
