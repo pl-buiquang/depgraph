@@ -492,6 +492,7 @@
             depgraphlib.windowOpenPost(
                 {'action':'export',
                   'data':me.data,
+                  'gid':me.options.gid,
                   'source_format':'json',
                   'target_format':format},
                 me.wsurl);

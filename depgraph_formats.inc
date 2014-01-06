@@ -513,6 +513,7 @@ function depXML2depGraph($xml_data){
     }
     $node_obj['sublabel'] = array_reverse($node_obj['sublabel']);
   }
+  Logger::Log($tokens);
   usort($graph['words'],'comp_node_position');
   $n= count($graph['words']);
   for($i = 0;$i<$n; $i++){
