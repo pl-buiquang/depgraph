@@ -246,12 +246,79 @@
       }
     };
     
+    depgraphlib.DepGraph.prototype.setUpScrollBarView = function(graphWidth,viewerWidth,x){
+      var scrollBarWidth = 30;
+      var k = (graphWidth-viewerWidth)/(viewerWidth-scrollBarWidth);
+      this.scrollbar = this.svg.select('.scrollbar');
+      if(this.scrollbar.node() == null){
+        this.scrollbar = this.svg.append('rect').classed('scrollbar',true);
+      }
+      this.scrollbar.attr('x',0)
+      .attr('y',this.viewer.mainpanel.height()-40)
+      .attr('rx',1)
+      .attr('ry',1)
+      .attr('width',scrollBarWidth)
+      .attr('height',5)
+      .style('stroke',"grey")
+      .style('fill',"lightgrey")
+      .style('stroke-width',1)
+      .__info__ = {maxX:viewerWidth - scrollBarWidth,k:k};
+      if(x!=null){
+        return this.scrollbarTranslate(x);
+      }
+    };
+
+    depgraphlib.DepGraph.prototype.scrollbarTranslate = function(x){
+      var sx = parseFloat(this.scrollbar.attr('x'));
+      var kx = x / this.scrollbar.__info__.k;
+      if(this.scrollbar.__info__.maxX < (sx + kx)){
+        kx = this.scrollbar.__info__.maxX - sx;
+      }else if(sx + kx < 0){
+        kx = -sx;
+      }
+      x = this.scrollbar.__info__.k*kx;
+      this.scrollbar.attr('x',sx+kx);
+      return x;
+    };
+
+    depgraphlib.DepGraph.prototype.scale = function(scale){
+      var me = depgraphlib.DepGraph.getInstance(this);
+      var previousValues = depgraphlib.getTransformValues(me.vis);
+      me.vis.attr("transform",
+          "translate(" + (previousValues.translate[0])*scale + "," + (previousValues.translate[1])*scale + ")" + " scale("+scale+")");
+    };
+    
+    /**
+     * translate the graph relative to parameters x and y
+     * @param x
+     * @param y
+     */
+    depgraphlib.DepGraph.prototype.translateGraph = function(x,y){
+      
+      var me = depgraphlib.DepGraph.getInstance(this);
+      var previousValues = depgraphlib.getTransformValues(me.vis);
+      
+      console.log(previousValues.translate);
+      console.log(y);
+
+      if(me.scrollbar){
+        x = me.scrollbarTranslate(x);  
+      }
+      
+      var newx = previousValues.translate[0]-parseFloat(x);
+      newx = Math.round(newx*1000000)/1000000;
+
+      me.vis.attr("transform",
+          "translate(" + newx + "," + (previousValues.translate[1]-y) + ")" + " scale("+previousValues.scale[0]+")");
+      
+    };
+
     /**
      * Create the scrollbar and set up the callbacks for scrolling the view
      */
     depgraphlib.DepGraph.prototype.createScrollBar = function(){
       var me = this;
-
+      
       var graphBBox = this.vis.node().getBBox();
       var graphWidth = graphBBox.width + 2*depgraphlib.removeUnit(this.data.graph['#style']['margin'].right); 
       var viewerWidth = this.viewer.mainpanel.width();
@@ -260,26 +327,8 @@
         jQuery(this.scrollbar.node()).remove();
       }
       if(graphWidth > viewerWidth){
-        var scrollBarWidth = 2*viewerWidth - graphWidth;
-        var k = 1;
-        if(scrollBarWidth<=0){
-          scrollBarWidth = 20;
-          k = (graphWidth-viewerWidth)/(viewerWidth-scrollBarWidth);
-        }
-        this.scrollbar = this.svg.select('.scrollbar');
-        if(this.scrollbar.node() == null){
-          this.scrollbar = this.svg.append('rect').classed('scrollbar',true);
-        }
-        this.scrollbar.attr('x',0)
-        .attr('y',this.viewer.mainpanel.height()-40)
-        .attr('rx',1)
-        .attr('ry',1)
-        .attr('width',scrollBarWidth)
-        .attr('height',5)
-        .style('stroke',"grey")
-        .style('fill',"lightgrey")
-        .style('stroke-width',1)
-        .__info__ = {maxX:viewerWidth - scrollBarWidth,k:k};
+        
+        this.setUpScrollBarView(graphWidth,viewerWidth);
 
         this.scrollMouseSelected = null;
         
@@ -327,7 +376,12 @@
         d3.select(document).on('mousewheel.scrollbar',function(e){
           var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.DepGraph.depgraphActive);
           if(depgraph && depgraph.scrollbar){
-            depgraph.translateGraph(3*d3.event.wheelDeltaY/(-40),0);
+            if(d3.event.ctrlKey){
+              depgraph.zoom(3*d3.event.wheelDeltaY/(-40));
+            }else{
+              depgraph.translateGraph(3*d3.event.wheelDeltaY/(-40),0);  
+            }
+            
             d3.event.preventDefault ? d3.event.preventDefault() : d3.event.returnValue = false;
           }
         });
@@ -336,7 +390,11 @@
         d3.select(document).on('wheel.scrollbar',function(e){
           var depgraph = depgraphlib.DepGraph.getInstance(depgraphlib.DepGraph.depgraphActive);
           if(depgraph && depgraph.scrollbar){
-            depgraph.translateGraph(3*d3.event.deltaY,0);
+            if(d3.event.ctrlKey){
+              depgraph.zoom(3*d3.event.deltaY);
+            }else{
+              depgraph.translateGraph(3*d3.event.deltaY,0);
+            }
             d3.event.preventDefault ? d3.event.preventDefault() : d3.event.returnValue = false;
           }
         });
@@ -479,38 +537,7 @@
 
 
     
-    depgraphlib.DepGraph.prototype.scale = function(scale){
-      var me = depgraphlib.DepGraph.getInstance(this);
-      var previousValues = depgraphlib.getTransformValues(me.vis);
-      me.vis.attr("transform",
-          "translate(" + (previousValues.translate[0])*scale + "," + (previousValues.translate[1])*scale + ")" + " scale("+scale+")");
-    };
     
-    /**
-     * translate the graph relative to parameters x and y
-     * @param x
-     * @param y
-     */
-    depgraphlib.DepGraph.prototype.translateGraph = function(x,y){
-      var me = depgraphlib.DepGraph.getInstance(this);
-      var previousValues = depgraphlib.getTransformValues(me.vis);
-      
-      if(me.scrollbar){
-        var sx = parseFloat(me.scrollbar.attr('x'));
-        var kx = x / me.scrollbar.__info__.k;
-        if(me.scrollbar.__info__.maxX < (sx + kx)){
-          kx = me.scrollbar.__info__.maxX - sx;
-        }else if(sx + kx < 0){
-          kx = -sx;
-        }
-        x = me.scrollbar.__info__.k*kx;
-        me.scrollbar.attr('x',sx+kx);
-      }
-      
-      me.vis.attr("transform",
-          "translate(" + (previousValues.translate[0]-x) + "," + (previousValues.translate[1]-y) + ")" + " scale("+previousValues.scale[0]+")");
-      
-    };
 
     /**
      * @function update

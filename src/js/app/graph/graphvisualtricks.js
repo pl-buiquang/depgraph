@@ -1,8 +1,80 @@
   /************************************************************/
-  /**                      Crossing Algo                     **/
+  /**                    Visual Tricks                       **/
   /************************************************************/
 
 (function(depgraphlib){
+
+
+  /************************************************************/
+  /**                      Zooming                           **/
+  /************************************************************/
+
+  depgraphlib.DepGraph.prototype.zoom = function(delta){
+    var transformValues = depgraphlib.getTransformValues(this.vis);
+    var scaleStep = 0.1;
+    var minScale = 0.5;
+    var maxScale = 2;
+    var scale = transformValues.scale[0];
+    if(delta<0){ // zooming
+      scale += scaleStep;
+      if(scale>maxScale){
+        scale = maxScale;
+      }
+    }else{ // dezooming
+      scale -= scaleStep;
+      if(scale < minScale){
+        scale = minScale;
+      }
+    }
+
+    var S = scale/transformValues.scale;
+    var M = {x:d3.event.layerX,y:d3.event.layerY};
+    var G0 = this.svg[0][0].getBBox(); 
+    var G00 = {x:G0.x-transformValues.translate[0],y:G0.y-transformValues.translate[1]};
+    var G1 = {
+        x:G0.x*S,
+        y:G0.y*S,
+        w:G0.width*S,
+        h:G0.height*S
+    };
+    var G11 = {
+        x:G00.x*S,
+        y:G00.y*S
+    };
+    var diff = {
+        x:M.x*(S-1),
+        y:M.y*(S-1)
+    };
+     
+    var diff3 = {
+        x:G1.x-diff.x-G11.x,
+        y:G1.y-diff.y-G11.y
+    };
+
+
+    var x = diff3.x;
+    if(S!=1){
+      var graphBBox = this.vis.node().getBBox();
+      var graphWidth = (graphBBox.width + 2*depgraphlib.removeUnit(this.data.graph['#style']['margin'].right))*scale; 
+      var viewerWidth = this.viewer.mainpanel.width();  
+      var changedX = this.setUpScrollBarView(graphWidth,viewerWidth,(depgraphlib.removeUnit(this.data.graph['#style'].margin.left))-diff3.x);
+      if(changedX != null){
+        x = -changedX;
+      }
+    }
+
+    x = Math.round(x*1000000)/1000000;
+
+    this.vis.attr("transform",
+          "translate(" + x + "," + transformValues.translate[1] + ")" + " scale("+scale+")");
+
+  };
+
+
+
+  /************************************************************/
+  /**                    Links folding                       **/
+  /************************************************************/
 
 
   depgraphlib.DepGraph.prototype.displayFullLinkSpan = function(link){
