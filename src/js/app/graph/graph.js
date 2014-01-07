@@ -298,9 +298,6 @@
       var me = depgraphlib.DepGraph.getInstance(this);
       var previousValues = depgraphlib.getTransformValues(me.vis);
       
-      console.log(previousValues.translate);
-      console.log(y);
-
       if(me.scrollbar){
         x = me.scrollbarTranslate(x);  
       }
@@ -925,6 +922,15 @@
       var align = elt.getStyle('align');
       var highlighted = elt.getStyle('highlighted',false);
       var strokeDasharray = elt.getStyle('stroke-dasharray','none');
+      
+      var isEllipse = d['#data'].type == "ellipsis";
+      var isSegmentation = d['#data'].type == "segmentation";
+
+      var tokenbound = isEllipse || isSegmentation;
+
+      if(tokenbound){
+        p.strate = -1;
+      }
 
       // for origin arcs (nodestart == null)
       var originArc = false;
@@ -975,6 +981,9 @@
       var y1 = X1[1]+Eyanchor;
       var height = 15;
       var strateOffset = 30;
+      if(tokenbound){
+        strateOffset = 0;
+      }
       var v0 = -vdir*height-strateOffset*p.strate;//-SchunkCase;
       if(originArc){
         v0 = -vdir*height-strateOffset*vdir*(me.maxLinksStrate+1);

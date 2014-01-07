@@ -83,9 +83,13 @@
       return;
     }
 
-    var data = link.data;
+    var data = link.animationData;
     if(!data){
-      data = link.data = computeUsefulData(this,link);
+      data = link.animationData = computeUsefulData(this,link);
+    }
+
+    if(data == "impossibru!"){ // can't shrink the link because it's already too small
+      return;
     }
 
     console.log(data);
@@ -94,16 +98,17 @@
     var p = this.getLinkProperties(node.node());
 
     var offsetStart = 0;
-    var step = p.hdir*data.reductionLength/5;
+    var animationSpeed = 2000;
+    var step = data.reductionLength/(animationSpeed/100);
     var i = 0;
-    var animationSpeed = 500;
+    
 
 
     if(link.folded){
 
       data.newnode.remove();
 
-      offsetStart = -p.hdir*data.reductionLength;
+      offsetStart = -data.reductionLength;
       step = -step;
 
       var prevTVals = {};
@@ -112,19 +117,27 @@
         prevTVals[i]=(depgraphlib.getTransformValues(d3.select(this)));
       });
 
+      for (var j = data.elements.crossinglinks.length - 1; j >= 0; j--) {
+        jQuery(data.elements.crossinglinks[j].link).css("display","none");
+      }
+
       link.onGoingAnimation = setInterval(animation,100);
       
       setTimeout(function(){
         clearInterval(link.onGoingAnimation);
         for (var i = data.elements.insidelinks.length - 1; i >= 0; i--) {
           jQuery(data.elements.insidelinks[i]).css("display","block");
+          data.elements.insidelinks[i].hidden = false;
         }
         for (var i = data.elements.insidenodes.length - 1; i >= 0; i--) {
           jQuery(data.elements.insidenodes[i]).css("display","block");
-        };
+          data.elements.insidenodes[i].hidden = false;
+        }
         for (var j = data.elements.crossinglinks.length - 1; j >= 0; j--) {
+          jQuery(data.elements.crossinglinks[j].link).css("display","block");
           redirectCrossingLinks(data.elements.crossinglinks[j],offsetStart,data.newnodeLinkAnchor,data.reductionLength,true);
-        };
+        }
+        animationStep(-data.reductionLength);
         link.onGoingAnimation=false;
       },animationSpeed);
       
@@ -133,10 +146,15 @@
     }else{
       for (var i = data.elements.insidelinks.length - 1; i >= 0; i--) {
         jQuery(data.elements.insidelinks[i]).css("display","none");
+        data.elements.insidelinks[i].hidden = true;
       }
       for (var i = data.elements.insidenodes.length - 1; i >= 0; i--) {
         jQuery(data.elements.insidenodes[i]).css("display","none");
+        data.elements.insidenodes[i].hidden = true;
       };
+      for (var j = data.elements.crossinglinks.length - 1; j >= 0; j--) {
+        jQuery(data.elements.crossinglinks[j].link).css("display","none");
+      }
 
 
       if(!data.newnode){
@@ -160,7 +178,7 @@
           .style('font-weight',"bold");
       }
 
-      step = p.hdir*data.reductionLength/5;
+      step = data.reductionLength/(animationSpeed/100);
 
 
 
@@ -179,8 +197,10 @@
       setTimeout(function(){
         clearInterval(link.onGoingAnimation);
         for (var j = data.elements.crossinglinks.length - 1; j >= 0; j--) {
+          jQuery(data.elements.crossinglinks[j].link).css("display","block");
           redirectCrossingLinks(data.elements.crossinglinks[j],data.newnodeLinkAnchor,data.reductionLength);
-        };
+        }
+        animationStep(data.reductionLength);
         link.onGoingAnimation=false;
       },animationSpeed);
 
@@ -189,22 +209,31 @@
 
     function animation(){
       i += step;
+      animationStep(i);
+    };
+
+    function animationStep(i){
       reduceLink(link,i,offsetStart);
       d3.selectAll(data.elements.upperlinks).each(function(d,index){
         reduceLink(this,i,offsetStart);
       });
       d3.selectAll(data.elements.toMoveLinks).each(function(d,index){
-        var d = this.drawingData;
-        this.components.highlightPath.attr('d',"M "+(offsetStart+d.x0-i)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);  
-        this.components.path.attr('d',"M "+(offsetStart+d.x0-i)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);        
-        var textBBox = this.components.label.node().getBBox();
-        this.components.label.attr('x',-textBBox.width/2+(offsetStart+d.x0-i)+(d.h)/2+d.hdir*d.arcSize);
+        if(!this.hidden){
+          var d = this.drawingData;
+          this.components.highlightPath.attr('d',"M "+(offsetStart+d.x0-i)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);  
+          this.components.path.attr('d',"M "+(offsetStart+d.x0-i)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);        
+          var textBBox = this.components.label.node().getBBox();
+          this.components.label.attr('x',-textBBox.width/2+(offsetStart+d.x0-i)+(d.h)/2+d.hdir*d.arcSize);
+        }
       });
       d3.selectAll(data.elements.toMoveNodes).attr("transform",function(d,index){
-        var x = prevTVals[index].translate[0]-i;
-        return "translate("+x+","+prevTVals[index].translate[1]+")";
+        if(!this.hidden){
+          var x = prevTVals[index].translate[0]-i;
+          return "translate("+x+","+prevTVals[index].translate[1]+")";  
+        }
       });
-    };
+
+    }
 
     
 
@@ -225,27 +254,32 @@
       offsetStart = 0;
     }
     var d = link.drawingData;
-    link.components.highlightPath.attr('d',"M "+d.x0+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+(offsetStart+d.h-i)+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);  
-    link.components.path.attr('d',"M "+d.x0+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+(offsetStart+d.h-i)+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);        
+    var offsetAnchor = 0;
+    var r = d.hdir*i;
+    if(d.hdir<0){
+      offsetAnchor=(r+offsetStart);
+    }
+    link.components.highlightPath.attr('d',"M "+(d.x0+offsetAnchor)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+(d.hdir*offsetStart+d.h-r)+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);  
+    link.components.path.attr('d',"M "+(d.x0+offsetAnchor)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+(d.hdir*offsetStart+d.h-r)+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);        
     var textBBox = link.components.label.node().getBBox();
-    link.components.label.attr('x',-textBBox.width/2+d.x0+(offsetStart+d.h-i)/2+d.hdir*d.arcSize);
+    link.components.label.attr('x',-textBBox.width/2+d.x0+offsetAnchor+(d.hdir*offsetStart+d.h-r)/2+d.hdir*d.arcSize);
   }
 
   function redirectCrossingLinks(crossingLinkData,newanchorX,reduceLength,reset){
     var link = crossingLinkData.link;
     var offset = newanchorX - crossingLinkData.anchorX;
     
+    var d = link.drawingData;
     var offsetSource = 0;
     if(!crossingLinkData.insideNodeIsTarget){
       offsetSource = offset;
+    }else if(d.hdir<0){
+      offsetSource =(d.hdir*reduceLength);
     }
 
     if(crossingLinkData.mustMoveReduce){
       offset += reduceLength;
     }
-    
-
-    
 
     if(reset){
       offsetSource = 0;
@@ -253,7 +287,7 @@
     }
 
 
-    var d = link.drawingData;
+    
     link.components.highlightPath.attr('d',"M "+(d.x0+offsetSource)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+(offset+d.h)+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);  
     link.components.path.attr('d',"M "+(d.x0+offsetSource)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+(offset+d.h)+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);        
     var textBBox = link.components.label.node().getBBox();
@@ -269,9 +303,9 @@
         insidelinks:[],
         crossinglinks:[],
         upperlinks:[],
-        leftX:0,
-        rightX:0
       },
+      leftX:0,
+      rightX:0,
       reductionLength:0
     };
 
@@ -280,6 +314,10 @@
     var p = depgraph.getLinkProperties(link);
     var leftBoundary = p.min + contextSize;
     var rightBoundary = p.max - contextSize;
+
+    if(rightBoundary - leftBoundary <= 2){
+      return "impossibru!";
+    }
     
     var nodes = depgraph.vis.selectAll('g.word');
     for(var i = 0; i<nodes[0].length; i++){
