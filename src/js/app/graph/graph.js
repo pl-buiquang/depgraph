@@ -1052,6 +1052,7 @@
         .attr('y',depgraphlib.removeUnit(depgraphlib.addPxs(-depgraphlib.removeUnit(margin.top),y0,v0,-vdir*arcSize)));
       
       // to access easily to link components
+      elt.drawingData.textBBox = textBBox;
       elt.components = {highlightPath:highlightPath,path:path,label:text};
     }
 

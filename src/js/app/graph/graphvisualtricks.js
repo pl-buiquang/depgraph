@@ -97,9 +97,10 @@
     var node = d3.select(link);
     var p = this.getLinkProperties(node.node());
 
-    var offsetStart = 0;
-    var animationSpeed = 2000;
-    var step = data.reductionLength/(animationSpeed/100);
+    var animationDuration = 500;
+    var animationSpeed = 100;
+    var totalSteps = animationDuration/animationSpeed;
+    var step = data.reductionLength/totalSteps;
     var i = 0;
     
 
@@ -108,7 +109,6 @@
 
       data.newnode.remove();
 
-      offsetStart = -data.reductionLength;
       step = -step;
 
       var prevTVals = {};
@@ -121,24 +121,21 @@
         jQuery(data.elements.crossinglinks[j].link).css("display","none");
       }
 
-      link.onGoingAnimation = setInterval(animation,100);
-      
-      setTimeout(function(){
-        clearInterval(link.onGoingAnimation);
-        for (var i = data.elements.insidelinks.length - 1; i >= 0; i--) {
-          jQuery(data.elements.insidelinks[i]).css("display","block");
-          data.elements.insidelinks[i].hidden = false;
-        }
-        for (var i = data.elements.insidenodes.length - 1; i >= 0; i--) {
-          jQuery(data.elements.insidenodes[i]).css("display","block");
-          data.elements.insidenodes[i].hidden = false;
-        }
-        for (var j = data.elements.crossinglinks.length - 1; j >= 0; j--) {
-          jQuery(data.elements.crossinglinks[j].link).css("display","block");
-          redirectCrossingLinks(data.elements.crossinglinks[j],offsetStart,data.newnodeLinkAnchor,data.reductionLength,true);
-        }
-        animationStep(-data.reductionLength);
-        link.onGoingAnimation=false;
+      link.onGoingAnimation = setInterval(function(){
+        animation(function(){
+          for (var i = data.elements.insidelinks.length - 1; i >= 0; i--) {
+            jQuery(data.elements.insidelinks[i]).css("display","block");
+            data.elements.insidelinks[i].hidden = false;
+          }
+          for (var i = data.elements.insidenodes.length - 1; i >= 0; i--) {
+            jQuery(data.elements.insidenodes[i]).css("display","block");
+            data.elements.insidenodes[i].hidden = false;
+          }
+          for (var j = data.elements.crossinglinks.length - 1; j >= 0; j--) {
+            jQuery(data.elements.crossinglinks[j].link).css("display","block");
+            redirectCrossingLinks(data.elements.crossinglinks[j],data.newnodeLinkAnchor,data.reductionLength,true);
+          }
+        })
       },animationSpeed);
       
       link.folded = false;
@@ -178,7 +175,7 @@
           .style('font-weight',"bold");
       }
 
-      step = data.reductionLength/(animationSpeed/100);
+      step = data.reductionLength/totalSteps;
 
 
 
@@ -192,45 +189,45 @@
 
       data.prevTVals = prevTVals;
 
-      link.onGoingAnimation = setInterval(animation,100);
-      
-      setTimeout(function(){
-        clearInterval(link.onGoingAnimation);
-        for (var j = data.elements.crossinglinks.length - 1; j >= 0; j--) {
-          jQuery(data.elements.crossinglinks[j].link).css("display","block");
-          redirectCrossingLinks(data.elements.crossinglinks[j],data.newnodeLinkAnchor,data.reductionLength);
-        }
-        animationStep(data.reductionLength);
-        link.onGoingAnimation=false;
+      link.onGoingAnimation = setInterval(function(){
+        animation(function(){
+          for (var j = data.elements.crossinglinks.length - 1; j >= 0; j--) {
+            jQuery(data.elements.crossinglinks[j].link).css("display","block");
+            redirectCrossingLinks(data.elements.crossinglinks[j],data.newnodeLinkAnchor,data.reductionLength);
+          }
+        })
       },animationSpeed);
+
 
       link.folded = true;
     }
 
-    function animation(){
-      i += step;
-      animationStep(i);
+    function animation(func){
+      if(totalSteps--){
+        animationStep(step);  
+      }else{
+        clearInterval(link.onGoingAnimation);
+        func.call(this);
+        link.onGoingAnimation = false;
+      }
     };
 
     function animationStep(i){
-      reduceLink(link,i,offsetStart);
+      //reduceLink(link,i);
       d3.selectAll(data.elements.upperlinks).each(function(d,index){
-        reduceLink(this,i,offsetStart);
+        reduceLink(this,i);
       });
       d3.selectAll(data.elements.toMoveLinks).each(function(d,index){
-        if(!this.hidden){
-          var d = this.drawingData;
-          this.components.highlightPath.attr('d',"M "+(offsetStart+d.x0-i)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);  
-          this.components.path.attr('d',"M "+(offsetStart+d.x0-i)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);        
-          var textBBox = this.components.label.node().getBBox();
-          this.components.label.attr('x',-textBBox.width/2+(offsetStart+d.x0-i)+(d.h)/2+d.hdir*d.arcSize);
-        }
+        var d = this.drawingData;
+        d.x0 -= i;
+        this.components.highlightPath.attr('d',"M "+d.x0+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);  
+        this.components.path.attr('d',"M "+d.x0+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);        
+        this.components.label.attr('x',-d.textBBox.width/2+d.x0+(d.h)/2+d.hdir*d.arcSize);
       });
       d3.selectAll(data.elements.toMoveNodes).attr("transform",function(d,index){
-        if(!this.hidden){
-          var x = prevTVals[index].translate[0]-i;
-          return "translate("+x+","+prevTVals[index].translate[1]+")";  
-        }
+        var prevVals = depgraphlib.getTransformValues(d3.select(this))
+        var x = prevVals.translate[0]-i;
+        return "translate("+x+","+prevVals.translate[1]+")";  
       });
 
     }
@@ -249,20 +246,17 @@
 
   }
 
-  function reduceLink(link,i,offsetStart){
-    if(!offsetStart){
-      offsetStart = 0;
-    }
+  function reduceLink(link,i){
     var d = link.drawingData;
     var offsetAnchor = 0;
     var r = d.hdir*i;
     if(d.hdir<0){
-      offsetAnchor=(r+offsetStart);
+      d.x0 += r;
     }
-    link.components.highlightPath.attr('d',"M "+(d.x0+offsetAnchor)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+(d.hdir*offsetStart+d.h-r)+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);  
-    link.components.path.attr('d',"M "+(d.x0+offsetAnchor)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+(d.hdir*offsetStart+d.h-r)+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);        
-    var textBBox = link.components.label.node().getBBox();
-    link.components.label.attr('x',-textBBox.width/2+d.x0+offsetAnchor+(d.hdir*offsetStart+d.h-r)/2+d.hdir*d.arcSize);
+    d.h -= r;
+    link.components.highlightPath.attr('d',"M "+d.x0+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);  
+    link.components.path.attr('d',"M "+d.x0+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);        
+    link.components.label.attr('x',-d.textBBox.width/2+d.x0+d.h/2+d.hdir*d.arcSize);
   }
 
   function redirectCrossingLinks(crossingLinkData,newanchorX,reduceLength,reset){
@@ -281,17 +275,19 @@
       offset += reduceLength;
     }
 
-    if(reset){
-      offsetSource = 0;
-      offset = 0;
-    }
-
 
     
-    link.components.highlightPath.attr('d',"M "+(d.x0+offsetSource)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+(offset+d.h)+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);  
-    link.components.path.attr('d',"M "+(d.x0+offsetSource)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+(offset+d.h)+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);        
-    var textBBox = link.components.label.node().getBBox();
-    link.components.label.attr('x',-textBBox.width/2+(d.x0+offsetSource)+(offset+d.h)/2+d.hdir*d.arcSize);
+    if(reset){
+      d.x0 -= offsetSource
+      d.h -= offset;
+    }else{
+      d.x0 += offsetSource
+      d.h += offset;
+    }
+    
+    link.components.highlightPath.attr('d',"M "+d.x0+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);  
+    link.components.path.attr('d',"M "+d.x0+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);        
+    link.components.label.attr('x',-d.textBBox.width/2+d.x0+d.h/2+d.hdir*d.arcSize);
   }
 
   function computeUsefulData(depgraph,link){
