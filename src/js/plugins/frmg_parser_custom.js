@@ -221,7 +221,7 @@
           depgraph.data.graph.links.push(node.__data__['#data']['alternatives'][link]);
         }
         depgraph.update();
-        depgraph.postProcesses();
+        depgraph.postProcessesFixHeight();
         depgraph.editObject.editModeInit();
         depgraph.autoHighLightOnMouseOver();
         allLinksToGrey(depgraph,node.__data__['#data']['alternatives']);
@@ -257,7 +257,7 @@
           depgraph.data.graph.links.splice(index,1);
         }
         depgraph.update();
-        depgraph.postProcesses();
+        depgraph.postProcessesFixHeight();
       }
       
       depgraphlib.hideAltLinks = hideAltLinks;

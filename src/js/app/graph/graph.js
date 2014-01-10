@@ -198,6 +198,19 @@
       this.setViewMode();
     };
 
+    depgraphlib.DepGraph.prototype.postProcessesFixHeight = function(){
+      var visBBox = this.vis.node().getBBox();
+      var prevValues = depgraphlib.getTransformValues(this.vis);
+      this.vis.attr("transform","translate(" + 
+          prevValues.translate[0] + "," + 
+          (depgraphlib.removeUnit(this.data.graph['#style'].margin.top)-visBBox.y)+") scale(1)");
+      
+      this.viewer.shrinkHeightToContent(depgraphlib.removeUnit(this.data.graph['#style']['margin'].bottom)+20);
+      if(this.scrollbar){
+        this.scrollbar.attr('y',this.viewer.mainpanel.height()-40);
+      }
+    };
+
     /**
      * Set the view mode (full | strechted | cropped)
      * Apply viewer mode and add scrollbar or proper scale if necessary
