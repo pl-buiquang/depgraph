@@ -111,12 +111,6 @@
 
       step = -step;
 
-      var prevTVals = {};
-
-      d3.selectAll(data.elements.toMoveNodes).each(function(d,i){
-        prevTVals[i]=(depgraphlib.getTransformValues(d3.select(this)));
-      });
-
       for (var j = data.elements.crossinglinks.length - 1; j >= 0; j--) {
         jQuery(data.elements.crossinglinks[j].link).css("display","none");
       }
@@ -177,17 +171,6 @@
 
       step = data.reductionLength/totalSteps;
 
-
-
-
-
-      var prevTVals = {};
-
-      d3.selectAll(data.elements.toMoveNodes).each(function(d,i){
-        prevTVals[i]=(depgraphlib.getTransformValues(d3.select(this)));
-      });
-
-      data.prevTVals = prevTVals;
 
       link.onGoingAnimation = setInterval(function(){
         animation(function(){
