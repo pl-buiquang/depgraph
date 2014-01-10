@@ -78,7 +78,8 @@
 
 
   depgraphlib.DepGraph.prototype.displayFullLinkSpan = function(link){
-    
+    var me = this;
+
     if(link.onGoingAnimation){
       return;
     }
@@ -107,6 +108,7 @@
 
     if(link.folded){
 
+      delete this.newnodes[link.__data__['#id']] ;
       data.newnode.remove();
 
       step = -step;
@@ -147,27 +149,33 @@
         jQuery(data.elements.crossinglinks[j].link).css("display","none");
       }
 
+      // Begin New node creation
+      var margin = p.nodeStart.getStyle("margin");
+      var newnode = this.vis.append("g")
+        .attr("transform","translate("+data.leftX+","+(depgraphlib.removeUnit(margin.top)+10)+")");
+      newnode.append("text")
+        .text("( . . . )")
+        .style('font-size',"25px")
+        .style('font-weight',"bold");
+      newnode.__data__ = {'#position': data.position};
 
       if(!data.newnode){
-        var margin = p.nodeStart.getStyle("margin");
-        var newnode = data.newnode = this.vis.append("g")
-          .attr("transform","translate("+data.leftX+","+(depgraphlib.removeUnit(margin.top)+10)+")");
-        newnode.append("text")
-          .text("( . . . )")
-          .style('font-size',"25px")
-          .style('font-weight',"bold");
         var bbox = newnode.node().getBBox();
         data.reductionLength -= depgraphlib.removeUnit(depgraphlib.addPxs(bbox.width,margin.right,margin.left));
         data.newnodeLinkAnchor = data.leftX + bbox.width/2;
-      }else{
-        var margin = p.nodeStart.getStyle("margin");
-        var newnode = data.newnode = this.vis.append("g")
-          .attr("transform","translate("+data.leftX+","+(depgraphlib.removeUnit(margin.top)+10)+")");
-        newnode.append("text")
-          .text("( . . . )")
-          .style('font-size',"25px")
-          .style('font-weight',"bold");
       }
+
+      data.newnode = newnode;
+
+      if(!this.newnodes){
+        this.newnodes = {};
+      }
+      this.newnodes[link.__data__['#id']] = newnode;
+
+      newnode.on("click",function(){
+        me.displayFullLinkSpan(link);
+      });
+      // End New node creation
 
       step = data.reductionLength/totalSteps;
 
@@ -212,7 +220,16 @@
         var x = prevVals.translate[0]-i;
         return "translate("+x+","+prevVals.translate[1]+")";  
       });
-
+      for (var k in me.newnodes) {
+        var position = me.newnodes[k].__data__['#position'];
+        if(position >= data.rightBoundary){
+          me.newnodes[k].attr("transform",function(){
+            var prevVals = depgraphlib.getTransformValues(d3.select(this))
+            var x = prevVals.translate[0]-i;
+            return "translate("+x+","+prevVals.translate[1]+")";     
+          })
+        }
+      };
     }
 
     
@@ -220,14 +237,6 @@
     
     
   };
-
-  function moveLink(link,i){
-
-  }
-
-  function move(word,i){
-
-  }
 
   function reduceLink(link,i){
     var d = link.drawingData;
@@ -285,14 +294,16 @@
       },
       leftX:0,
       rightX:0,
-      reductionLength:0
+      reductionLength:0,
+      position:0
     };
 
     
     var contextSize = 1;
     var p = depgraph.getLinkProperties(link);
-    var leftBoundary = p.min + contextSize;
-    var rightBoundary = p.max - contextSize;
+    var leftBoundary = data.leftBoundary = p.min + contextSize;
+    var rightBoundary = data.rightBoundary = p.max - contextSize;
+    data.position = leftBoundary;
 
     if(rightBoundary - leftBoundary <= 2){
       return "impossibru!";
@@ -300,31 +311,33 @@
     
     var nodes = depgraph.vis.selectAll('g.word');
     for(var i = 0; i<nodes[0].length; i++){
-      var position = nodes[0][i].__data__['#position'];
+      var node = nodes[0][i];
+      var position = node.__data__['#position'];
       if(position > leftBoundary && position < rightBoundary){
-        data.elements.insidenodes.push(nodes[0][i]);  
+        data.elements.insidenodes.push(node);  
       }else if(position >= rightBoundary){
-        data.elements.toMoveNodes.push(nodes[0][i]);
+        data.elements.toMoveNodes.push(node);
       }
       
       if(position == leftBoundary){
-        var margin = nodes[0][i].getStyle('margin');
-        var transform = depgraphlib.getTransformValues(d3.select(nodes[0][i]));
-        var bbox = nodes[0][i].getBBox();
+        var margin = node.getStyle('margin');
+        var transform = depgraphlib.getTransformValues(d3.select(node));
+        var bbox = node.getBBox();
         var x = depgraphlib.removeUnit(depgraphlib.addPxs(transform.translate[0],bbox.width,margin.right,margin.left));
         data.leftX = x;
         data.reductionLength -= x;
       }
 
       if(position == rightBoundary){
-        var margin = nodes[0][i].getStyle('margin');
-        var transform = depgraphlib.getTransformValues(d3.select(nodes[0][i]));
-        var bbox = nodes[0][i].getBBox();
+        var margin = node.getStyle('margin');
+        var transform = depgraphlib.getTransformValues(d3.select(node));
+        var bbox = node.getBBox();
         var x = depgraphlib.removeUnit(depgraphlib.addPxs(transform.translate[0],margin.left));
         data.rightX = x;
         data.reductionLength += x;
       }
     }
+    
 
     var links = depgraph.vis.selectAll('g.link');
     for(var j = 0; j < links[0].length ; ++j){
