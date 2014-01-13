@@ -60,7 +60,7 @@
     if(options.autodestroy){
       this.tooltipCreationBug = true;
       d3.select(document).on('click.box_'+depgraphlib.Box.instances.length,function(e){
-        if(!me.tooltipCreationBug && !jQuery.contains( me.object[0], d3.event.originalTarget )){
+        if(!me.tooltipCreationBug && !jQuery.contains( me.object[0], d3.event.target )){
           me.close(true);
         }
         delete me.tooltipCreationBug;
