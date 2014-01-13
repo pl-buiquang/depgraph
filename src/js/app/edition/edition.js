@@ -152,7 +152,7 @@
                        {name:'undo',callback:undo,style:'undo',group:'control'},
                        {name:'redo',callback:redo,style:'redo',group:'control'},
                        {name:'highlight',callback:highlightmode,style:'highlightoff'},
-                       {name:'save',callback:save,style:'saved',group:'0'},
+                       {name:'save',callback:save,style:'saved',group:'1'},
                        ];
 
         if(this.mode[this.editMode].buttons != null){

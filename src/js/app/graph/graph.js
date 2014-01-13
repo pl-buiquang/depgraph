@@ -446,6 +446,18 @@
         }
       });
     };
+
+    depgraphlib.DepGraph.prototype.displayHelp = function(elt){
+        var coords = elt.getBoundingClientRect();
+        var point = {x:coords.left,y:coords.top + coords.height + 2};
+        var div ='<div>';
+        div += 'show help</div>';
+        div = jQuery(div);
+        var box = this.viewer.createBox({draggable:true,closeButton:true,autodestroy:true});
+        box.setContent(jQuery(div));
+        
+        box.open(point);
+    };
     
     /**
      * (Re-)Create the svg element, apply background color, enter svg definitions, and attach some
@@ -469,7 +481,8 @@
           depgraphlib.removeUnit(this.data.graph['#style'].margin.left) + "," + 
           depgraphlib.removeUnit(this.data.graph['#style'].margin.top)+") scale(1)");
 
-      this.viewer.addToolbarItem({name:'export',callback:exportData,style:'export',group:'0'});
+      this.viewer.addToolbarItem({name:'export',callback:exportData,style:'export',group:'0',static:true});
+      this.viewer.addToolbarItem({name:'help',callback:function(){me.displayHelp(this);},style:'main-help',group:'99',static:true});
       
       var me = this;
       /**
@@ -945,8 +958,8 @@
       var highlighted = elt.getStyle('highlighted',false);
       var strokeDasharray = elt.getStyle('stroke-dasharray','none');
       
-      var isEllipse = d['#data'].type == "ellipsis";
-      var isSegmentation = d['#data'].type == "segmentation";
+      var isEllipse = (d['#data'])?(d['#data'].type == "ellipsis"):false;
+      var isSegmentation = (d['#data'])?(d['#data'].type == "segmentation"):false;
 
       var tokenbound = isEllipse || isSegmentation;
 
