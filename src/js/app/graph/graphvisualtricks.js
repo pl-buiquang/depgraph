@@ -78,14 +78,19 @@
 
 
   depgraphlib.DepGraph.prototype.displayFullLinkSpan = function(link){
-    
+    var me = this;
+
     if(link.onGoingAnimation){
       return;
     }
 
-    var data = link.data;
+    var data = link.animationData;
     if(!data){
-      data = link.data = computeUsefulData(this,link);
+      data = link.animationData = computeUsefulData(this,link);
+    }
+
+    if(data == "impossibru!"){ // can't shrink the link because it's already too small
+      return;
     }
 
     console.log(data);
@@ -93,39 +98,40 @@
     var node = d3.select(link);
     var p = this.getLinkProperties(node.node());
 
-    var offsetStart = 0;
-    var step = p.hdir*data.reductionLength/5;
+    var animationDuration = 500;
+    var animationSpeed = 100;
+    var totalSteps = animationDuration/animationSpeed;
+    var step = data.reductionLength/totalSteps;
     var i = 0;
-    var animationSpeed = 500;
+    
 
 
     if(link.folded){
 
+      delete this.newnodes[link.__data__['#id']] ;
       data.newnode.remove();
 
-      offsetStart = -p.hdir*data.reductionLength;
       step = -step;
 
-      var prevTVals = {};
+      for (var j = data.elements.crossinglinks.length - 1; j >= 0; j--) {
+        jQuery(data.elements.crossinglinks[j].link).css("display","none");
+      }
 
-      d3.selectAll(data.elements.toMoveNodes).each(function(d,i){
-        prevTVals[i]=(depgraphlib.getTransformValues(d3.select(this)));
-      });
-
-      link.onGoingAnimation = setInterval(animation,100);
-      
-      setTimeout(function(){
-        clearInterval(link.onGoingAnimation);
-        for (var i = data.elements.insidelinks.length - 1; i >= 0; i--) {
-          jQuery(data.elements.insidelinks[i]).css("display","block");
-        }
-        for (var i = data.elements.insidenodes.length - 1; i >= 0; i--) {
-          jQuery(data.elements.insidenodes[i]).css("display","block");
-        };
-        for (var j = data.elements.crossinglinks.length - 1; j >= 0; j--) {
-          redirectCrossingLinks(data.elements.crossinglinks[j],offsetStart,data.newnodeLinkAnchor,data.reductionLength,true);
-        };
-        link.onGoingAnimation=false;
+      link.onGoingAnimation = setInterval(function(){
+        animation(function(){
+          for (var i = data.elements.insidelinks.length - 1; i >= 0; i--) {
+            jQuery(data.elements.insidelinks[i]).css("display","block");
+            data.elements.insidelinks[i].hidden = false;
+          }
+          for (var i = data.elements.insidenodes.length - 1; i >= 0; i--) {
+            jQuery(data.elements.insidenodes[i]).css("display","block");
+            data.elements.insidenodes[i].hidden = false;
+          }
+          for (var j = data.elements.crossinglinks.length - 1; j >= 0; j--) {
+            jQuery(data.elements.crossinglinks[j].link).css("display","block");
+            redirectCrossingLinks(data.elements.crossinglinks[j],data.newnodeLinkAnchor,data.reductionLength,true);
+          }
+        })
       },animationSpeed);
       
       link.folded = false;
@@ -133,78 +139,98 @@
     }else{
       for (var i = data.elements.insidelinks.length - 1; i >= 0; i--) {
         jQuery(data.elements.insidelinks[i]).css("display","none");
+        data.elements.insidelinks[i].hidden = true;
       }
       for (var i = data.elements.insidenodes.length - 1; i >= 0; i--) {
         jQuery(data.elements.insidenodes[i]).css("display","none");
+        data.elements.insidenodes[i].hidden = true;
       };
-
-
-      if(!data.newnode){
-        var margin = p.nodeStart.getStyle("margin");
-        var newnode = data.newnode = this.vis.append("g")
-          .attr("transform","translate("+data.leftX+","+(depgraphlib.removeUnit(margin.top)+10)+")");
-        newnode.append("text")
-          .text("( . . . )")
-          .style('font-size',"25px")
-          .style('font-weight',"bold");
-        var bbox = newnode.node().getBBox();
-        data.reductionLength -= depgraphlib.removeUnit(depgraphlib.addPxs(bbox.width,margin.right,margin.left));
-        data.newnodeLinkAnchor = data.leftX + bbox.width/2;
-      }else{
-        var margin = p.nodeStart.getStyle("margin");
-        var newnode = data.newnode = this.vis.append("g")
-          .attr("transform","translate("+data.leftX+","+(depgraphlib.removeUnit(margin.top)+10)+")");
-        newnode.append("text")
-          .text("( . . . )")
-          .style('font-size',"25px")
-          .style('font-weight',"bold");
+      for (var j = data.elements.crossinglinks.length - 1; j >= 0; j--) {
+        jQuery(data.elements.crossinglinks[j].link).css("display","none");
       }
 
-      step = p.hdir*data.reductionLength/5;
+      // Begin New node creation
+      var margin = p.nodeStart.getStyle("margin");
+      var newnode = this.vis.append("g")
+        .attr("transform","translate("+getLeftX(data.nodeLeftX)+","+(depgraphlib.removeUnit(margin.top)+10)+")");
+      newnode.append("text")
+        .text("( . . . )")
+        .style('font-size',"25px")
+        .style('font-weight',"bold");
+      newnode.__data__ = {'#position': data.position};
 
+      if(!data.newnode){
+        var bbox = newnode.node().getBBox();
+        data.reductionLength -= depgraphlib.removeUnit(depgraphlib.addPxs(bbox.width,margin.right,margin.left));
+        data.newnodeLinkAnchor = getLeftX(data.nodeLeftX) + bbox.width/2;
+      }
 
+      data.newnode = newnode;
 
+      if(!this.newnodes){
+        this.newnodes = {};
+      }
+      this.newnodes[link.__data__['#id']] = newnode;
 
-
-      var prevTVals = {};
-
-      d3.selectAll(data.elements.toMoveNodes).each(function(d,i){
-        prevTVals[i]=(depgraphlib.getTransformValues(d3.select(this)));
+      newnode.on("click",function(){
+        me.displayFullLinkSpan(link);
       });
+      // End New node creation
 
-      data.prevTVals = prevTVals;
+      step = data.reductionLength/totalSteps;
 
-      link.onGoingAnimation = setInterval(animation,100);
-      
-      setTimeout(function(){
-        clearInterval(link.onGoingAnimation);
-        for (var j = data.elements.crossinglinks.length - 1; j >= 0; j--) {
-          redirectCrossingLinks(data.elements.crossinglinks[j],data.newnodeLinkAnchor,data.reductionLength);
-        };
-        link.onGoingAnimation=false;
+
+      link.onGoingAnimation = setInterval(function(){
+        animation(function(){
+          for (var j = data.elements.crossinglinks.length - 1; j >= 0; j--) {
+            jQuery(data.elements.crossinglinks[j].link).css("display","block");
+            redirectCrossingLinks(data.elements.crossinglinks[j],data.newnodeLinkAnchor,data.reductionLength);
+          }
+        })
       },animationSpeed);
+
 
       link.folded = true;
     }
 
-    function animation(){
-      i += step;
-      reduceLink(link,i,offsetStart);
+    function animation(func){
+      if(totalSteps--){
+        animationStep(step);  
+      }else{
+        clearInterval(link.onGoingAnimation);
+        func.call(this);
+        link.onGoingAnimation = false;
+      }
+    };
+
+    function animationStep(i){
+      //reduceLink(link,i);
       d3.selectAll(data.elements.upperlinks).each(function(d,index){
-        reduceLink(this,i,offsetStart);
+        reduceLink(this,i);
       });
       d3.selectAll(data.elements.toMoveLinks).each(function(d,index){
         var d = this.drawingData;
-        this.components.highlightPath.attr('d',"M "+(offsetStart+d.x0-i)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);  
-        this.components.path.attr('d',"M "+(offsetStart+d.x0-i)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);        
-        var textBBox = this.components.label.node().getBBox();
-        this.components.label.attr('x',-textBBox.width/2+(offsetStart+d.x0-i)+(d.h)/2+d.hdir*d.arcSize);
+        d.x0 -= i;
+        this.components.highlightPath.attr('d',"M "+d.x0+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);  
+        this.components.path.attr('d',"M "+d.x0+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);        
+        this.components.label.attr('x',-d.textBBox.width/2+d.x0+(d.h)/2+d.hdir*d.arcSize);
       });
       d3.selectAll(data.elements.toMoveNodes).attr("transform",function(d,index){
-        var x = prevTVals[index].translate[0]-i;
-        return "translate("+x+","+prevTVals[index].translate[1]+")";
+        var prevVals = depgraphlib.getTransformValues(d3.select(this))
+        var x = prevVals.translate[0]-i;
+        return "translate("+x+","+prevVals.translate[1]+")";  
       });
-    };
+      for (var k in me.newnodes) {
+        var position = me.newnodes[k].__data__['#position'];
+        if(position >= data.rightBoundary){
+          me.newnodes[k].attr("transform",function(){
+            var prevVals = depgraphlib.getTransformValues(d3.select(this))
+            var x = prevVals.translate[0]-i;
+            return "translate("+x+","+prevVals.translate[1]+")";     
+          })
+        }
+      };
+    }
 
     
 
@@ -212,52 +238,49 @@
     
   };
 
-  function moveLink(link,i){
-
-  }
-
-  function move(word,i){
-
-  }
-
-  function reduceLink(link,i,offsetStart){
-    if(!offsetStart){
-      offsetStart = 0;
-    }
+  function reduceLink(link,i){
     var d = link.drawingData;
-    link.components.highlightPath.attr('d',"M "+d.x0+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+(offsetStart+d.h-i)+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);  
-    link.components.path.attr('d',"M "+d.x0+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+(offsetStart+d.h-i)+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);        
-    var textBBox = link.components.label.node().getBBox();
-    link.components.label.attr('x',-textBBox.width/2+d.x0+(offsetStart+d.h-i)/2+d.hdir*d.arcSize);
+    var offsetAnchor = 0;
+    var r = d.hdir*i;
+    if(d.hdir<0){
+      d.x0 += r;
+    }
+    d.h -= r;
+    link.components.highlightPath.attr('d',"M "+d.x0+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);  
+    link.components.path.attr('d',"M "+d.x0+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);        
+    link.components.label.attr('x',-d.textBBox.width/2+d.x0+d.h/2+d.hdir*d.arcSize);
   }
 
   function redirectCrossingLinks(crossingLinkData,newanchorX,reduceLength,reset){
     var link = crossingLinkData.link;
     var offset = newanchorX - crossingLinkData.anchorX;
     
+    var d = link.drawingData;
     var offsetSource = 0;
     if(!crossingLinkData.insideNodeIsTarget){
       offsetSource = offset;
+    }else if(d.hdir<0){
+      offsetSource =(d.hdir*reduceLength);
     }
 
     if(crossingLinkData.mustMoveReduce){
       offset += reduceLength;
+      offset = -d.hdir*offset;
     }
-    
+
 
     
-
     if(reset){
-      offsetSource = 0;
-      offset = 0;
+      d.x0 -= offsetSource
+      d.h -= offset;
+    }else{
+      d.x0 += offsetSource
+      d.h += offset;
     }
-
-
-    var d = link.drawingData;
-    link.components.highlightPath.attr('d',"M "+(d.x0+offsetSource)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+(offset+d.h)+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);  
-    link.components.path.attr('d',"M "+(d.x0+offsetSource)+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+(offset+d.h)+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);        
-    var textBBox = link.components.label.node().getBBox();
-    link.components.label.attr('x',-textBBox.width/2+(d.x0+offsetSource)+(offset+d.h)/2+d.hdir*d.arcSize);
+    
+    link.components.highlightPath.attr('d',"M "+d.x0+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);  
+    link.components.path.attr('d',"M "+d.x0+","+d.y0+" v "+d.v0+" a 5 5 0 0 "+d.laf0+" "+d.hdir*d.arcSize+" "+(-d.vdir*d.arcSize)+" h "+d.h+" a 5 5 0 0 "+d.laf1+" "+d.hdir*d.arcSize+" "+d.vdir*d.arcSize+" v "+d.v1);        
+    link.components.label.attr('x',-d.textBBox.width/2+d.x0+d.h/2+d.hdir*d.arcSize);
   }
 
   function computeUsefulData(depgraph,link){
@@ -269,45 +292,54 @@
         insidelinks:[],
         crossinglinks:[],
         upperlinks:[],
-        leftX:0,
-        rightX:0
       },
-      reductionLength:0
+      leftX:0,
+      rightX:0,
+      reductionLength:0,
+      position:0
     };
 
     
     var contextSize = 1;
     var p = depgraph.getLinkProperties(link);
-    var leftBoundary = p.min + contextSize;
-    var rightBoundary = p.max - contextSize;
+    var leftBoundary = data.leftBoundary = p.min + contextSize;
+    var rightBoundary = data.rightBoundary = p.max - contextSize;
+    data.position = leftBoundary;
+
+    if(rightBoundary - leftBoundary <= 2){
+      return "impossibru!";
+    }
     
     var nodes = depgraph.vis.selectAll('g.word');
     for(var i = 0; i<nodes[0].length; i++){
-      var position = nodes[0][i].__data__['#position'];
+      var node = nodes[0][i];
+      var position = node.__data__['#position'];
       if(position > leftBoundary && position < rightBoundary){
-        data.elements.insidenodes.push(nodes[0][i]);  
+        data.elements.insidenodes.push(node);  
       }else if(position >= rightBoundary){
-        data.elements.toMoveNodes.push(nodes[0][i]);
+        data.elements.toMoveNodes.push(node);
       }
       
       if(position == leftBoundary){
-        var margin = nodes[0][i].getStyle('margin');
-        var transform = depgraphlib.getTransformValues(d3.select(nodes[0][i]));
-        var bbox = nodes[0][i].getBBox();
+        var margin = node.getStyle('margin');
+        var transform = depgraphlib.getTransformValues(d3.select(node));
+        var bbox = node.getBBox();
         var x = depgraphlib.removeUnit(depgraphlib.addPxs(transform.translate[0],bbox.width,margin.right,margin.left));
         data.leftX = x;
+        data.nodeLeftX = node;
         data.reductionLength -= x;
       }
 
       if(position == rightBoundary){
-        var margin = nodes[0][i].getStyle('margin');
-        var transform = depgraphlib.getTransformValues(d3.select(nodes[0][i]));
-        var bbox = nodes[0][i].getBBox();
+        var margin = node.getStyle('margin');
+        var transform = depgraphlib.getTransformValues(d3.select(node));
+        var bbox = node.getBBox();
         var x = depgraphlib.removeUnit(depgraphlib.addPxs(transform.translate[0],margin.left));
         data.rightX = x;
         data.reductionLength += x;
       }
     }
+    
 
     var links = depgraph.vis.selectAll('g.link');
     for(var j = 0; j < links[0].length ; ++j){
@@ -344,6 +376,13 @@
 
   }
 
+  function getLeftX(node){
+    var margin = node.getStyle('margin');
+    var transform = depgraphlib.getTransformValues(d3.select(node));
+    var bbox = node.getBBox();
+    var x = depgraphlib.removeUnit(depgraphlib.addPxs(transform.translate[0],bbox.width,margin.right,margin.left));
+    return x;
+  }
 
 
 }(window.depgraphlib));

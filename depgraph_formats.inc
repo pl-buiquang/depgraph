@@ -555,7 +555,21 @@ function depXML2depGraph($xml_data){
       $duplicatedTokenEdge->addAttribute("id","C".$duplicatedTokenEdgeIndex++);
       $duplicatedTokenEdge->addAttribute("source",$tokens[$lexparts[0]]);
       $duplicatedTokenEdge->addAttribute("target",$word['id']);
-      $duplicatedTokenEdge->addAttribute("type","ellipsis");
+      
+      // type of the duplicated token (ellipsis or segmentation)
+      $nodeA = getTheOnlyEltInArrayOrReturnFalse($xml_data->xpath("//node[@id = '".$tokens[$lexparts[0]]."']"));
+      $nodeB = getTheOnlyEltInArrayOrReturnFalse($xml_data->xpath("//node[@id = '".$tokens[$lexparts[0]]."']"));
+      $type = "ellipsis";
+      if($nodeA === false || $nodeB === false){
+        Logger::Log("error when retrieving nodes for type duplicated token type specification");
+      }else{
+        if((string) $nodeA['form'] != (string) $nodeB['form'] ){
+          $type = "segmentation";
+        }
+      }
+      
+      
+      $duplicatedTokenEdge->addAttribute("type",$type);
       $word['label'] = "_";
     }
   }

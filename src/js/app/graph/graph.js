@@ -198,6 +198,19 @@
       this.setViewMode();
     };
 
+    depgraphlib.DepGraph.prototype.postProcessesFixHeight = function(){
+      var visBBox = this.vis.node().getBBox();
+      var prevValues = depgraphlib.getTransformValues(this.vis);
+      this.vis.attr("transform","translate(" + 
+          prevValues.translate[0] + "," + 
+          (depgraphlib.removeUnit(this.data.graph['#style'].margin.top)-visBBox.y)+") scale(1)");
+      
+      this.viewer.shrinkHeightToContent(depgraphlib.removeUnit(this.data.graph['#style']['margin'].bottom)+20);
+      if(this.scrollbar){
+        this.scrollbar.attr('y',this.viewer.mainpanel.height()-40);
+      }
+    };
+
     /**
      * Set the view mode (full | strechted | cropped)
      * Apply viewer mode and add scrollbar or proper scale if necessary
@@ -298,9 +311,6 @@
       var me = depgraphlib.DepGraph.getInstance(this);
       var previousValues = depgraphlib.getTransformValues(me.vis);
       
-      console.log(previousValues.translate);
-      console.log(y);
-
       if(me.scrollbar){
         x = me.scrollbarTranslate(x);  
       }
@@ -353,7 +363,7 @@
           me.displayFullLinkSpan(this);
         });
 
-        
+
         d3.select(document).on('click.focus',function(e){
           var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget || d3.event.srcElement);
           if(depgraph){
@@ -367,6 +377,10 @@
           var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget || d3.event.srcElement);
           if(depgraph){
             depgraphlib.DepGraph.depgraphActive = '-' + depgraph.viewer.uid;
+            if(d3.event.ctrlKey){
+              depgraph.scrollMouseSelected = d3.event.clientX;
+              d3.event.preventDefault ? d3.event.preventDefault() : d3.event.returnValue = false;
+            }
           }else{
             depgraphlib.DepGraph.depgraphActive = null;
           }
@@ -925,6 +939,15 @@
       var align = elt.getStyle('align');
       var highlighted = elt.getStyle('highlighted',false);
       var strokeDasharray = elt.getStyle('stroke-dasharray','none');
+      
+      var isEllipse = d['#data'].type == "ellipsis";
+      var isSegmentation = d['#data'].type == "segmentation";
+
+      var tokenbound = isEllipse || isSegmentation;
+
+      if(tokenbound){
+        p.strate = -1;
+      }
 
       // for origin arcs (nodestart == null)
       var originArc = false;
@@ -975,6 +998,9 @@
       var y1 = X1[1]+Eyanchor;
       var height = 15;
       var strateOffset = 30;
+      if(tokenbound){
+        strateOffset = 0;
+      }
       var v0 = -vdir*height-strateOffset*p.strate;//-SchunkCase;
       if(originArc){
         v0 = -vdir*height-strateOffset*vdir*(me.maxLinksStrate+1);
@@ -1043,6 +1069,7 @@
         .attr('y',depgraphlib.removeUnit(depgraphlib.addPxs(-depgraphlib.removeUnit(margin.top),y0,v0,-vdir*arcSize)));
       
       // to access easily to link components
+      elt.drawingData.textBBox = textBBox;
       elt.components = {highlightPath:highlightPath,path:path,label:text};
     }
 
