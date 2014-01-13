@@ -300,6 +300,10 @@ background: rgba(0,0,0,0.5) url('img/ajax-loader.gif') no-repeat center;
   display:block;
  }
  
+.main-help{
+ background: url('img/Button-help-icon.png') no-repeat center !important;
+ }
+
  .add-note{
  background: url('img/note-add-icon.png') no-repeat center !important;
  }
