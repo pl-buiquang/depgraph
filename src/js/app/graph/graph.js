@@ -523,10 +523,15 @@
         var svgBBox = me.svg.node().getBBox();
         me.svg.attr('width',svgBBox.width);
         me.svg.attr('height',svgBBox.height);
-        me.scrollbar.style("display","none");
+        if(me.scrollbar){
+          me.scrollbar.style("display","none");  
+        }
+        
 
         var svg_xml = (new XMLSerializer).serializeToString(me.svg.node());
-        me.scrollbar.style("display","block");
+        if(me.scrollbar){
+          me.scrollbar.style("display","block");
+        }
         /*
         var form = document.getElementById("export_png");
         if(!form){
