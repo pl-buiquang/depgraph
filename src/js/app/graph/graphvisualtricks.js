@@ -152,7 +152,7 @@
       // Begin New node creation
       var margin = p.nodeStart.getStyle("margin");
       var newnode = this.vis.append("g")
-        .attr("transform","translate("+data.leftX+","+(depgraphlib.removeUnit(margin.top)+10)+")");
+        .attr("transform","translate("+getLeftX(data.nodeLeftX)+","+(depgraphlib.removeUnit(margin.top)+10)+")");
       newnode.append("text")
         .text("( . . . )")
         .style('font-size',"25px")
@@ -162,7 +162,7 @@
       if(!data.newnode){
         var bbox = newnode.node().getBBox();
         data.reductionLength -= depgraphlib.removeUnit(depgraphlib.addPxs(bbox.width,margin.right,margin.left));
-        data.newnodeLinkAnchor = data.leftX + bbox.width/2;
+        data.newnodeLinkAnchor = getLeftX(data.nodeLeftX) + bbox.width/2;
       }
 
       data.newnode = newnode;
@@ -265,6 +265,7 @@
 
     if(crossingLinkData.mustMoveReduce){
       offset += reduceLength;
+      offset = -d.hdir*offset;
     }
 
 
@@ -325,6 +326,7 @@
         var bbox = node.getBBox();
         var x = depgraphlib.removeUnit(depgraphlib.addPxs(transform.translate[0],bbox.width,margin.right,margin.left));
         data.leftX = x;
+        data.nodeLeftX = node;
         data.reductionLength -= x;
       }
 
@@ -374,6 +376,13 @@
 
   }
 
+  function getLeftX(node){
+    var margin = node.getStyle('margin');
+    var transform = depgraphlib.getTransformValues(d3.select(node));
+    var bbox = node.getBBox();
+    var x = depgraphlib.removeUnit(depgraphlib.addPxs(transform.translate[0],bbox.width,margin.right,margin.left));
+    return x;
+  }
 
 
 }(window.depgraphlib));

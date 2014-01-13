@@ -363,7 +363,7 @@
           me.displayFullLinkSpan(this);
         });
 
-        
+
         d3.select(document).on('click.focus',function(e){
           var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget || d3.event.srcElement);
           if(depgraph){
@@ -377,6 +377,10 @@
           var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget || d3.event.srcElement);
           if(depgraph){
             depgraphlib.DepGraph.depgraphActive = '-' + depgraph.viewer.uid;
+            if(d3.event.ctrlKey){
+              depgraph.scrollMouseSelected = d3.event.clientX;
+              d3.event.preventDefault ? d3.event.preventDefault() : d3.event.returnValue = false;
+            }
           }else{
             depgraphlib.DepGraph.depgraphActive = null;
           }
