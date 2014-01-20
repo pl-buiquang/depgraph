@@ -239,7 +239,9 @@
       this.tooltipExitButton.click(function(){me.hideToolTip();});
       maincontainer.append(this.tooltipExitButton);
       this.tooltipExitButton.hide();
-      this.tooltip.draggable();
+      if(this.tooltip.draggable){
+        this.tooltip.draggable();  
+      }
       this.tooltipContainer = this.createDiv('tooltip-container');
       maincontainer.append(this.tooltipContainer);
       return this.tooltip;
