@@ -52,7 +52,18 @@
       this.toolbaritems[item.group] = [];
     }
     
-    this.toolbaritems[item.group].push(item);
+    var alreadyExist = false;
+    for (var i = this.toolbaritems[item.group].length - 1; i >= 0; i--) {
+      if(this.toolbaritems[item.group][i].name == item.name){
+        alreadyExist = true;
+      }
+    };
+    if(!alreadyExist){
+      this.toolbaritems[item.group].push(item);  
+    }else{
+      console.log("toolbar item "+item.name+" already exist");
+    }
+    
     
     this.applyToolbarConf();
   };
