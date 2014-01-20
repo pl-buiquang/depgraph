@@ -62,7 +62,7 @@
           depgraphlib.EditObject.DefaultModeLib.selectObject.call(this,depgraph,params);
         }
         else{
-          if(depgraph.editObject.keysDown.indexOf(17) != -1){ // ctrl key is pressed 
+          if(d3.event.ctrlKey){ // ctrl key is pressed 
             if(depgraphlib.isAWord(depgraph.editObject.previousSelectedObject) && depgraphlib.isAWord(this)){
               depgraphlib.EditObject.DefaultModeLib.addChunkSettings(depgraph,depgraph.editObject.previousSelectedObject,this,params);
             }
