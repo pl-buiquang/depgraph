@@ -210,6 +210,7 @@
         if(startPos == -1 || endPos == -1){ // this is the root edge
           properties.min = properties.max = (startPos!=-1)?startPos:endPos;
           properties.hdir = 1;
+          properties.rootEdge = true;
         }else{
           if(startPos<endPos){
             properties.min = startPos;

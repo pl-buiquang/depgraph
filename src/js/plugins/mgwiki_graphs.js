@@ -49,29 +49,6 @@
     box.close(true);
   };
 
-  depgraphlib.default_save = function(depgraph){
-    depgraph.cleanData();
-    jQuery.ajax({
-      type: 'POST', 
-      url: 'edit/save',
-      data: {
-        format:depgraph.dataFormat,
-        options: '',
-        data:depgraph.data,
-      },
-      dataType : 'json',
-      success: function(data, textStatus, jqXHR) {
-        depgraph.editObject.lastSavedPtr = depgraph.editObject.currentPtr;
-        depgraph.editObject.needToSaveState = false;
-        depgraph.editObject.updateSaveState();
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        alert(textStatus);
-      }
-    });
-
-  };
-  
     /**
      * Callback to use in a toolbar button.
      * Display a box containing informations about the current graph.

@@ -228,6 +228,21 @@
   };
 
   /**
+   * @function getLinkNodeById
+   * @desc Search and return a link node by its #id
+   * @param {string} id - the internal id of the link
+   * @returns {object|null} the link svg node
+   * @memberof DepGraphLib.DepGraph#
+   */
+  depgraphlib.DepGraph.prototype.getLinkNodeById = function(id){
+    var nodes = this.vis.selectAll('g.link');
+    for(var i = 0; i<nodes[0].length; i++){
+      if(nodes[0][i].__data__['#id'] == id)
+        return nodes[0][i];
+    }
+  };
+
+  /**
    * @function getLinkIndexById
    * @desc Search and return a link index by its #id
    * @param {string} id - the internal id of the link

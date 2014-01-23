@@ -59,6 +59,9 @@
         'Add Node to the right':function(depgraph,element){
           depgraphlib.EditObject.DefaultModeLib.addWordSettings(depgraph,element[0],1);
         },
+        'Add Root Edge':function(depgraph,element){
+          depgraphlib.EditObject.DefaultModeLib.addRootEdge(depgraph,element[0]);
+        },
         'Delete':function(depgraph,element){
           var word = depgraphlib.clone(element[0].__data__);
           var affectedLinks = depgraph.removeWord(element[0].__data__['#id']);

@@ -686,6 +686,20 @@
         });
         
       },
+
+
+      addRootEdge : function(depgraph,element){
+        var color = 'black';
+        var id = this.id++;
+        var link = new Object();
+        link.target = element.__data__.id;
+        link['#style'] = {'link-color' :color};  
+        link.label = "root";
+        link['#id'] = id;
+        depgraph.insertLink(link);
+        var action = {baseAction:'linkAddition',addedLink:link};
+        depgraph.editObject.pushAction({mode:depgraph.editObject.editMode,rollbackdata:action,data:{event:'onWordContext',params:element}});
+      },
       
       
   };
