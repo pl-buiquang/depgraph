@@ -54,7 +54,7 @@
     depGraph = depgraphlib.tpl.full(graphInfo);
     viewer.removeToolbarItem('edit');
     depGraph.sentence = '$sentence';
-    depGraph.editObject.mode['default'].save = depgraphlib.default_save;
+    depGraph.editObject.mode['default'].save = depgraphlib.EditObject.DefaultModeLib.save;
     depGraph.dataFormat = 'json';
     depGraph.viewer.setFixedToolbar();
     if(format_origin == 'depxml'){

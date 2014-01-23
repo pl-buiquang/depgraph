@@ -258,10 +258,12 @@
         this.viewer.shrinkHeightToContent(depgraphlib.removeUnit(this.data.graph['#style']['margin'].bottom)+20);
       }
     };
+
+    depgraphlib.DepGraph.scrollBarWidth = 30;
     
     depgraphlib.DepGraph.prototype.setUpScrollBarView = function(graphWidth,viewerWidth,x){
-      var scrollBarWidth = 30;
-      var k = (graphWidth-viewerWidth)/(viewerWidth-scrollBarWidth);
+      
+      var k = (graphWidth-viewerWidth)/(viewerWidth-depgraphlib.DepGraph.scrollBarWidth);
       this.scrollbar = this.svg.select('.scrollbar');
       if(this.scrollbar.node() == null){
         this.scrollbar = this.svg.append('rect').classed('scrollbar',true);
@@ -270,12 +272,12 @@
       .attr('y',this.viewer.mainpanel.height()-40)
       .attr('rx',1)
       .attr('ry',1)
-      .attr('width',scrollBarWidth)
+      .attr('width',depgraphlib.DepGraph.scrollBarWidth)
       .attr('height',5)
       .style('stroke',"grey")
       .style('fill',"lightgrey")
       .style('stroke-width',1)
-      .__info__ = {maxX:viewerWidth - scrollBarWidth,k:k};
+      .__info__ = {maxX:viewerWidth - depgraphlib.DepGraph.scrollBarWidth,k:k};
       if(x!=null){
         return this.scrollbarTranslate(x);
       }
@@ -314,12 +316,16 @@
       if(me.scrollbar){
         x = me.scrollbarTranslate(x);  
       }
-      
+
       var newx = previousValues.translate[0]-parseFloat(x);
       newx = Math.round(newx*1000000)/1000000;
 
       me.vis.attr("transform",
           "translate(" + newx + "," + (previousValues.translate[1]-y) + ")" + " scale("+previousValues.scale[0]+")");
+
+      if(me.hyperbolicView){
+        me.hyperbolicViewCompute();
+      }
       
     };
 
@@ -362,6 +368,9 @@
         this.vis.selectAll('g.link').on("click",function(){
           me.displayFullLinkSpan(this);
         });
+        this.vis.selectAll('g.word').on("click",function(){
+          me.hideChildren(this);
+        });
 
 
         d3.select(document).on('click.focus',function(e){
@@ -392,6 +401,8 @@
           if(depgraph && depgraph.scrollbar){
             if(d3.event.ctrlKey){
               depgraph.zoom(3*d3.event.wheelDeltaY/(-40));
+            }else if(d3.event.altKey){
+              //depgraph.linkDepthZoom(3*d3.event.wheelDeltaY/(-40));
             }else{
               depgraph.translateGraph(3*d3.event.wheelDeltaY/(-40),0);  
             }
@@ -406,6 +417,8 @@
           if(depgraph && depgraph.scrollbar){
             if(d3.event.ctrlKey){
               depgraph.zoom(3*d3.event.deltaY);
+            }else if(d3.event.altKey){
+              //depgraph.linkDepthZoom(3*d3.event.deltaY);
             }else{
               depgraph.translateGraph(3*d3.event.deltaY,0);
             }
@@ -442,6 +455,8 @@
             depgraph.translateGraph(-translateSpeed,0);
           }else if(d3.event.keyCode==39){ // right
             depgraph.translateGraph(translateSpeed,0);
+          }else if(d3.event.keyCode == 72){
+            depgraph.hyperbolicView = !depgraph.hyperbolicView;
           }
         }
       });
