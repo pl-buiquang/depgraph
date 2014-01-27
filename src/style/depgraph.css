@@ -286,10 +286,30 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b3000000', e
   cursor:pointer;
  }
 
-.tooltip-exit-button:hover{
-  background: url('img/x-mark-4-16.gif') no-repeat center;
+ .tooltip-minimize-button{
+  background: url('img/minus-16.png') no-repeat center;
   width:16px;
   height:16px;
+  cursor:pointer;
+ }
+
+.tooltip-restore-button{
+  background: url('img/plus-16.gif') no-repeat center;
+  width:16px;
+  height:16px;
+  cursor:pointer;
+ }
+
+ .tooltip-restore-button:hover{
+  background: url('img/plus-3-16.gif') no-repeat center;
+ }
+
+ .tooltip-minimize-button:hover{
+  background: url('img/minus-3-16.png') no-repeat center;
+ }
+
+.tooltip-exit-button:hover{
+  background: url('img/x-mark-4-16.gif') no-repeat center;
 }
  
 

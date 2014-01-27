@@ -23,7 +23,7 @@
     var div ='<div></div>';
     div = jQuery(div);
     div.append(form);
-    me.viewer.createBox({closeButton:true,position:point,autodestroy:false,forceToolbar:true}).setContent(div).open();
+    me.viewer.createBox({closeButton:true,position:point,autodestroy:false,forceToolbar:true}).setContent(div).setHeader("Add note").open();
   };
   
   depgraphlib.submitNote = function(depgraph){
@@ -58,6 +58,7 @@
       var coords = this.getBoundingClientRect();
       var point = {x:coords.left,y:coords.top + coords.height + 2};
       var div ='<div>Reference Infos : <br>';
+      div += 'UID: '+me.options.uid+'<br>';
       div += 'Sentence : ' + fix_missing_a_closing_tag(me.sentenceLink) + '<br>'
       + 'Back Links : ' + me.refs
       +'</div>';
