@@ -48,6 +48,7 @@
       tooltipExitButton.css('float','right');
       tooltipExitButton.css('display','block');
       tooltipExitButton.click(function(){me.close(true); if(options.onclose){options.onclose.call();}});
+
       jQuery('.depgraphlib-box-header',this.object).append(tooltipExitButton);
     }
     
@@ -74,6 +75,12 @@
       if(this.object.draggable){
         this.object.draggable({ cancel: ".depgraphlib-box-content" });
       }
+
+      var tooltipMinimizeButton = jQuery('<div class="tooltip-minimize-button"/>');
+      tooltipMinimizeButton.css('float','right');
+      tooltipMinimizeButton.css('display','block');
+      tooltipMinimizeButton.click(function(){me.minimize();});
+      jQuery('.depgraphlib-box-header',this.object).append(tooltipMinimizeButton);
       
     }
     
@@ -97,6 +104,7 @@
   };
   
   depgraphlib.Box.prototype.setHeader = function(content){
+    jQuery('.depgraphlib-box-header',this.object).append('<div style="float:left; color:white;">'+content+'</div>');
     return this;
   };
   
@@ -108,6 +116,11 @@
    * Instances of boxes
    */
   depgraphlib.Box.instances = depgraphlib.Box.instances || [];
+
+  /**
+  * Instances of boxes that are minimized
+  */
+  depgraphlib.Box.minimized = depgraphlib.Box.minimized || [];
 
   /**
    * @function open
@@ -179,6 +192,40 @@
       this.object.hide();
     }
   };
+
+  depgraphlib.Box.prototype.minimize = function(){
+    var me = this;
+    var top = jQuery(window).height();
+    var left = jQuery(window).width();
+    var position = this.object.offset();
+    position.top -= jQuery(window).scrollTop();
+    position.left -= jQuery(window).scrollLeft();
+    jQuery('.depgraphlib-box-content',this.object).toggle();
+    depgraphlib.Box.minimized.push(this);
+    for(var i=0; i<depgraphlib.Box.minimized.length;++i){
+      top -= depgraphlib.Box.minimized[i].object.height();
+    }
+    left -= this.object.width();
+    this.prevPosition = position;
+    jQuery('.tooltip-minimize-button',this.object).removeClass('tooltip-minimize-button').addClass('tooltip-restore-button').unbind('click').on("click",function(){
+      me.restore();
+    });
+    this.object.animate({top:top,left:left},500);
+  };
+
+  depgraphlib.Box.prototype.restore = function(){
+    var me = this;
+    var position = this.prevPosition;
+    jQuery('.depgraphlib-box-content',this.object).toggle();
+    var index = depgraphlib.Box.minimized.indexOf(this);
+    if(index != -1){
+      depgraphlib.Box.minimized.splice(index,1);
+    }
+    jQuery('.tooltip-restore-button',this.object).addClass('tooltip-minimize-button').removeClass('tooltip-restore-button').unbind('click').on("click",function(){
+      me.minimize();
+    });
+    this.object.animate({top:position.top,left:position.left},500);
+  }
   
   
   /**

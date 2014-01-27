@@ -469,7 +469,7 @@
         div += 'show help</div>';
         div = jQuery(div);
         var box = this.viewer.createBox({draggable:true,closeButton:true,autodestroy:true});
-        box.setContent(jQuery(div));
+        box.setContent(jQuery(div)).setHeader('DepGraph Help');
         
         box.open(point);
     };

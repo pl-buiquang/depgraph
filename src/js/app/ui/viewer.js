@@ -430,12 +430,12 @@
         this.ajaxLoader.width(width);
       }
       // here is a magical number 50 : a height not to be greater than
-      if(this.toolbar){
+      /*if(this.toolbar){
         while(this.toolbar.height()>50){
           width = parseInt(width) + 50;
           this.setWidth(width);
         }
-      }
+      }*/
       //
     };
 
