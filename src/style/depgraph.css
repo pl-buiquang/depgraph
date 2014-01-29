@@ -191,7 +191,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b3000000', e
   position:fixed !important;
   display:block;
   z-index:999;
-  min-width:100px;
+  min-width: 100px;
  }
  
  .depgraphlib-box-header{
