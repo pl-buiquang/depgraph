@@ -11,10 +11,10 @@
           name : 'frmg',
           onWordSelect : showAltOnNodeClick,
           onLinkSelect : selectAlternative,
-          onChunkSelect : depgraphlib.selectObject,
+          onChunkSelect : depgraphlib.EditObject.DefaultModeLib.selectObject,
           onWordContext : {
             'Show Infos': function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
-              depgraphlib.showEditPanel(depgraph,element);
+              depgraphlib.EditObject.DefaultModeLib.showEditPanel(depgraph,element);
             },
             'HighLight' : function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
               processhighlightmode(depgraph,element);
@@ -22,7 +22,7 @@
           },
           onLinkContext : {
             'Show Infos': function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
-              depgraphlib.showEditPanel(depgraph,element);
+              depgraphlib.EditObject.DefaultModeLib.showEditPanel(depgraph,element);
             },
             'HighLight' : function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
               processhighlightmode(depgraph,element);
