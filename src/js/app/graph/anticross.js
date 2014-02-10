@@ -207,7 +207,7 @@
         }
         var startPos = depgraphlib.getNodePosition(properties.nodeStart);
         var endPos = depgraphlib.getNodePosition(properties.nodeEnd);
-        if(startPos == -1 || endPos == -1){ // this is the root edge
+        if(startPos == -1 || endPos == -1 || startPos == endPos){ // this is the root edge
           properties.min = properties.max = (startPos!=-1)?startPos:endPos;
           properties.hdir = 1;
           properties.rootEdge = true;

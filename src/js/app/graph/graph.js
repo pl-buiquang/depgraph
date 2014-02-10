@@ -984,7 +984,7 @@
 
       // for origin arcs (nodestart == null)
       var originArc = false;
-      if(!p.nodeStart){
+      if(!p.nodeStart || p.rootEdge){
         p.nodeStart = p.nodeEnd;
         originArc = true;
       }
