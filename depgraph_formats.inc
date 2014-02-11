@@ -549,7 +549,11 @@ function depXML2depGraph($xml_data){
     
     if(!isset($tokens[$lexparts[0]]) || empty($lexparts[0])){
       $tokens[$lexparts[0]] = $word['id'];
-      $word['label'] = $word['#data']['token'];
+      if(count($lexparts) ==2){
+        $word['label'] = $lexparts[1];
+      }else{
+        $word['label'] = $word['#data']['token'];
+      }
     }else{
       $duplicatedTokenEdge = $xml_data->addChild("edge");
       $duplicatedTokenEdge->addAttribute("id","C".$duplicatedTokenEdgeIndex++);
