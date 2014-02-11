@@ -655,6 +655,7 @@ function depXML2depGraph($xml_data){
       }
       if($source_node['id'] == null){
         // TODO SHOULD NOT HAPPEND
+        Logger::Log($id);
         continue;
       }
       $type = (string) $info[3];
