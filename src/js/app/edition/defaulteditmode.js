@@ -79,7 +79,7 @@
           depgraphlib.EditObject.DefaultModeLib.showEditPanel(depgraph,element);
         },
         'Delete' : function(depgraph,element){
-          var link = depgraphlib.clone(element[0]);
+          var link = depgraphlib.clone(element[0].__data__);
           link.color = depgraphlib.getStyleElement(element[0],'link-color','black');
           var success = depgraph.removeLink(element[0].__data__['#id']);
           depgraph.editObject.previousSelectedObject = null;

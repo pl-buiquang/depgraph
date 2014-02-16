@@ -374,7 +374,7 @@
 
 
         d3.select(document).on('click.focus',function(e){
-          var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget || d3.event.srcElement);
+          var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget || d3.event.srcElement || d3.event.target);
           if(depgraph){
             depgraphlib.DepGraph.depgraphActive = '-' + depgraph.viewer.uid;
           }else{
@@ -383,7 +383,7 @@
         });
         
         d3.select(document).on('mousedown.scrollbar',function(e){
-          var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget || d3.event.srcElement);
+          var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget || d3.event.srcElement || d3.event.target);
           if(depgraph){
             depgraphlib.DepGraph.depgraphActive = '-' + depgraph.viewer.uid;
             if(d3.event.ctrlKey){
@@ -465,9 +465,22 @@
     depgraphlib.DepGraph.prototype.displayHelp = function(elt){
         var coords = elt.getBoundingClientRect();
         var point = {x:coords.left,y:coords.top + coords.height + 2};
-        var div ='<div>';
-        div += 'show help</div>';
+        var div ='<div></div>';
         div = jQuery(div);
+        jQuery.ajax({
+          type: 'POST', 
+          url: depgraphlib.helpurl,
+          data: {
+            app:"depgraph"
+          },
+          dataType : 'html',
+          success: function(data, textStatus, jqXHR) {
+            div.html(data);
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            alert(textStatus);
+          }
+        });
         var box = this.viewer.createBox({draggable:true,closeButton:true,autodestroy:true});
         box.setContent(jQuery(div)).setHeader('DepGraph Help');
         
@@ -540,7 +553,7 @@
                 me.wsurl);
 //              window.open('edit/export/'+format);
           }
-          box.destroy();
+          box.close(true);
         });
         
         box.open(point);

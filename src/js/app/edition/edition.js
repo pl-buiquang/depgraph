@@ -135,6 +135,7 @@
         }else{
           window.onbeforeunload = null;
         }
+
         this.editModeInit();
         this.initToolbar();
         
@@ -207,6 +208,9 @@
           var action = depgraph.editObject.actionsLog[depgraph.editObject.currentPtr];
           if(me.mode[action.mode].undo != null){
             me.mode[action.mode].undo.call(me,depgraph,action.rollbackdata);
+            if(me.mode[action.mode].broadcast != null){
+              me.mode[action.mode].broadcast.call(null,{type:'undo',action:action});
+            }
           }
           depgraph.editObject.currentPtr--;
           if(me.mode[action.mode].redo != null){
@@ -227,6 +231,9 @@
           var action = depgraph.editObject.actionsLog[depgraph.editObject.currentPtr];
           if(me.mode[action.mode].redo != null){
             me.mode[action.mode].redo.call(me,depgraph,action.rollbackdata);
+            if(me.mode[action.mode].broadcast != null){
+              me.mode[action.mode].broadcast.call(null,{type:'do',action:action});
+            }
           }
           depgraph.viewer.setToolbarItemActive('undo',true);
           me.updateSaveState();
@@ -250,6 +257,9 @@
         if(action){
           if(me.mode[action.mode].undo != null){
             me.mode[action.mode].undo.call(me,depgraph,action.rollbackdata);
+            if(this.mode[this.editMode].broadcast != null){
+              this.mode[this.editMode].broadcast.call(null,{type:'undo',action:action});
+            }
           }
           depgraph.editObject.currentPtr--;
           if(me.mode[action.mode].redo != null){
@@ -378,7 +388,7 @@
           var menu = menu.menu;
           if(me.mode[me.editMode][object_type][menu] != null){
             var action = me.mode[me.editMode][object_type][menu].call(this,depgraph,object);
-            me.pushAction({mode:me.editMode,rollbackdata:action,data:{event:'onContextClick',params:{object_type:object_type,menu:menu,object:object}}});
+            me.pushAction({mode:me.editMode,rollbackdata:action,data:{event:'onContextClick',params:{object_type:object_type,menu:menu}}});
           }
         }
         
@@ -446,8 +456,29 @@
        * @param {object} action
        * @memberof DepGraphLib.EditObject#
        */
-      depgraphlib.EditObject.prototype.pushAction = function(action){
+      depgraphlib.EditObject.prototype.pushAction = function(action,broadcasted){
+        if(broadcasted){
+          var actiondef = action;
+          var action = action.action;
+          if(action.mode == this.editMode){
+            if(actiondef.type == "do"){
+              if(this.mode[action.mode].redo != null){
+                this.mode[action.mode].redo.call(this,this.depgraph,action.rollbackdata);
+              }
+            }else{
+              if(this.mode[action.mode].undo != null){
+                this.mode[action.mode].undo.call(this,this.depgraph,action.rollbackdata);
+              }
+            }
+            
+          }
+          return;
+        }
         if(action.rollbackdata != null && this.mode[action.mode].undo != null){
+          if(this.mode[this.editMode].broadcast != null){
+            this.mode[this.editMode].broadcast.call(null,{type:'do',action:action});
+          } 
+          
           this.depgraph.viewer.setToolbarItemActive('redo',false);
           this.depgraph.viewer.setToolbarItemActive('undo',true);// TODO not to do everytime!
            
