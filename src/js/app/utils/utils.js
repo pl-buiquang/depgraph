@@ -108,8 +108,21 @@
     if (obj instanceof Object) {
       var copy = {};
       for ( var attr in obj) {
-        if (obj.hasOwnProperty(attr))
-          copy[attr] = depgraphlib.clone(obj[attr]);
+        if(attr == '#properties'){
+          continue;
+        }
+        if (obj.hasOwnProperty(attr)){
+          try
+          {
+            copy[attr] = depgraphlib.clone(obj[attr]);
+          }
+        catch(err)
+          {
+            console.log("couldn't copy "+attr);
+          }
+          
+          
+        }
       }
       return copy;
     }

@@ -111,7 +111,7 @@
         if(params.keyCode == 46){
           if(depgraph.editObject.previousSelectedObject!= null){
             if(depgraphlib.isALink(depgraph.editObject.previousSelectedObject)){
-              var link = depgraphlib.clone(depgraph.editObject.previousSelectedObject);
+              var link = depgraphlib.clone(depgraph.editObject.previousSelectedObject.__data__);
               link.color = depgraphlib.getStyleElement(depgraph.editObject.previousSelectedObject,'link-color','black');
               var success = depgraph.removeLink(depgraph.editObject.previousSelectedObject.__data__['#id']);
               depgraph.editObject.previousSelectedObject = null;
@@ -146,9 +146,9 @@
       defaultUndo : function(depgraph,rollbackdata){
         if(rollbackdata.baseAction == 'linkRemoval'){
           var link = rollbackdata.link;
-          var source = depgraph.getObjectNodeByOriginalId(link.__data__['source']);
-          var target = depgraph.getObjectNodeByOriginalId(link.__data__['target']);
-          depgraph.addLink(source,target,link.__data__.label,link.color,link.__data__['#id']);
+          var source = depgraph.getObjectNodeByOriginalId(link['source']);
+          var target = depgraph.getObjectNodeByOriginalId(link['target']);
+          depgraph.addLink(source,target,link.label,link.color,link['#id']);
         }else if(rollbackdata.baseAction == 'linkAddition'){
           depgraph.removeLink(rollbackdata.addedLink['#id']);
         }else if(rollbackdata.baseAction == 'wordAddition'){
@@ -203,7 +203,7 @@
            var link = actionData.addedLink;
            depgraph.insertLink(link);
          }else if(actionData.baseAction == 'linkRemoval'){
-           depgraph.removeLink(actionData.link.__data__['#id']);
+           depgraph.removeLink(actionData.link['#id']);
          }else if(actionData.baseAction == 'wordRemoval'){
            depgraph.removeWord(actionData.word['#id']);
          }else if(actionData.baseAction == 'wordAddition'){
@@ -475,7 +475,7 @@
         depgraph.update();
         depgraph.postProcesses();
         var box = depgraphlib.Box.getBox(this);
-        box.destroy();
+        box.close(true);
       },
       
  
@@ -510,7 +510,7 @@
           var chunk = depgraph.addChunk(value,[obj1.__data__.id,obj2.__data__.id]);
           var action = {baseAction:'chunkAddition',addedChunk:chunk};
           depgraph.editObject.pushAction({mode:depgraph.editObject.editMode,rollbackdata:action,data:{event:'onWordSelect',params:params}});
-          box.destroy();
+          box.close(true);
         });
         
         
@@ -643,7 +643,7 @@
           var link = depgraph.addLink(obj1,obj2,value,color);
           var action = {baseAction:'linkAddition',addedLink:link};
           depgraph.editObject.pushAction({mode:depgraph.editObject.editMode,rollbackdata:action,data:{event:'onWordSelect',params:params}});
-          box.destroy();
+          box.close(true);
         });
         
       },
@@ -682,7 +682,7 @@
           var word = depgraph.addWord(wordData);
           var action = {baseAction:'wordAddition',addedWord:word};
           depgraph.editObject.pushAction({mode:depgraph.editObject.editMode,rollbackdata:action,data:{event:'onWordContext',params:element}});
-          box.destroy();
+          box.close(true);
         });
         
       },

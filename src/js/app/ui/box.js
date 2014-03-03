@@ -31,10 +31,23 @@
     
     me.options = options;
     
+    depgraphlib.Box.instances.push(this);
+
     if(options.viewer != null){
-      depgraphlib.Box.instances.push(this);
       this.viewer = options.viewer;
     }
+
+    var resizablebox = '<div class="resizablebox">'+
+      '<div class="resizableborder-top-left"></div>'+
+      '<div class="resizableborder-top-center"></div>'+
+      '<div class="resizableborder-top-right"></div>'+
+      '<div class="resizableborder-middle-left"></div>'+
+      '<div class="resizableborder-content"></div>'+
+      '<div class="resizableborder-middle-right"></div>'+
+      '<div class="resizableborder-bottom-left"></div>'+
+      '<div class="resizableborder-bottom-center"></div>'+
+      '<div class="resizableborder-right"></div>'+
+      '</div>';
     
     this.object = jQuery('<div class="depgraphlib-box"><div class="depgraphlib-box-header"></div><div class="depgraphlib-box-content"></div><div class="depgraphlib-box-footer"></div></div>');
 
@@ -47,7 +60,7 @@
       var tooltipExitButton = jQuery('<div class="tooltip-exit-button"/>');
       tooltipExitButton.css('float','right');
       tooltipExitButton.css('display','block');
-      tooltipExitButton.click(function(){me.close(true); if(options.onclose){options.onclose.call();}});
+      tooltipExitButton.click(function(){me.close(true); });
 
       jQuery('.depgraphlib-box-header',this.object).append(tooltipExitButton);
     }
@@ -181,9 +194,18 @@
    * @param destroy if true, destroy the window, else just hide it
    */
   depgraphlib.Box.prototype.close = function(destroy){
+    if(this.options.onclose){
+      this.options.onclose.call(this);
+    }
     if(this.options.forceToolbar){
       if(this.viewer){
         this.viewer.fixedToolbar = this.oldFixedToolbarValue; 
+      }
+    }
+    for(var i=0; i< depgraphlib.Box.instances.length; ++i){
+      if(depgraphlib.Box.instances[i]==this){
+        depgraphlib.Box.instances.splice(i,1);
+        break;
       }
     }
     if(destroy){
@@ -232,6 +254,12 @@
    * Close and destroy the window
    */
   depgraphlib.Box.prototype.destroy = function(){
+    for(var i=0; i< depgraphlib.Box.instances.length; ++i){
+      if(depgraphlib.Box.instances[i]==this){
+        depgraphlib.Box.instances.splice(i,1);
+        break;
+      }
+    }
     this.object.remove();
   };
   
