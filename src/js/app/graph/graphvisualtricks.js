@@ -285,13 +285,13 @@
 
       // Begin New node creation
       var margin = p.nodeStart.getStyle("margin");
-      var newnode = this.vis.append("g")
+      var newnode = this.vis.append("g").classed('dummy',true)
         .attr("transform","translate("+getLeftX(data.nodeLeftX)+","+(depgraphlib.removeUnit(margin.top)+10)+")");
       newnode.append("text")
         .text("( . . . )")
         .style('font-size',"25px")
         .style('font-weight',"bold");
-      newnode.__data__ = {'#position': data.position};
+      newnode[0][0].__data__ = {'#position': data.position,id:-2};
 
       if(!data.newnode){
         var bbox = newnode.node().getBBox();
@@ -363,7 +363,7 @@
         return "translate("+x+","+prevVals.translate[1]+")";  
       });
       for (var k in me.newnodes) {
-        var position = me.newnodes[k].__data__['#position'];
+        var position = me.newnodes[k][0][0].__data__['#position'];
         if(position >= data.rightBoundary){
           me.newnodes[k].attr("transform",function(){
             var prevVals = depgraphlib.getTransformValues(d3.select(this))
@@ -460,7 +460,7 @@
     var foldedLinks = [];
 
     for (var i in depgraph.newnodes) {
-      var position = depgraph.newnodes[i].__data__['#position'];
+      var position = depgraph.newnodes[i][0][0].__data__['#position'];
       if(position >= leftBoundary && position <= rightBoundary){
         depgraph.displayFullLinkSpan(depgraph.getLinkNodeById(i),true);
         foldedLinks.push(i);
@@ -617,7 +617,7 @@
   };
 
   function moveNodes(depgraph,reset){
-    var words = depgraph.vis.selectAll('g.word');
+    var words = depgraph.vis.selectAll('g.word, g.dummy');
     var offset = 0;
     for(var j = 0; j < words[0].length ; ++j){
       var node = words[0][j];
