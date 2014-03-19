@@ -169,7 +169,9 @@
       this.postProcesses();
       
       this.autoHighLightOnMouseOver();
-      this.editObject.editModeInit();
+      if(this.editObject.editMode){
+        this.editObject.editModeInit();  
+      }
     };
 
     /**
@@ -529,6 +531,7 @@
           + '<select name="type">'
         +'<option value="png">png</option>'
         +'<option value="json" selected>json</option>'
+        +((depgraphlib.plugins && depgraphlib.plugins.tikzdep)?'<option value="tikz-dep">tikz-dep</option>':'')
         +'<option value="depxml">depxml</option>'
         +'<option value="dep2pict">dep2pict</option>'
         +'<option value="conll">conll</option>'
