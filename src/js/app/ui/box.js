@@ -98,6 +98,10 @@
       jQuery('.depgraphlib-box-header',this.object).append(tooltipMinimizeButton);
       
     }
+
+    jQuery(this.object).on("mousedown",function(){
+      jQuery(this).css("z-index",depgraphlib.Box.zindextop++);
+    })
     
     return this;
   };
@@ -119,7 +123,7 @@
   };
   
   depgraphlib.Box.prototype.setHeader = function(content){
-    jQuery('.depgraphlib-box-header',this.object).append('<div style="float:left; color:white;">'+content+'</div>');
+    jQuery('.depgraphlib-box-header',this.object).append('<div style="margin-left:5px; float:left; color:white;">'+content+'</div>');
     return this;
   };
   
@@ -131,6 +135,8 @@
    * Instances of boxes
    */
   depgraphlib.Box.instances = depgraphlib.Box.instances || [];
+
+  depgraphlib.Box.zindextop = 1000;
 
   /**
   * Instances of boxes that are minimized
