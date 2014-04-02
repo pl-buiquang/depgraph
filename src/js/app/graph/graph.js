@@ -169,7 +169,9 @@
       this.postProcesses();
       
       this.autoHighLightOnMouseOver();
-      this.editObject.editModeInit();
+      if(this.editObject.editMode){
+        this.editObject.editModeInit();  
+      }
     };
 
     /**
@@ -219,7 +221,7 @@
      */
     depgraphlib.DepGraph.prototype.setViewMode = function(){
       if(this.options.viewmode && this.options.viewmode != 'full'){
-        this.setWidthLimitedViewMode('600px');
+        this.setWidthLimitedViewMode(this.options.maxwidth||600);
       }else{
         var visBBox = this.vis.node().getBBox();
         if(this.options.maxwidth && this.options.maxwidth<visBBox.width){
@@ -245,7 +247,7 @@
      */
     depgraphlib.DepGraph.prototype.setWidthLimitedViewMode = function(defaultWidth,forceCrop){
       this.viewer.shrinkHeightToContent(depgraphlib.removeUnit(this.data.graph['#style']['margin'].bottom)+20);
-      if(!this.options.viewsize){
+      if(defaultWidth){
         this.options.viewsize = defaultWidth;
       }
       this.viewer.setWidth(this.options.viewsize);
@@ -355,6 +357,7 @@
           d3.event.preventDefault ? d3.event.preventDefault() : d3.event.returnValue = false;
         });
         
+        this.viewer.addToolbarItem({name:'resetView',callback:function(){me.resetData(me.data);},style:'reset-view',group:'-1',static:true});
         /*
         d3.select(this.viewer.chart[0]).on('mouseover',function(e){
           var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget);
@@ -528,6 +531,7 @@
           + '<select name="type">'
         +'<option value="png">png</option>'
         +'<option value="json" selected>json</option>'
+        +((depgraphlib.plugins && depgraphlib.plugins.tikzdep)?'<option value="tikz-dep">tikz-dep</option>':'')
         +'<option value="depxml">depxml</option>'
         +'<option value="dep2pict">dep2pict</option>'
         +'<option value="conll">conll</option>'

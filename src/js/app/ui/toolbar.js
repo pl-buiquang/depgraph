@@ -267,7 +267,7 @@
       if(this.getToolbarItem('fullscreen')){
         this.setToolbarItemActive('fullscreen',true,true);
       }else{
-        this.addToolbarItem({name:'fullscreen',callback:null,style:'fullscreen',tooltip:'View in fullscreen'});
+        this.addToolbarItem({name:'fullscreen',callback:null,style:'fullscreen',group:'-1',tooltip:'View in fullscreen'});
       }
       this.initFullscreenMode();
     }

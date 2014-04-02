@@ -7,6 +7,15 @@
 */
 @CHARSET "UTF-8";
 
+
+.word{
+  cursor:default;
+}
+
+.chunk{
+  cursor:default;
+}
+
 .depgraphlib-tab-windows{
  display:none;
 }
@@ -179,34 +188,7 @@ border-bottom: 1px solid #B6B6B6;
  background: #F0F0F0 ;
  }
  
- .depgraphlib-box{
-background: -moz-linear-gradient(45deg,  rgba(0,0,0,0.7) 0%, rgba(223,224,243,1) 100%); /* FF3.6+ */
-background: -webkit-gradient(linear, left bottom, right top, color-stop(0%,rgba(0,0,0,0.7)), color-stop(100%,rgba(223,224,243,1))); /* Chrome,Safari4+ */
-background: -webkit-linear-gradient(45deg,  rgba(0,0,0,0.7) 0%,rgba(223,224,243,1) 100%); /* Chrome10+,Safari5.1+ */
-background: -o-linear-gradient(45deg,  rgba(0,0,0,0.7) 0%,rgba(223,224,243,1) 100%); /* Opera 11.10+ */
-background: -ms-linear-gradient(45deg,  rgba(0,0,0,0.7) 0%,rgba(223,224,243,1) 100%); /* IE10+ */
-background: linear-gradient(45deg,  rgba(0,0,0,0.7) 0%,rgba(223,224,243,1) 100%); /* W3C */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b3000000', endColorstr='#dfe0f3',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-  padding: 2px;
-  position:fixed !important;
-  display:block;
-  z-index:999;
-  min-width: 100px;
- }
- 
- .depgraphlib-box-header{
-  display:block;
- }
- 
-.depgraphlib-box-content{
- clear:both;
- padding: 5px;
- overflow: auto;
-}
- 
-.depgraphlib-box > div {
- background:#F0F0F0;
-}
+
 
  .info-panel-exit-button{
   position:absolute;
@@ -381,6 +363,9 @@ background: rgba(0,0,0,0.5) url('img/ajax-loader.gif') no-repeat center;
   background: url('img/fullscreen.png') no-repeat center !important;
  }
  
+ .reset-view{
+  background: url('img/refresh-icon.png') no-repeat center !important;
+ }
  
   .home{
   background: url('img/home-24w.png') no-repeat center !important;
@@ -589,3 +574,104 @@ background: linear-gradient(#ffffff, #EDEDED);
  display:none;
  }
  
+/************************************************************************/
+/*                        Box                                           */
+/************************************************************************/
+
+ .depgraphlib-box{
+  position:fixed !important;
+  display:block;
+  z-index:999;
+  min-width: 100px;
+  -moz-box-shadow:0px 0px 1px 1px rgba(0, 0, 0, 0.7);
+  -webkit-box-shadow:0px 0px 1px 1px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.7);
+ }
+ 
+ .depgraphlib-box-header{
+background: -moz-linear-gradient(45deg,  rgba(0,0,0,0.7) 0%, rgba(223,224,243,1) 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left bottom, right top, color-stop(0%,rgba(0,0,0,0.7)), color-stop(100%,rgba(223,224,243,1))); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(45deg,  rgba(0,0,0,0.7) 0%,rgba(223,224,243,1) 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(45deg,  rgba(0,0,0,0.7) 0%,rgba(223,224,243,1) 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(45deg,  rgba(0,0,0,0.7) 0%,rgba(223,224,243,1) 100%); /* IE10+ */
+background: linear-gradient(45deg,  rgba(0,0,0,0.7) 0%,rgba(223,224,243,1) 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b3000000', endColorstr='#dfe0f3',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+  padding-top:2px;
+  display:block;
+  height:18px;
+  width: 100%;
+ }
+ 
+.depgraphlib-box-content{
+ clear:both;
+ padding: 5px;
+ overflow: auto;
+}
+ 
+.depgraphlib-box > div {
+ background-color:#F0F0F0;
+}
+
+.ui-resizable-se{
+  right:1px;
+  bottom:1px;
+  position:absolute;
+}
+
+.resizablebox{
+display: inline-block;
+}
+
+.resizableborder-top-left{
+  width:1px;
+  height: 1px;
+  background-color: blue;
+}
+
+.resizableborder-top-center{
+background-color: green;
+}
+
+.resizableborder-top-right{
+  width:1px;
+  height: 1px;
+  background-color: red;
+
+}
+
+.resizableborder-middle-left{
+  width:1px;
+  height: 100%;
+  background-color: pink;
+
+}
+
+.resizableborder-content{
+
+}
+
+.resizableborder-middle-right{
+  width:1px;
+  height: 100%;
+  background-color: purple;
+
+}
+
+.resizableborder-bottom-left{
+  width:1px;
+  height: 1px;
+  display: inline-block;
+  background-color: black;
+
+}
+
+.resizableborder-bottom-center{
+  background-color: grey;
+}
+
+.resizableborder-right{
+  width:1px;
+  height: 1px;
+  background-color: white;
+
+}

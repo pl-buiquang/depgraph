@@ -161,7 +161,7 @@
               var link = rollbackdata.affectedLinks[i];
               var source = depgraph.getObjectNodeByOriginalId(link['source']);
               var target = depgraph.getObjectNodeByOriginalId(link['target']);
-              link.color = link['#style']['link-color']?link['#style']['link-color']:depgraph.data.graph['#link-style']['link-color'];
+              link.color = (link['#style'] && link['#style']['link-color'])?link['#style']['link-color']:depgraph.data.graph['#link-style']['link-color'];
               depgraph.addLink(source,target,link.label,link.color,link['#id']);
             }
           }

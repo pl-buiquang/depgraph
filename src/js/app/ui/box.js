@@ -37,7 +37,7 @@
       this.viewer = options.viewer;
     }
 
-    var resizablebox = '<div class="resizablebox">'+
+    var resizablebox = '<div class="depgraphlib-box">'+
       '<div class="resizableborder-top-left"></div>'+
       '<div class="resizableborder-top-center"></div>'+
       '<div class="resizableborder-top-right"></div>'+
@@ -51,10 +51,12 @@
     
     this.object = jQuery('<div class="depgraphlib-box"><div class="depgraphlib-box-header"></div><div class="depgraphlib-box-content"></div><div class="depgraphlib-box-footer"></div></div>');
 
+
+    //jQuery('.depgraphlib-box-content',this.object).resizable();
+
     if(options.id){
       this.object.attr('id',options.id);
     }
-    
 
     if(options.closeButton){
       var tooltipExitButton = jQuery('<div class="tooltip-exit-button"/>');
@@ -86,7 +88,7 @@
 
     if(options.draggable){
       if(this.object.draggable){
-        this.object.draggable({ cancel: ".depgraphlib-box-content" });
+        this.object.draggable({ handle: ".depgraphlib-box-header" });
       }
 
       var tooltipMinimizeButton = jQuery('<div class="tooltip-minimize-button"/>');
@@ -96,6 +98,22 @@
       jQuery('.depgraphlib-box-header',this.object).append(tooltipMinimizeButton);
       
     }
+
+    depgraphlib.Box.zindextop = depgraphlib.Box.zindextop+1;
+    jQuery(this.object).css("z-index",depgraphlib.Box.zindextop);
+    jQuery(this.object).on("click",function(e){
+      if(jQuery(e.target).hasClass('depgraphlib-box-content') || jQuery(e.target).hasClass('depgraphlib-box-footer') || jQuery(e.target).hasClass('depgraphlib-box-header')){
+        var zindex = jQuery(this).css("z-index");
+        if(zindex<depgraphlib.Box.zindextop){
+          depgraphlib.Box.zindextop = depgraphlib.Box.zindextop+1;
+          zindex = depgraphlib.Box.zindextop;
+          jQuery(this).css("z-index",zindex);
+        }
+      }
+      
+
+      
+    });
     
     return this;
   };
@@ -117,7 +135,7 @@
   };
   
   depgraphlib.Box.prototype.setHeader = function(content){
-    jQuery('.depgraphlib-box-header',this.object).append('<div style="float:left; color:white;">'+content+'</div>');
+    jQuery('.depgraphlib-box-header',this.object).append('<div style="margin-left:5px; float:left; color:white;">'+content+'</div>');
     return this;
   };
   
@@ -129,6 +147,8 @@
    * Instances of boxes
    */
   depgraphlib.Box.instances = depgraphlib.Box.instances || [];
+
+  depgraphlib.Box.zindextop = 600;
 
   /**
   * Instances of boxes that are minimized

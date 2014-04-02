@@ -35,6 +35,9 @@ function convertGraph($data,$sourceformat,$targetformat){
     case 'dep2pict':
       $formateddata = depGraph2dep2pict($data);
       break;
+    case 'tikz-dep':
+      $formateddata = depGraph2tikz($data);
+      break;
   }
   
   return $formateddata;
@@ -54,6 +57,77 @@ function getSentence($graph){
   }
   return trim($sentence);
 }
+
+/*********************************************************/
+/*              latex | tikz-dependency                  */
+/*********************************************************/
+
+function tikz2depGraph($data){
+  
+}
+
+function depGraph2tikz($data){
+  if(is_string($data)){
+    $data = json_decode($data,true);
+  }
+  
+  $ref_ids = array();
+  $lines = array();
+  
+  $options = array(
+    "font"=>"scriptsize",
+    "colmargin"=>"0.005em"
+  );
+  
+  $lines[] = "\\begin{dependency}\n\\begin{deptext}[column sep=".$options["colmargin"].",font=".$options['font']."]";
+  $line1 = &$lines[];
+  $line2 = &$lines[];
+  $line3 = &$lines[];
+  $line1 = array();
+  $line2 = array();
+  $line3 = array();
+  $i=1;
+  foreach($data['graph']['words'] as $word){
+    $ref_ids[$word['id']]=$i++;
+    $line1[] = $word['label'];
+    $line2[] = $word['sublabel'][0];
+    $line3[] = $word['sublabel'][1];
+  }
+  $line1 = implode("\\&",$line1);
+  $line1 .= "\\\\";
+  if(!isset($line2[0])){
+    $line2 = "";
+  }else{
+    $line2 = implode("\\&",$line2);
+    $line2 .= "\\\\";
+  }
+  
+  if(!isset($line3[0])){
+    $line3 = "";
+  }else{
+    $line3 = implode("\\&",$line3);
+    $line3 .= "\\\\";
+  }
+  
+  
+  
+  
+  
+  $lines[] = "\\end{deptext}";
+  foreach($data['graph']['links'] as $link){
+    $type = (isset($link["#data"]) && isset($link["#data"]['type']))?$link["#data"][$key]:"";
+    $target = isset($ref_ids[$link['target']])?"{".$ref_ids[$link['target']]."}":"";
+    $source = isset($ref_ids[$link['source']])?"{".$ref_ids[$link['source']]."}":""; 
+    $lines[]="\\depedge[".$type."]".$source.$target."{".latexQuote($link['label'])."}";
+  }
+  $lines[]="\\end{dependency}";
+  return implode("\n",$lines);
+}
+
+function latexQuote($text){
+  return $text;
+}
+
 
 /*********************************************************/
 /*                      conll                            */
