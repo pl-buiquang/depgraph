@@ -99,9 +99,21 @@
       
     }
 
-    jQuery(this.object).on("mousedown",function(){
-      jQuery(this).css("z-index",depgraphlib.Box.zindextop++);
-    })
+    depgraphlib.Box.zindextop = depgraphlib.Box.zindextop+1;
+    jQuery(this.object).css("z-index",depgraphlib.Box.zindextop);
+    jQuery(this.object).on("click",function(e){
+      if(jQuery(e.target).hasClass('depgraphlib-box-content') || jQuery(e.target).hasClass('depgraphlib-box-footer') || jQuery(e.target).hasClass('depgraphlib-box-header')){
+        var zindex = jQuery(this).css("z-index");
+        if(zindex<depgraphlib.Box.zindextop){
+          depgraphlib.Box.zindextop = depgraphlib.Box.zindextop+1;
+          zindex = depgraphlib.Box.zindextop;
+          jQuery(this).css("z-index",zindex);
+        }
+      }
+      
+
+      
+    });
     
     return this;
   };
@@ -136,7 +148,7 @@
    */
   depgraphlib.Box.instances = depgraphlib.Box.instances || [];
 
-  depgraphlib.Box.zindextop = 1000;
+  depgraphlib.Box.zindextop = 600;
 
   /**
   * Instances of boxes that are minimized
