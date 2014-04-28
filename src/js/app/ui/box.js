@@ -121,6 +121,12 @@
     }
     return this;
   };
+
+  depgraphlib.Box.prototype.resetContent = function(){
+    var boxcontent = jQuery('.depgraphlib-box-content',this.object);
+    boxcontent.html("");
+    return this;
+  };
   
   depgraphlib.Box.prototype.setHeader = function(content){
     jQuery('.depgraphlib-box-header',this.object).append('<div style="margin-left:5px; float:left; color:white;">'+content+'</div>');

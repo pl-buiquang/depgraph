@@ -11,7 +11,7 @@
 
 (function(depgraphlib){
   
-  depgraphlib.helpurl = "http://alpage.inria.fr/frmgwiki/help/depgraph";
+  depgraphlib.helpurl = "http://alpage.inria.fr/frmgwiki/mgwiki/help/depgraph";
 
   /**
    * @class {object} DepGraph
