@@ -129,22 +129,28 @@
      */
     depgraphlib.DepGraph.getInstance = function(fromdiv) {
       if(fromdiv){
-        if (depgraphlib.DepGraph.prototype.isPrototypeOf(fromdiv)) {
-          return fromdiv;
-        } else if (fromdiv.ownerSVGElement != null) {
-          fromdiv = fromdiv.ownerSVGElement.parentNode.id;
-        } else if(fromdiv.nodeName && fromdiv.nodeName == 'svg'){
-          fromdiv = fromdiv.parentNode.id;
-        } else if (typeof fromdiv == 'object' && fromdiv.id != null) {
-          fromdiv = fromdiv.id;
-        }
+        try{
+          if (depgraphlib.DepGraph.prototype.isPrototypeOf(fromdiv)) {
+            return fromdiv;
+          } else if (fromdiv.ownerSVGElement != null) {
+            fromdiv = fromdiv.ownerSVGElement.parentNode.id;
+          } else if(fromdiv.nodeName && fromdiv.nodeName == 'svg'){
+            fromdiv = fromdiv.parentNode.id;
+          } else if (typeof fromdiv == 'object' && fromdiv.id != null) {
+            fromdiv = fromdiv.id;
+          }
 
-        regex = /.*-(\w+)/;
-        var match = regex.exec(fromdiv);
-        if (match != null) {
-          return depgraphlib.DepGraph.instances[match[1]];
+          regex = /.*-(\w+)/;
+          var match = regex.exec(fromdiv);
+          if (match != null) {
+            return depgraphlib.DepGraph.instances[match[1]];
+          }
+          return null;
+
+        }catch(err){
+          console.log(err);
+          return null;
         }
-        return null;
       }
     };
 

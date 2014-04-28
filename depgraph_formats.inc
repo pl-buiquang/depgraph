@@ -115,7 +115,7 @@ function depGraph2tikz($data){
   
   $lines[] = "\\end{deptext}";
   foreach($data['graph']['links'] as $link){
-    $type = (isset($link["#data"]) && isset($link["#data"]['type']))?$link["#data"][$key]:"";
+    $type = (isset($link["#data"]) && isset($link["#data"]['type']))?$link["#data"]['type']:"";
     $target = isset($ref_ids[$link['target']])?"{".$ref_ids[$link['target']]."}":"";
     $source = isset($ref_ids[$link['source']])?"{".$ref_ids[$link['source']]."}":""; 
     $lines[]="\\depedge[".$type."]".$source.$target."{".latexQuote($link['label'])."}";
