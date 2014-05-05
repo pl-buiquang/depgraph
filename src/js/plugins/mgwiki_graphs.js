@@ -62,6 +62,7 @@
         div += '(FRMG options:'+me.options.frmgparserparams+')<br>';
       }
       div += 'UID: '+me.options.uid+'<br>';
+      div += me.revision_node_link || '';
       div += 'Sentence : ' + fix_missing_a_closing_tag(me.sentenceLink) + '<br>'
       + 'Back Links : ' + me.refs
       +'</div>';
