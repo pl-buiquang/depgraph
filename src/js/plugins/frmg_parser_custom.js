@@ -115,12 +115,31 @@
         if(depgraphlib.isALink(this) && true == this.__data__['#data'].virtual){
           var params = "";
           for(id  in this.__data__['ref_ids']){
-            params += "eid=" + this.__data__['ref_ids'][id] + "&+99999";
+            params += depgraphlib.getOriginalFRMGMode(depgraph) + "eid=" + this.__data__['ref_ids'][id] + "&+99999";
             getNewData(depgraph,depgraph.sentence,params);
             return {baseAction:'selectAlternative',previousParams:getPreviousParams(depgraph),currentParams:params};
           }
         }
       }
+
+      /**
+       * Return the option mode of frmg parse (exotic, transform or robust)
+       * @param  {depgraphlib.DepGraph} depgraph
+       * @return {string} the option string to prepend to any disambiguation alternative
+       */
+      depgraphlib.getOriginalFRMGMode = function(depgraph){
+        var baseOptions = depgraph.options.frmgparserparams || '';
+        var possibleOptions = ['robust','exotic','transform'];
+        var originalMode = '';
+        for(var i=0;i<possibleOptions.length;++i){
+          var regex = new RegExp(".*("+possibleOptions[i]+").*","g");
+          var match = regex.exec(baseOptions);
+          if (match != null) {
+            originalMode += match[1] + " ";
+          }   
+        }
+        return originalMode;
+      };
 
       function getPreviousParams(depgraph){
         var eo = depgraph.editObject;
