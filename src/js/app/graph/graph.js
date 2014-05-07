@@ -227,7 +227,7 @@
      */
     depgraphlib.DepGraph.prototype.setViewMode = function(){
       if(this.options.viewmode && this.options.viewmode != 'full'){
-        this.setWidthLimitedViewMode(this.options.maxwidth||600);
+        this.setWidthLimitedViewMode(this.options.maxwidth||this.viewer.container.parent().width());  
       }else{
         var visBBox = this.vis.node().getBBox();
         if(this.options.maxwidth && this.options.maxwidth<visBBox.width){
@@ -1024,7 +1024,7 @@
       var minOffset = 3;
       var SxOffset = (hdir>0)?5*p.offsetXmin+minOffset:-5*p.offsetXmax-minOffset;
       var ExOffset = (hdir>0)?-5*p.offsetXmax-minOffset:5*p.offsetXmin+minOffset;
-      var arcSize = 5;
+      var arcSize = 0;
       var x0 = X0[0]+Sdx+SxOffset;
       var x1 = X1[0]+Edx+ExOffset;
       var h = x1-x0-hdir*2*arcSize;
@@ -1097,9 +1097,11 @@
         .attr('d',"M "+x0+","+(y0+v0)+" v "+(-v0));
       }else{
         highlightPath
-        .attr('d',"M "+x0+","+y0+" v "+v0+" a 5 5 0 0 "+laf0+" "+hdir*arcSize+" "+(-vdir*arcSize)+" h "+h+" a 5 5 0 0 "+laf1+" "+hdir*arcSize+" "+vdir*arcSize+" v "+v1);
+        //.attr('d',"M "+x0+","+y0+" v "+v0+" a 5 5 0 0 "+laf0+" "+hdir*arcSize+" "+(-vdir*arcSize)+" h "+h+" a 5 5 0 0 "+laf1+" "+hdir*arcSize+" "+vdir*arcSize+" v "+v1);
+        .attr('d',"M "+x0+","+y0+" a "+h/2+" "+v0+" 0 0 "+laf0+" "+h+" 0");
         path
-        .attr('d',"M "+x0+","+y0+" v "+v0+" a 5 5 0 0 "+laf0+" "+hdir*arcSize+" "+(-vdir*arcSize)+" h "+h+" a 5 5 0 0 "+laf1+" "+hdir*arcSize+" "+vdir*arcSize+" v "+v1);
+        //.attr('d',"M "+x0+","+y0+" v "+v0+" a "+arcSize+" "+arcSize+" 0 0 "+laf0+" "+hdir*arcSize+" "+(-vdir*arcSize)+" h "+h+" a "+arcSize+" "+arcSize+" 0 0 "+laf1+" "+hdir*arcSize+" "+vdir*arcSize+" v "+v1);
+        .attr('d',"M "+x0+","+y0+" a "+h/2+" "+v0+" 0 0 "+laf0+" "+h+" 0");
       }
       highlightPath.attr('stroke',color2)
       .attr('stroke-width',depgraphlib.removeUnit(linkSize)+3)
