@@ -125,11 +125,12 @@
   };
 
   depgraphlib.Box.prototype.setFixedSize = function(width,height){
+    var content = this.object.find('.depgraphlib-box-content');
     if(height){
-      this.object.height(height);  
+      content.height(height);  
     }
     if(width){
-      this.object.width(width);
+      content.width(width);
     }
     return this;
   };
