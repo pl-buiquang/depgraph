@@ -135,6 +135,17 @@
     return this;
   };
 
+  depgraphlib.Box.prototype.setMaxSize = function(width,height){
+    var content = this.object.find('.depgraphlib-box-content');
+    if(height){
+      content.css('max-height',height);  
+    }
+    if(width){
+      content.css('max-width',width);
+    }
+    return this;
+  };
+
   depgraphlib.Box.prototype.resetContent = function(){
     var boxcontent = jQuery('.depgraphlib-box-content',this.object);
     boxcontent.html("");
