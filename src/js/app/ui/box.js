@@ -125,11 +125,23 @@
   };
 
   depgraphlib.Box.prototype.setFixedSize = function(width,height){
+    var content = this.object.find('.depgraphlib-box-content');
     if(height){
-      this.object.height(height);  
+      content.height(height);  
     }
     if(width){
-      this.object.width(width);
+      content.width(width);
+    }
+    return this;
+  };
+
+  depgraphlib.Box.prototype.setMaxSize = function(width,height){
+    var content = this.object.find('.depgraphlib-box-content');
+    if(height){
+      content.css('max-height',height);  
+    }
+    if(width){
+      content.css('max-width',width);
     }
     return this;
   };

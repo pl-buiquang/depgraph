@@ -173,6 +173,33 @@
   };
 
   /**
+   * @function getValue
+   * @description  get the value of a field referencing to an other in its object parent
+   * @param  {[type]} obj   [description]
+   * @param  {[type]} field [description]
+   * @return {[type]}       [description]
+   */
+  depgraphlib.getValue = function(obj,field){
+    if(field.indexOf('@')==0){
+      var refid = field.substring(1);
+      for(var property in obj){
+        if(property == refid){
+          return obj[refid];
+        }
+      }
+      if(obj['#data']){
+        for(var property in obj['#data']){
+          if(property == refid){
+            return obj['#data'][refid];
+          }
+        } 
+      }
+    }else{
+      return field;
+    }
+  };
+
+  /**
    * resolve the references in a json object
    * the references are su objects id starting with a refPrefix 
    * (eg. '@15' for a object of id 15 and using '@' as a refPrefix  

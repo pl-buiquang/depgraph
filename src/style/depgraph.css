@@ -586,6 +586,7 @@ background: linear-gradient(#ffffff, #EDEDED);
   -moz-box-shadow:0px 0px 1px 1px rgba(0, 0, 0, 0.7);
   -webkit-box-shadow:0px 0px 1px 1px rgba(0, 0, 0, 0.7);
   box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.7);
+  background-color:#F0F0F0;
  }
  
  .depgraphlib-box-header{
