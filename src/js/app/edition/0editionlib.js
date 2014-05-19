@@ -257,6 +257,47 @@
       
 
       /**
+       * @function createCreationPanel
+       * @param  {[type]} depgraph [description]
+       * @param  {[type]} type     [description]
+       * @return {[type]}          [description]
+       */
+      createCreationPanel : function(depgraph,type){
+        var data = {};
+        var klass = type;
+        if(obj.classList != null && obj.classList.length > 0){
+          klass = obj.classList[0];
+        }
+        
+        var div = '<div><div id="'+depgraph.viewer.appendOwnID(klass+'-save-properties-div')+'" onkeydown="if (event.keyCode == 13) {depgraphlib.EditObject.DefaultModeLib.saveProperties.call(this,arguments);}">'
+          +'<h3 id="edit-info-title">Edit '+klass+' (original id: '+data.id+')</h3>'
+          +'<table class="main-properties-table" ref="'+data['#id']+'">';
+        
+        var dataModel = [];
+        if(klass == 'word'){
+          dataModel = depgraph.editObject.dataModel.words || [];
+          div = depgraphlib.EditObject.DefaultModeLib.populateWordEditPanel(depgraph,div,data);
+        }else if(klass == 'link'){
+          dataModel = depgraph.editObject.dataModel.links || [];
+          div = depgraphlib.EditObject.DefaultModeLib.populateLinkEditPanel(depgraph,div,data);
+        }else if(klass == 'chunk'){
+          dataModel = depgraph.editObject.dataModel.chunks || [];
+          div = depgraphlib.EditObject.DefaultModeLib.populateChunkEditPanel(depgraph,div,data);
+        }else{
+          throw 'unknown object type : "' + klass + '"';
+        }
+        
+        div += '</table>';
+        div += '<input id="'+depgraph.viewer.appendOwnID(klass+'-save-properties')+'" type="button" value="Save" onclick="depgraphlib.EditObject.DefaultModeLib.saveProperties.call(this,arguments);">';
+        div += '</div></div>';
+        
+        
+        var jdiv = jQuery(div);
+
+        return jdiv;
+      },
+
+      /**
        * @function createEditPanel
        * @desc create the form allowing edition of properties of an object (word, link or chunk)
        * @param {DepGraphLib.Depgraph} depgraph - the graph object
@@ -276,11 +317,15 @@
           +'<h3 id="edit-info-title">Edit '+klass+' (original id: '+data.id+')</h3>'
           +'<table class="main-properties-table" ref="'+data['#id']+'">';
         
+        var dataModel = [];
         if(klass == 'word'){
+          dataModel = depgraph.editObject.dataModel.words || [];
           div = depgraphlib.EditObject.DefaultModeLib.populateWordEditPanel(depgraph,div,data);
         }else if(klass == 'link'){
+          dataModel = depgraph.editObject.dataModel.links || [];
           div = depgraphlib.EditObject.DefaultModeLib.populateLinkEditPanel(depgraph,div,data);
         }else if(klass == 'chunk'){
+          dataModel = depgraph.editObject.dataModel.chunks || [];
           div = depgraphlib.EditObject.DefaultModeLib.populateChunkEditPanel(depgraph,div,data);
         }else{
           throw 'unknown object type : "' + klass + '"';
@@ -292,6 +337,46 @@
         
         
         var jdiv = jQuery(div);
+        // typeahead autocomplete
+        /*var substringMatcher = function(strs) {
+          return function findMatches(q, cb) {
+          var matches, substringRegex;
+           
+          // an array that will be populated with substring matches
+          matches = [];
+           
+          // regex used to determine if a string contains the substring `q`
+          substrRegex = new RegExp(q, 'i');
+           
+          // iterate through the pool of strings and for any string that
+          // contains the substring `q`, add it to the `matches` array
+          jQuery.each(strs, function(i, str) {
+          if (substrRegex.test(str)) {
+          // the typeahead jQuery plugin expects suggestions to a
+          // JavaScript object, refer to typeahead docs for more info
+          matches.push({ value: str });
+          }
+          });
+           
+          cb(matches);
+          };
+        };
+        for (var i = dataModel.length - 1; i >= 0; i--) {
+          if(dataModel[i].values){
+            var vals = depgraphlib.clone(dataModel[i].values);
+            jdiv.find('#'+klass+'-edit-'+dataModel[i].name).typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 1
+            },
+            {
+            name: dataModel[i].name,
+            displayKey: 'value',
+            source: substringMatcher(vals)
+            });
+          }
+        };*/
+
         return jdiv;
       },
 
@@ -306,8 +391,14 @@
        */
        populateLinkEditPanel : function(depgraph,editDiv,linkData){
         var color = (linkData['#style']!= null && linkData['#style']['link-color']!=null)?linkData['#style']['link-color']:depgraph.data.graph['#link-style']['link-color'];
+
+        var dataModel = depgraph.editObject.dataModel;
+        if(dataModel.links && dataModel.links[0].name == 'label' && dataModel.links[0].values){
+          editDiv += depgraphlib.ui.addCustomField('label',depgraphlib.EditObject.DefaultModeLib.getOptionsListValues(depgraph,linkData.label,'label',dataModel.links[0].values));  
+        }else{
+          editDiv += depgraphlib.ui.addTextField('label',{id:'link-edit-label',name:'label',value:linkData.label,'data-rel':'label'});  
+        }
         
-        editDiv += depgraphlib.ui.addTextField('label',{name:'label',value:linkData.label,'data-rel':'label'});
         editDiv += depgraphlib.ui.addCustomField('source',depgraphlib.EditObject.DefaultModeLib.getOptionsListWordsAndChunks(depgraph,linkData.source,'source'));
         editDiv += depgraphlib.ui.addCustomField('target',depgraphlib.EditObject.DefaultModeLib.getOptionsListWordsAndChunks(depgraph,linkData.target,'target'));
         editDiv += depgraphlib.ui.addCustomField('color',depgraphlib.ui.simpleColorPicker('colorPicker',color,'#style/link-color'));
@@ -339,29 +430,29 @@
           'name':dataModel.words[0].name,
           'value':wordData.label,
         }); 
-    /*    if(dataModel.words[0].values){
-          $(document).ready(function(){
-            $("#word-edit-" + dataModel.words[0].name).autocomplete({source: dataModel.words[0].values});}
-          );
-        }*/
+        
         var sublabel_index = 0;
         for(var i=1;i<dataModel.words.length ; i++){
           var value;
           var data_rel;
           if(dataModel.words[i].hidden){
-            value = (wordData['#data'])?wordData['#data'][dataModel.words[i].name]:'';
+            value = (wordData['#data'])?(wordData['#data'][dataModel.words[i].name] || ''):'';
             data_rel = '#data/'+dataModel.words[i].name;
           }else{
-            value = wordData.sublabel[sublabel_index];
+            value = wordData.sublabel[sublabel_index] || '';
             data_rel = 'sublabel/'+sublabel_index;
             sublabel_index++;
           }
-          editDiv += depgraphlib.ui.addTextField(dataModel.words[i].name,{
-            'id' : 'word-edit-' + dataModel.words[i].name,
-            'data-rel':data_rel,
-            'name':dataModel.words[i].name,
-            'value':value,
-          });
+          if(dataModel.words[i].values){
+            editDiv += depgraphlib.ui.addCustomField(dataModel.words[i].name,depgraphlib.EditObject.DefaultModeLib.getOptionsListValues(depgraph,value,data_rel,dataModel.words[i].values));
+          }else{
+            editDiv += depgraphlib.ui.addTextField(dataModel.words[i].name,{
+              'id' : 'word-edit-' + dataModel.words[i].name,
+              'data-rel':data_rel,
+              'name':dataModel.words[i].name,
+              'value':value,
+            });  
+          }
         }
         return editDiv;
       },
@@ -515,6 +606,30 @@
         
         
       },
+
+      /**
+       * @function getOptionsListValues
+       * @desc return a form of list of defined values
+       * @param  {[type]} depgraph           [description]
+       * @param  {[type]} selectedOriginalId [description]
+       * @param  {[type]} data_rel           [description]
+       * @param {string} values [description]
+       * @return {[type]}                    [description]
+       */
+      getOptionsListValues : function(depgraph,selectedOriginalValue,data_rel,values){
+        var optionList = '<select data-rel="'+data_rel+'">';
+        optionList += '<option '+((!selectedOriginalValue)?'selected="true"':'')+'></option>'
+        for(var i=0;i<values.length;i++){
+          var selected = values[i]==selectedOriginalValue;
+          optionList += '<option value="'+values[i]+'" ';
+          optionList += ((selected)?'selected="true"':'');
+          optionList += '>'+values[i];
+          optionList += '</option>';
+        }
+        optionList += '</select>';
+        
+        return optionList;
+      },
       
       /**
        * @function getOptionsListWords
@@ -624,6 +739,7 @@
       addLinkSettings : function(depgraph,obj1,obj2,params){
         var coords = depgraph.viewer.screenCoordsForElt(obj2);
         var point = {x:(coords.ne.x + coords.nw.x)/2,y:coords.nw.y};
+
         var div = '<div><table style="margin:5px 0px 0px 0px;">'
           + '<tr><td>Link name : </td>'
           +'<td><input type="text" name="link-name" value=""></td></tr>'

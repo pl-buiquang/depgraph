@@ -23,6 +23,9 @@
       var word = this.data.graph.words[i]; 
       word['#id']=this.id++;
       word['#position']=i;
+      if(!word.sublabel){
+        word.sublabel = [];
+      }
     }
     for(var i = 0 ; i<this.data.graph.links.length ; i++){
       this.data.graph.links[i]['#id']=this.id++;

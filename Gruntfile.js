@@ -13,6 +13,7 @@ module.exports = function(grunt) {
                 'src/js/app/ui/**/*.js',
                 'src/js/app/graph/**/*.js',
                 'src/js/app/edition/**/*.js',
+                //'src/js/vendor/typeahead.bundle.js'
                ],
           dest: 'build/<%= pkg.name %>.js'
         },
