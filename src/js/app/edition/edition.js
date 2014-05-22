@@ -21,7 +21,7 @@
         this.editMode = false; // on/off boolean for edition
         this.mode = [];
         this.highlightMode = false;
-        this.dataModel = {};
+        this.dataModel = null;
         
         this.previousSelectedObject = null; // last selected object
         this.actionsLog = []; // action log for rollback purposes
@@ -30,6 +30,32 @@
         this.keysDown = []; // array of key that are currently down
         
         this.addEditMode(depgraphlib.EditObject.DefaultMode);
+      };
+
+      depgraphlib.EditObject.prototype.setDefaultDataModel = function(){
+        var defaultDataModel = {
+          words:[
+            {name:'label',view:'label'}
+          ],
+          links:[{name:'label',view:'label'}],
+          chunks:[{name:'label',view:'label'}]
+        };
+        var types = ['words','chunks'];
+        for(var i in types){
+          var type = types[i];
+          var sl = 0;
+          for(var j = 0; j<this.depgraph.data.graph[type].length ; ++j){
+            var entity = this.depgraph.data.graph[type][j];
+            if(entity.sublabel.length>sl){
+              sl = entity.sublabel.length;
+            }
+          }
+          for(var k = 0; k<sl;k++){
+            defaultDataModel[type].push({name:'sublabel'+k,view:'sublabel/'+k});
+          }
+        }
+        
+        this.setDataModel(defaultDataModel);
       };
       
       /**
@@ -44,13 +70,42 @@
        * Each of these arrays (except links which is an array containing exactly 1 element) contains
        * objects that define labels model as following :
        * - name : name of the label
+       * - data-rel : path in json object to the attribute to edit
        * - values : (optional) array of possible values for label
        * - value-restrict : (optional, default false) boolean indicating if the user input is restricted to defined possible values
        * - onchange : (optional) user callback called after user submitted new value to this label field
+       * - view : label, sublabel/x
        * @memberof DepGraphLib.EditObject#
        */
       depgraphlib.EditObject.prototype.setDataModel = function(dataModel){
         this.dataModel = dataModel;
+        
+        if(dataModel.words){
+          setDataModelForType('words',dataModel,this.depgraph);
+        }
+        if(dataModel.links){
+          setDataModelForType('links',dataModel,this.depgraph);
+        }
+        if(dataModel.chunks){
+          setDataModelForType('chunks',dataModel,this.depgraph);
+        }
+      };
+
+      function setDataModelForType(type,dataModel,depgraph){
+        for(var j = 0; j<depgraph.data.graph[type].length ; ++j){
+          var entity = depgraph.data.graph[type][j];
+          for(var i=0; i<dataModel[type].length;++i){
+            var model = dataModel[type][i];
+            if(model.view){
+              var modelVal = depgraphlib.getAttrPath(entity,'#data/'+model.name)
+              if(!modelVal){
+                var viewVal = depgraphlib.getAttrPath(entity,model.view);
+                depgraphlib.setAttrPath(entity,'#data/'+model.name,viewVal);
+              }
+              depgraphlib.setAttrPath(entity,model.view,'@#data/'+model.name);
+            }
+          }
+        }
       };
 
       /**
@@ -94,8 +149,9 @@
        * that was previously added (see {@link DepGraphLib.EditMode#addEditMode})
        * @memberof DepGraphLib.EditMode#
        */
-      depgraphlib.EditObject.prototype.setEditMode = function(value){
+      depgraphlib.EditObject.prototype.setEditMode = function(value,canSave){
         var me = this;
+        this.canSave = (canSave !== false);
 
         if(value == null){
           value = 'default';
@@ -152,9 +208,12 @@
         var buttons = [
                        {name:'undo',callback:undo,style:'undo',group:'control'},
                        {name:'redo',callback:redo,style:'redo',group:'control'},
-                       {name:'highlight',callback:highlightmode,style:'highlightoff'},
-                       {name:'save',callback:save,style:'saved',group:'1'},
+                       {name:'highlight',callback:highlightmode,style:'highlightoff'}
                        ];
+
+        if(this.canSave){
+          buttons.push({name:'save',callback:save,style:'saved',group:'1'});
+        }
 
         if(this.mode[this.editMode].buttons != null){
           for(button in this.mode[this.editMode].buttons){
@@ -163,6 +222,8 @@
         }
         
         depgraph.viewer.addToolbarItems(buttons);
+
+
         if(this.currentPtr < 0 || this.mode[this.editMode].undo == null){
           depgraph.viewer.setToolbarItemActive('undo',false);
         }
@@ -288,6 +349,9 @@
        * @memberof DepGraphLib.EditObject#
        */
       depgraphlib.EditObject.prototype.updateSaveState =function(){
+        if(!this.canSave){
+          return;
+        }
         if(this.lastSavedPtr == this.currentPtr && !this.needToSaveState){
           this.depgraph.viewer.getToolbarItem('save').button.removeClass('save').addClass('saved');
         }else{
@@ -552,11 +616,12 @@
        */
       depgraphlib.EditObject.prototype.addEditModeSwitcher = function(){
         var me = this;
-        this.depgraph.viewer.addToolbarItem({name:'customeditmode',tooltip:'Custom Edit Mode',callback:function(){
+        this.depgraph.viewer.addToolbarItem({static:true,name:'customeditmode',tooltip:'Custom Edit Mode',callback:function(){
           var r=confirm("You will not be able to get back to frmg edit mode, are you sure you want to edit manually the graph?");
           if (r==true){
             depgraphlib.hideAltLinks(me.depgraph,me.depgraph.editObject.previousSelectedObject);
             me.setEditMode('default');
+            me.depgraph.viewer.removeToolbarItem('customeditmode');
           }
         },style:'default-edit'});
       };

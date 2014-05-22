@@ -31,6 +31,30 @@
     attr[pathComponents[pathComponents.length-1]] = value;
     return oldVal;
   };
+
+  /**
+   * @function getAttrPath
+   * @desc get a value to a property of an object defined by a path and return the value cloned ref
+   * @param {object} obj - an javascript object
+   * @param {string} path - a path to the property of the object in xpath style format (path is cut by slashes)
+   *
+   * @memberof DepGraphLib
+   *
+   */
+ depgraphlib.getAttrPath = function(obj,path){
+    var pathComponents = path.split('/');
+    var attr = obj;
+    for(var k = 0 ; k < pathComponents.length-1; k++){
+      var tmp = attr[pathComponents[k]];
+      if(!tmp){
+        attr[pathComponents[k]] = {};
+        tmp = attr[pathComponents[k]];
+      }
+      attr = tmp;
+    }
+    var oldVal = depgraphlib.clone(attr[pathComponents[pathComponents.length-1]]);
+    return oldVal;
+  };
   
   /**
    * Remove starting '#' of id, if there is one
@@ -186,6 +210,9 @@
         if(property == refid){
           return obj[refid];
         }
+      }
+      if(refid.indexOf('#data/')==0){
+        refid = refid.substring(6);
       }
       if(obj['#data']){
         for(var property in obj['#data']){

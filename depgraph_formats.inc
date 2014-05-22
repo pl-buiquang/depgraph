@@ -169,14 +169,16 @@ function conll2depGraph($data){
     
     $word = &$graph['words'][];
     $word['id'] = $items[0];
+    $word['#data'] = array();
     $word['label'] = $items[1];
-    $word['sublabel'][] = $items[3];
-    $word['token'] = $items[1];
-    $word['lemma'] = $items[2];
-    $word['cpos'] = $items[3];
-    $word['pos'] = $items[4];
+    $word['sublabel'][1] = $items[3];
+    $word['sublabel'][0] = $items[2];
+    $word['#data']['token'] = $items[1];
+    $word['#data']['lemma'] = $items[2];
+    $word['#data']['cpos'] = $items[3];
+    $word['#data']['pos'] = $items[4];
     foreach($features as $feat){
-      $word['feat'][trim($feat[1])] = trim($feat[2]);
+      $word['#data']['feat'][trim($feat[1])] = trim($feat[2]);
     }
 
     $n;
