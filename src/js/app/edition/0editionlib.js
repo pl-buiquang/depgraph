@@ -22,7 +22,7 @@
        * @memberof DepGraphLib.EditObject.DefaultModeLib
        */
       save : function(depgraph){
-        depgraph.cleanData();
+        var ddata = depgraph.cleanData();
         jQuery.ajax({
           type: 'POST', 
           url: depgraph.wsurl,
@@ -30,7 +30,7 @@
             action:'save',
             format:depgraph.dataFormat,
             options: '',
-            data:depgraph.data,
+            data:ddata,
             uid:depgraph.options.uid
           },
           dataType : 'json',
@@ -273,15 +273,11 @@
           +'<h3 id="edit-info-title">Edit '+klass+' (original id: '+data.id+')</h3>'
           +'<table class="main-properties-table" ref="'+data['#id']+'">';
         
-        var dataModel = [];
         if(klass == 'word'){
-          dataModel = depgraph.editObject.dataModel.words || [];
           div = depgraphlib.EditObject.DefaultModeLib.populateWordEditPanel(depgraph,div,data);
         }else if(klass == 'link'){
-          dataModel = depgraph.editObject.dataModel.links || [];
           div = depgraphlib.EditObject.DefaultModeLib.populateLinkEditPanel(depgraph,div,data);
         }else if(klass == 'chunk'){
-          dataModel = depgraph.editObject.dataModel.chunks || [];
           div = depgraphlib.EditObject.DefaultModeLib.populateChunkEditPanel(depgraph,div,data);
         }else{
           throw 'unknown object type : "' + klass + '"';
@@ -317,15 +313,11 @@
           +'<h3 id="edit-info-title">Edit '+klass+' (original id: '+data.id+')</h3>'
           +'<table class="main-properties-table" ref="'+data['#id']+'">';
         
-        var dataModel = [];
         if(klass == 'word'){
-          dataModel = depgraph.editObject.dataModel.words || [];
           div = depgraphlib.EditObject.DefaultModeLib.populateWordEditPanel(depgraph,div,data);
         }else if(klass == 'link'){
-          dataModel = depgraph.editObject.dataModel.links || [];
           div = depgraphlib.EditObject.DefaultModeLib.populateLinkEditPanel(depgraph,div,data);
         }else if(klass == 'chunk'){
-          dataModel = depgraph.editObject.dataModel.chunks || [];
           div = depgraphlib.EditObject.DefaultModeLib.populateChunkEditPanel(depgraph,div,data);
         }else{
           throw 'unknown object type : "' + klass + '"';
@@ -393,10 +385,15 @@
         var color = (linkData['#style']!= null && linkData['#style']['link-color']!=null)?linkData['#style']['link-color']:depgraph.data.graph['#link-style']['link-color'];
 
         var dataModel = depgraph.editObject.dataModel;
+        if(!dataModel){
+          depgraph.editObject.setDefaultDataModel();
+          dataModel = depgraph.editObject.dataModel;
+        }
+        
         if(dataModel.links && dataModel.links[0].name == 'label' && dataModel.links[0].values){
-          editDiv += depgraphlib.ui.addCustomField('label',depgraphlib.EditObject.DefaultModeLib.getOptionsListValues(depgraph,linkData.label,'label',dataModel.links[0].values));  
+          editDiv += depgraphlib.ui.addCustomField('label',depgraphlib.EditObject.DefaultModeLib.getOptionsListValues(depgraph,depgraphlib.getValue(linkData,linkData.label),'#data/label',dataModel.links[0].values));  
         }else{
-          editDiv += depgraphlib.ui.addTextField('label',{id:'link-edit-label',name:'label',value:linkData.label,'data-rel':'label'});  
+          editDiv += depgraphlib.ui.addTextField('label',{id:'link-edit-label',name:'label',value:depgraphlib.getValue(linkData,linkData.label),'data-rel':'#data/label'});  
         }
         
         editDiv += depgraphlib.ui.addCustomField('source',depgraphlib.EditObject.DefaultModeLib.getOptionsListWordsAndChunks(depgraph,linkData.source,'source'));
@@ -416,33 +413,17 @@
        */
        populateWordEditPanel : function(depgraph,editDiv,wordData){
         var dataModel = depgraph.editObject.dataModel;
-        if(!dataModel.words){
-          dataModel.words = [];
-          dataModel.words[0] = {name:'label'};
-          for(var i =0 ; wordData.sublabel &&  i< wordData.sublabel.length ; i++){
-            dataModel.words[i+1] = {name: 'sublabel'+i};
-          }
+        if(!dataModel){
+          depgraph.editObject.setDefaultDataModel();
+          dataModel = depgraph.editObject.dataModel;
         }
         
-        editDiv += depgraphlib.ui.addTextField(dataModel.words[0].name,{
-          'id' : 'word-edit-' + dataModel.words[0].name,
-          'data-rel':'label',
-          'name':dataModel.words[0].name,
-          'value':wordData.label,
-        }); 
         
-        var sublabel_index = 0;
-        for(var i=1;i<dataModel.words.length ; i++){
+        for(var i=0;i<dataModel.words.length ; i++){
           var value;
           var data_rel;
-          if(dataModel.words[i].hidden){
-            value = (wordData['#data'])?(wordData['#data'][dataModel.words[i].name] || ''):'';
-            data_rel = '#data/'+dataModel.words[i].name;
-          }else{
-            value = wordData.sublabel[sublabel_index] || '';
-            data_rel = 'sublabel/'+sublabel_index;
-            sublabel_index++;
-          }
+          value = (wordData['#data'])?(wordData['#data'][dataModel.words[i].name] || ''):'';
+          data_rel = '#data/'+dataModel.words[i].name;
           if(dataModel.words[i].values){
             editDiv += depgraphlib.ui.addCustomField(dataModel.words[i].name,depgraphlib.EditObject.DefaultModeLib.getOptionsListValues(depgraph,value,data_rel,dataModel.words[i].values));
           }else{
@@ -460,20 +441,12 @@
 
       populateChunkEditPanel : function (depgraph,editDiv,chunkData){
         var dataModel = depgraph.editObject.dataModel;
-        if(!dataModel.chunks){
-          dataModel.chunks = [];
-          dataModel.chunks[0] = {name:'label'};
-          for(var i =0 ; chunkData.sublabel && i< chunkData.sublabel.length ; i++){
-            dataModel.chunks[i+1] = {name: 'sublabel'+i};
-          }
+        if(!dataModel){
+          depgraph.editObject.setDefaultDataModel();
+          dataModel = depgraph.editObject.dataModel;
         }
         
-        editDiv += depgraphlib.ui.addTextField(dataModel.chunks[0].name,{
-          'id' : 'chunk-edit-' + dataModel.chunks[0].name,
-          'data-rel':'label',
-          'name':dataModel.chunks[0].name,
-          'value':chunkData.label,
-        });
+        
         
         var chunkRange = depgraph.getChunkRange(chunkData);
         var chunkRangeField = depgraphlib.ui.addCustomField('first element',depgraphlib.EditObject.DefaultModeLib.getOptionsListWords(depgraph,chunkRange.firstElement.id,'first-element'));
@@ -488,18 +461,18 @@
             $("#word-edit-" + dataModel.words[0].name).autocomplete({source: dataModel.words[0].values});}
           );
         }*/
-        var sublabel_index = 0;
-        for(var i=1;i<dataModel.chunks.length ; i++){
+        for(var i=0;i<dataModel.chunks.length ; i++){
           var value;
           var data_rel;
-          if(dataModel.chunks[i].hidden){
-            value = (wordData['#data'])?chunkData['#data'][dataModel.chunks[i].name]:'';
-            data_rel = '#data/'+dataModel.chunks[i].name;
+          value = (wordData['#data'])?chunkData['#data'][dataModel.chunks[i].name]:'';
+          data_rel = '#data/'+dataModel.chunks[i].name;
+          /*if(dataModel.chunks[i].hidden){
+            
           }else{
-            value = chunkData.sublabel[sublabel_index];
+            value = depgraphlib.getValue((chunkData.sublabel[sublabel_index]) || '';
             data_rel = 'sublabel/'+sublabel_index;
             sublabel_index++;
-          }
+          }*/
           editDiv += depgraphlib.ui.addTextField(dataModel.chunks[i].name,{
             'id' : 'chunk-edit-' + dataModel.chunks[i].name,
             'data-rel':data_rel,

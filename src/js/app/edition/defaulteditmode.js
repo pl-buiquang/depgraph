@@ -141,6 +141,7 @@
        * @memberof DepGraphLib.EditObject.DefaultMode
        */
       redo:depgraphlib.EditObject.DefaultModeLib.defaultRedo,
+
   };
   
 }(window.depgraphlib));

@@ -187,8 +187,27 @@
     depgraphlib.DepGraph.prototype.cleanData = function(){
       var links = this.vis.selectAll("g.link");
       this.resetLinksProperties(links);
+      var data = depgraphlib.clone(this.data);
+
+      removeDataModelBindingsForType('words',data);
+      removeDataModelBindingsForType('links',data);
+      removeDataModelBindingsForType('chunks',data);
+
+      return data;
     };
 
+
+    function removeDataModelBindingsForType(type,data){
+      for(var j = 0; j<data.graph[type].length ; ++j){
+        var entity = data.graph[type][j];
+        entity.label = depgraphlib.getValue(entity,entity.label);
+        if(entity.sublabel){
+          for(var i in entity.sublabel){
+            entity.sublabel[i] = depgraphlib.getValue(entity,entity.sublabel[i]);
+          }  
+        }
+      }
+    };
 
 
     /**
@@ -553,10 +572,10 @@
             exportPng();
           }else{
             //TODO(paul) : send raw parameter if not in custom edit mode
-            me.cleanData();
+            var ddata = me.cleanData();
             depgraphlib.windowOpenPost(
                 {'action':'export',
-                  'data':me.data,
+                  'data':ddata,
                   'gid':me.options.gid,
                   'source_format':'json',
                   'target_format':format},
@@ -806,7 +825,7 @@
       var text = elt.components!= null ? elt.components.text : node.append("text");
       var label = elt.components!= null ? elt.components.label : text.append("tspan");
       var sublabels = elt.components!= null ? elt.components.sublabels : [];
-      label.text(d.label)
+      label.text(depgraphlib.getValue(d,d.label))
         .style('fill',color)
         .style('font-style',fontStyle)
         .style('font-weight',fontWeight)
@@ -820,7 +839,7 @@
             sublabel = text.append("tspan");
             sublabels.push(sublabel);
           }
-          sublabel.text(d.sublabel[i])
+          sublabel.text(depgraphlib.getValue(d,d.sublabel[i]))
           .style('font-size',subfontSize)
           .style('font-style',subfontStyle)
           .style('font-weight',subfontWeight)
@@ -927,7 +946,7 @@
       var label = elt.components.label || text.append("tspan");
       var sublabels = elt.components.sublabels || [];
       text.attr('y',depgraphlib.addPxs(20,max.y,2*depgraphlib.removeUnit(margin.top)));
-      label.text(d.label)
+      label.text(depgraphlib.getValue(d,d.label))
          .style('fill',color)
         .style('font-style',fontStyle)
         .style('font-weight',fontWeight)
@@ -942,7 +961,7 @@
             sublabels.push(sublabel);
           }
           sublabel
-          .text(d.sublabel[i])
+          .text(depgraphlib.getValue(d,d.sublabel[i]))
           .style('font-size',subfontSize)
           .style('font-style',subfontStyle)
           .style('font-weight',subfontWeight)
@@ -1117,7 +1136,7 @@
       // Label
       var text = elt.components != null ? elt.components.label : node.append('text');
       text
-        .text(d.label)
+        .text(depgraphlib.getValue(d,d.label))
         .style('fill',color)
         .style('font-weight',fontWeight)
         .style('font-style',fontStyle)

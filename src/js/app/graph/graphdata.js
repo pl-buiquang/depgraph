@@ -12,7 +12,7 @@
    */
   depgraphlib.DepGraph.prototype.prepareData = function() {
     // Resolve references
-    depgraphlib.JSONresolveReferences(this.data,'@');
+    //depgraphlib.JSONresolveReferences(this.data,'@');
     
     // Assign #id (and #position for words)
     this.id = 0;
