@@ -9,6 +9,9 @@ function convertGraph($data,$sourceformat,$targetformat){
   $json;
   $formateddata;
   switch ($sourceformat){
+    case 'depconll':
+      $json = depconll2depGraph($data);
+      break;
     case 'conll':
       $json = conll2depGraph($data);
       break;
@@ -23,20 +26,23 @@ function convertGraph($data,$sourceformat,$targetformat){
       break;
   }
   switch ($targetformat){
+    case 'depconll':
+      $formateddata = depGraph2depconll($json);
+      break;
     case 'conll':
-      $formateddata = depGraph2conll($data);
+      $formateddata = depGraph2conll($json);
       break;
     case 'depxml':
-      $formateddata = depGraph2depXML($data);
+      $formateddata = depGraph2depXML($json);
       break;
     case 'json':
       $formateddata = $json;
       break;
     case 'dep2pict':
-      $formateddata = depGraph2dep2pict($data);
+      $formateddata = depGraph2dep2pict($json);
       break;
     case 'tikz-dep':
-      $formateddata = depGraph2tikz($data);
+      $formateddata = depGraph2tikz($json);
       break;
   }
   
@@ -227,10 +233,10 @@ function depGraph2conll($data){
     $line = array();
     $line[0]=isset($word['id'])?$word['id']:'_';
     $line[1]=isset($word['label'])?$word['label']:'_';
-    $line[2]=isset($word['lemma'])?$word['lemma']:'_';
-    $line[3]=isset($word['cpos'])?$word['cpos']:'_';
-    $line[4]=isset($word['pos'])?$word['pos']:'_';
-    $line[5]=isset($word['feat'])?conllFeatures($word['feat']):'_';
+    $line[2]=isset($word['#data']['lemma'])?$word['#data']['lemma']:'_';
+    $line[3]=isset($word['#data']['cpos'])?$word['#data']['cpos']:'_';
+    $line[4]=isset($word['#data']['pos'])?$word['#data']['pos']:'_';
+    $line[5]=isset($word['#data']['feat'])?conllFeatures($word['#data']['feat']):'_';
   }
   foreach($data['graph']['links'] as $link){
     if($link['target']==0 || (isset($ref_ids[$link['target']]) && $ref_ids[$link['target']]!=null)){
@@ -252,6 +258,122 @@ function depGraph2conll($data){
   return implode("\n",$lines);
 }
 
+function depconll2depGraph($data){
+  if(is_string($data)){
+    $data = preg_replace("/^#(.*?)\n/m", '', $data);
+    $data = preg_split('/\n/',$data);
+  }
+  
+  $graph['words'] = array();
+  $graph['links'] = array();
+  $graph['chunks'] = array();
+
+  foreach($data as $line){
+    
+    $line = trim($line,"\n ");
+    
+    if($line == ""){
+      continue;
+    }
+    
+    $items = preg_split('/\t/', $line);
+    
+  
+    if(count($items)<8){
+      $items = preg_split('/\s+/', $line);//   throw new Exception('Le format semble être incorrect');
+    }
+    
+    $features = array();
+    $heads = array();
+    $relations = array();
+    $regex_feature = '/(\w+)\s*=\s*(\w+)\s*\|*\s*/';
+    $regex_rel = '/([A-Za-z0-9_\-\+:\.]+)\s*\|*\s*/';
+    preg_match_all($regex_feature, $items[4], $features, PREG_SET_ORDER);
+    preg_match_all($regex_rel, $items[5], $heads);
+    preg_match_all($regex_rel, $items[6], $relations);
+    
+    $word = &$graph['words'][];
+    $word['id'] = $items[0];
+    $word['#data'] = array();
+    $word['label'] = $items[1];
+    $word['sublabel'][1] = $items[3];
+    $word['sublabel'][0] = $items[2];
+    $word['#data']['token'] = $items[1];
+    $word['#data']['lemma'] = $items[2];
+    $word['#data']['cat'] = $items[3];
+    foreach($features as $feat){
+      $word['#data']['feat'][trim($feat[1])] = trim($feat[2]);
+    }
+
+    $n;
+    if(($n = count($heads[1])) != count($relations[1])){
+      echo 'error';
+      //watchdog('debug',count($heads[1]) . '__' . count($relations[1]));
+      //      throw new Exception('Le format semble être incorrect');
+    }
+    for($i = 0; $i< $n ; ++$i){
+      $rel = $relations[1][$i];
+      $source = $heads[1][$i];
+      if($source === '0'){
+        $link = &$graph['links'][];
+        $link['source'] = $source;
+        $link['target'] = $items[0];
+        $link['label'] = $rel;
+        continue;
+      }
+      $link = &$graph['links'][];
+      $link['source'] = $source;
+      $link['target'] = $items[0];
+      $link['label'] = $rel;
+      if(!strncmp($rel, "S:", 2)){
+        $link['#style'] = array('link-color' => 'red','color' => 'red');
+      }else if(!strncmp($rel, "D:", 2)){
+        $link['#style'] = array('link-color' => 'blue','color' => 'blue');
+      }
+    }
+    }
+    
+    $dep_graph_array['graph'] = $graph;
+    return json_encode($dep_graph_array);
+
+}
+
+function depGraph2depconll($data){
+  if(is_string($data)){
+    $data = json_decode($data,true);
+  }
+  
+  $ref_ids = array();
+  $lines = array();
+  foreach($data['graph']['words'] as $word){
+    $line = &$lines[];
+    $ref_ids[$word['id']] = &$line;
+    $line = array();
+    $line[0]=isset($word['id'])?$word['id']:'_';
+    $line[1]=isset($word['label'])?$word['label']:'_';
+    $line[2]=isset($word['#data']['lemma'])?$word['#data']['lemma']:'_';
+    $line[3]=isset($word['#data']['cat'])?$word['#data']['cat']:'_';
+    $line[4]=isset($word['#data']['feat'])?conllFeatures($word['#data']['feat']):'_';
+  }
+  foreach($data['graph']['links'] as $link){
+    if($link['target']==0 || (isset($ref_ids[$link['target']]) && $ref_ids[$link['target']]!=null)){
+      $line = &$ref_ids[$link['target']];
+      if(isset($line[6]) && $line[6] != null){ // case append
+        $line[5] .= '|' . $link['source'];
+        $line[6] .= '|' . $link['label'];
+      }else{ // case create
+        $line[5] = $link['source'];
+        $line[6] = $link['label'];
+      }
+    }else{
+      throw new Exception('Couldn\'t find word with id : ' . $link['target']);
+    }
+  }
+  foreach($lines as &$line){
+    $line = implode("\t",$line);
+  }
+  return implode("\n",$lines);
+}
 
 /**
  * Create feature cell of conll format from depgraph feat attribute of words
@@ -632,6 +754,7 @@ function depXML2depGraph($xml_data){
       }
     }else{
       $duplicatedTokenEdge = $xml_data->addChild("edge");
+      $duplicatedTokenEdge->addAttribute("label","");
       $duplicatedTokenEdge->addAttribute("id","C".$duplicatedTokenEdgeIndex++);
       $duplicatedTokenEdge->addAttribute("source",$tokens[$lexparts[0]]);
       $duplicatedTokenEdge->addAttribute("target",$word['id']);

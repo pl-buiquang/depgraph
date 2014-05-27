@@ -99,11 +99,17 @@
      * Switch on or off the highlight on mouseover (link and words)
      */
     depgraphlib.DepGraph.prototype.autoHighLightOnMouseOver = function(value){
+      var me = this;
+      
       if(value==null || value){
         this.vis.selectAll('g.link').on("mouseover.autohighlight",function(){depgraphlib.DepGraph.highlightLink(this, true); });
         this.vis.selectAll('g.link').on("mouseout.autohighlight",function(){depgraphlib.DepGraph.highlightLink(this, false); });
-        this.vis.selectAll('g.word').on("mouseover.autohighlight",function(){depgraphlib.DepGraph.highlightWord(this, true); });
-        this.vis.selectAll('g.word').on("mouseout.autohighlight",function(){depgraphlib.DepGraph.highlightWord(this, false); });
+        this.vis.selectAll('g.word').on("mouseover.autohighlight",function(){depgraphlib.DepGraph.highlightWord(this, true); if(me.options.onObjectMouseOver){
+        me.options.onObjectMouseOver.call(this,this,true);
+      };});
+        this.vis.selectAll('g.word').on("mouseout.autohighlight",function(){depgraphlib.DepGraph.highlightWord(this, false); if(me.options.onObjectMouseOver){
+        me.options.onObjectMouseOver.call(this,this,false);
+      };});
       }else{
         this.vis.selectAll('g.link').on("mouseover.autohighlight",null);
         this.vis.selectAll('g.link').on("mouseout.autohighlight",null);
@@ -153,6 +159,7 @@
         }
       }
     };
+    
 
     /**
      * Initial set up and preprocess of graph data
@@ -491,28 +498,30 @@
     };
 
     depgraphlib.DepGraph.prototype.displayHelp = function(elt){
-        var coords = elt.getBoundingClientRect();
-        var point = {x:coords.left,y:coords.top + coords.height + 2};
-        var div ='<div></div>';
-        div = jQuery(div);
-        jQuery.ajax({
-          type: 'POST', 
-          url: depgraphlib.helpurl,
-          data: {
-            app:"depgraph"
-          },
-          dataType : 'html',
-          success: function(data, textStatus, jqXHR) {
-            div.html(data);
-          },
-          error: function(jqXHR, textStatus, errorThrown) {
-            alert(textStatus);
-          }
-        });
-        var box = this.viewer.createBox({draggable:true,closeButton:true,autodestroy:true});
-        box.setContent(jQuery(div)).setHeader('DepGraph Help');
-        
-        box.open(point);
+      var me = this;
+      var coords = elt.getBoundingClientRect();
+      var point = {x:coords.left,y:coords.top + coords.height + 2};
+      var div ='<div></div>';
+      div = jQuery(div);
+      jQuery.ajax({
+        type: 'POST', 
+        url: depgraphlib.helpurl,
+        data: {
+          app:"depgraph"
+        },
+        dataType : 'html',
+        success: function(data, textStatus, jqXHR) {
+          div.html(data);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          alert(textStatus);
+        }
+      });
+      var box = this.viewer.createBox({draggable:true,closeButton:true,autodestroy:true});
+      box.setFixedSize(600,500);
+      box.setContent(jQuery(div)).setHeader('DepGraph Help');
+      
+      box.open(point);
     };
     
     /**
