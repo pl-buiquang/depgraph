@@ -99,11 +99,17 @@
      * Switch on or off the highlight on mouseover (link and words)
      */
     depgraphlib.DepGraph.prototype.autoHighLightOnMouseOver = function(value){
+      var me = this;
+      
       if(value==null || value){
         this.vis.selectAll('g.link').on("mouseover.autohighlight",function(){depgraphlib.DepGraph.highlightLink(this, true); });
         this.vis.selectAll('g.link').on("mouseout.autohighlight",function(){depgraphlib.DepGraph.highlightLink(this, false); });
-        this.vis.selectAll('g.word').on("mouseover.autohighlight",function(){depgraphlib.DepGraph.highlightWord(this, true); });
-        this.vis.selectAll('g.word').on("mouseout.autohighlight",function(){depgraphlib.DepGraph.highlightWord(this, false); });
+        this.vis.selectAll('g.word').on("mouseover.autohighlight",function(){depgraphlib.DepGraph.highlightWord(this, true); if(me.options.onObjectMouseOver){
+        me.options.onObjectMouseOver.call(this,this,true);
+      };});
+        this.vis.selectAll('g.word').on("mouseout.autohighlight",function(){depgraphlib.DepGraph.highlightWord(this, false); if(me.options.onObjectMouseOver){
+        me.options.onObjectMouseOver.call(this,this,false);
+      };});
       }else{
         this.vis.selectAll('g.link').on("mouseover.autohighlight",null);
         this.vis.selectAll('g.link').on("mouseout.autohighlight",null);
@@ -153,6 +159,7 @@
         }
       }
     };
+    
 
     /**
      * Initial set up and preprocess of graph data

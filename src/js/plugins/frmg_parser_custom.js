@@ -33,6 +33,7 @@
           undo : frmgUndo,
           save:frmg_save,
           highlightInfos:null,
+          onGetNewResult:null,
         };
       
       function frmg_save(depgraph){
@@ -220,6 +221,9 @@
           dataType : 'json',
           success: function(data, textStatus, jqXHR) {
             if(!data.error){
+              if(depgraph.editObject.mode['frmg'].onGetNewResult){
+                depgraph.editObject.mode['frmg'].onGetNewResult.call(depgraph,data);
+              }
               depgraph.resetData(data);
             }else{
               alert("Error happened");
