@@ -561,15 +561,25 @@
       /*    if(depgraph.gid != null){
           div += 'Wiki reference (copy paste to create a reference to this graph):<br> &lt;st uid="'+depgraph.gid+'"&gt;&lt;/st&gt;<br>';
         }*/
+
+        if(!me.options.exportFormats){
+          me.options.exportFormats = {
+            'json':'json',
+            'image':'png',
+            'dep2pict':'dep2pict'
+          };
+        }
+
+        if(depgraphlib.plugins && depgraphlib.plugins.tikzdep){
+          me.options.exportFormats['tikz-dep'] = 'tikz-dep';
+        }
+
         div += 'Export Format : '
-          + '<select name="type">'
-        +'<option value="png">png</option>'
-        +'<option value="json" selected>json</option>'
-        +((depgraphlib.plugins && depgraphlib.plugins.tikzdep)?'<option value="tikz-dep">tikz-dep</option>':'')
-        +'<option value="depxml">depxml</option>'
-        +'<option value="dep2pict">dep2pict</option>'
-        +'<option value="conll">conll</option>'
-        +'</select><br/>'
+          + '<select name="type">';
+        for(var availableFormat in me.options.exportFormats){
+          div += '<option value="'+me.options.exportFormats[availableFormat]+'">'+availableFormat+'</option>';
+        }
+        div += '</select><br/>'
         +'<input id="export-data'+me.viewer.appendOwnID('')+'"  type="button" value="Export"></div>';
         div = jQuery(div);
         var box = me.viewer.createBox({closeButton:true,autodestroy:true});
