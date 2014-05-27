@@ -620,7 +620,7 @@
           var r=confirm("You will not be able to get back to frmg edit mode, are you sure you want to edit manually the graph?");
           if (r==true){
             depgraphlib.hideAltLinks(me.depgraph,me.depgraph.editObject.previousSelectedObject);
-            me.setEditMode('default');
+            me.setEditMode('default',me.canSave);
             me.depgraph.viewer.removeToolbarItem('customeditmode');
           }
         },style:'default-edit'});
