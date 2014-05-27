@@ -491,28 +491,30 @@
     };
 
     depgraphlib.DepGraph.prototype.displayHelp = function(elt){
-        var coords = elt.getBoundingClientRect();
-        var point = {x:coords.left,y:coords.top + coords.height + 2};
-        var div ='<div></div>';
-        div = jQuery(div);
-        jQuery.ajax({
-          type: 'POST', 
-          url: depgraphlib.helpurl,
-          data: {
-            app:"depgraph"
-          },
-          dataType : 'html',
-          success: function(data, textStatus, jqXHR) {
-            div.html(data);
-          },
-          error: function(jqXHR, textStatus, errorThrown) {
-            alert(textStatus);
-          }
-        });
-        var box = this.viewer.createBox({draggable:true,closeButton:true,autodestroy:true});
-        box.setContent(jQuery(div)).setHeader('DepGraph Help');
-        
-        box.open(point);
+      var me = this;
+      var coords = elt.getBoundingClientRect();
+      var point = {x:coords.left,y:coords.top + coords.height + 2};
+      var div ='<div></div>';
+      div = jQuery(div);
+      jQuery.ajax({
+        type: 'POST', 
+        url: depgraphlib.helpurl,
+        data: {
+          app:"depgraph"
+        },
+        dataType : 'html',
+        success: function(data, textStatus, jqXHR) {
+          div.html(data);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          alert(textStatus);
+        }
+      });
+      var box = this.viewer.createBox({draggable:true,closeButton:true,autodestroy:true});
+      box.setFixedSize(600,500);
+      box.setContent(jQuery(div)).setHeader('DepGraph Help');
+      
+      box.open(point);
     };
     
     /**

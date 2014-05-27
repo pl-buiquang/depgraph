@@ -632,6 +632,7 @@ function depXML2depGraph($xml_data){
       }
     }else{
       $duplicatedTokenEdge = $xml_data->addChild("edge");
+      $duplicatedTokenEdge->addAttribute("label","");
       $duplicatedTokenEdge->addAttribute("id","C".$duplicatedTokenEdgeIndex++);
       $duplicatedTokenEdge->addAttribute("source",$tokens[$lexparts[0]]);
       $duplicatedTokenEdge->addAttribute("target",$word['id']);
