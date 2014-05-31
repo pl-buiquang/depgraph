@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"ti",
+				"tikzdep"
+			],
+			[
 				"edit",
 				"editObject"
 			],
@@ -243,7 +247,33 @@
 			"file": "src/js/app/graph/graph.js",
 			"settings":
 			{
-				"buffer_size": 46917,
+				"buffer_size": 47071,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "depgraph_formats.inc",
+			"settings":
+			{
+				"buffer_size": 27442,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "Searching 2507 files for \"getPreviousParams\"\n\n/var/www/mgwiki/sites/all/modules/custom/d3js/js/depgraph/mgwiki.depgraph.js:\n 3804      \n 3805      function frmg_save(depgraph){\n 3806:       var params = getPreviousParams(depgraph);\n 3807        var highlightInfos = depgraph.editObject.mode[depgraph.editObject.editMode].highlightInfos;\n 3808        jQuery.ajax({\n ....\n 3861            if(depgraphlib.isALink(depgraph.editObject.previousSelectedObject)){\n 3862              var params = removeLinkForNewData(depgraph,depgraph.sentence,depgraph.editObject.previousSelectedObject.__data__);\n 3863:             return {baseAction:'removeEdge',previousParams:getPreviousParams(depgraph),currentParams:params};\n 3864            }\n 3865          }\n ....\n 3881            params += \"eid=\" + this.__data__['ref_ids'][id] + \"&+8000\";\n 3882            getNewData(depgraph,depgraph.sentence,params);\n 3883:           return {baseAction:'selectAlternative',previousParams:getPreviousParams(depgraph),currentParams:params};\n 3884          }\n 3885        }\n 3886      }\n 3887  \n 3888:     function getPreviousParams(depgraph){\n 3889        var eo = depgraph.editObject;\n 3890        if(eo.currentPtr == -1){\n ....\n 3896      }\n 3897      \n 3898:     depgraphlib.getPreviousParams = getPreviousParams;\n 3899      \n 3900      function processhighlightmode(depgraph,currentobj){\n\n/var/www/mgwiki/sites/all/modules/custom/d3js/js/depgraph/build/mgwiki.depgraph.js:\n 6397        \n 6398        function frmg_save(depgraph){\n 6399:         var params = getPreviousParams(depgraph);\n 6400          var highlightInfos = depgraph.editObject.mode[depgraph.editObject.editMode].highlightInfos;\n 6401          jQuery.ajax({\n ....\n 6458              if(depgraphlib.isALink(depgraph.editObject.previousSelectedObject)){\n 6459                var params = removeLinkForNewData(depgraph,depgraph.sentence,depgraph.editObject.previousSelectedObject.__data__);\n 6460:               return {baseAction:'removeEdge',previousParams:getPreviousParams(depgraph),currentParams:params};\n 6461              }\n 6462            }\n ....\n 6478              params += depgraphlib.getOriginalFRMGMode(depgraph) + \"eid=\" + this.__data__['ref_ids'][id] + \"&+99999\";\n 6479              getNewData(depgraph,depgraph.sentence,params);\n 6480:             return {baseAction:'selectAlternative',previousParams:getPreviousParams(depgraph),currentParams:params};\n 6481            }\n 6482          }\n ....\n 6502        };\n 6503  \n 6504:       function getPreviousParams(depgraph){\n 6505          var eo = depgraph.editObject;\n 6506          if(eo.currentPtr == -1){\n ....\n 6512        }\n 6513        \n 6514:       depgraphlib.getPreviousParams = getPreviousParams;\n 6515        \n 6516        function processhighlightmode(depgraph,currentobj){\n\n/var/www/mgwiki/sites/all/modules/custom/d3js/js/depgraph/build/mgwiki.depgraph.min.js:\n    3  }function e(b,c){var d=d3.select(this),e=a.DepGraph.getInstance(this),g=this,h=e.getLinkProperties(d.node()),i=g.getStyle(\"margin\"),j=g.getStyle(\"font-size\"),k=g.getStyle(\"color\"),l=g.getStyle(\"link-color\"),m=g.getStyle(\"link-size\"),n=g.getStyle(\"font-weight\"),o=g.getStyle(\"font-style\"),p=g.getStyle(\"oriented\");g.getStyle(\"align\");var q=g.getStyle(\"highlighted\",!1),r=g.getStyle(\"stroke-dasharray\",\"none\"),s=b[\"#data\"]?\"ellipsis\"==b[\"#data\"].type:!1,t=b[\"#data\"]?\"segmentation\"==b[\"#data\"].type:!1,u=s||t;u&&(h.strate=-1);var v=!1;(!h.nodeStart||h.rootEdge)&&(h.nodeStart=h.nodeEnd,v=!0);var w=a.getNodePosition(h.nodeEnd)-a.getNodePosition(h.nodeStart)>0?1:-1,x=h.strate>0?1:-1,y=a.getTransformValues(d3.select(h.nodeStart)).translate,z=a.getTransformValues(d3.select(h.nodeEnd)).translate,A=h.nodeStart.getBBox(),B=h.nodeEnd.getBBox(),C=A.width/2,D=B.width/2,E=3,F=w>0?5*h.offsetXmin+E:-5*h.offsetXmax-E,G=w>0?-5*h.offsetXmax-E:5*h.offsetXmin+E,H=0,I=y[0]+C+F,J=z[0]+D+G,K=J-I-2*w*H;if(null==e.wordY){var L=e.vis.selectAll(\"g.word\");e.wordY=0,e.wordHeight=0;for(var c=0;c<L[0].length;++c){var M=L[0][c].getBBox();e.wordY>M.y&&(e.wordY=M.y),e.wordHeight<M.height&&(e.wordHeight=M.height)}}var N=\"chunk\"==h.nodeStart.className.animVal?A.height:A.height+e.wordY,O=\"chunk\"==h.nodeEnd.className.animVal?B.height:B.height+e.wordY,P=\"chunk\"==h.nodeStart.className.animVal?0:e.wordY,Q=\"chunk\"==h.nodeEnd.className.animVal?0:e.wordY,R=x>0?P:N,S=x>0?Q:O,T=y[1]+R,U=z[1]+S,V=15,W=30;u&&(W=0);var X=-x*V-W*h.strate;v&&(X=-x*V-W*x*(e.maxLinksStrate+1));for(var Y=-(X+T-U);Y*X>0;)0>X?X-=10:X+=10,Y=-(X+T-U);var Z=(1+w*x)/2,$=(1+w*x)/2,_=\"transparent\";q&&(_=f(l));var ab=null!=g.components?g.components.highlightPath:d.append(\"path\"),bb=null!=g.components?g.components.path:d.append(\"path\");g.drawingData={x0:I,y0:T,v0:X,laf0:Z,hdir:w,arcSize:H,h:K,laf1:$,vdir:x,v1:Y},v?(ab.attr(\"d\",\"M \"+I+\",\"+(T+X)+\" v \"+-X),bb.attr(\"d\",\"M \"+I+\",\"+(T+X)+\" v \"+-X)):(ab.attr(\"d\",\"M \"+I+\",\"+T+\" a \"+K/2+\" \"+X+\" 0 0 \"+Z+\" \"+K+\" 0\"),bb.attr(\"d\",\"M \"+I+\",\"+T+\" a \"+K/2+\" \"+X+\" 0 0 \"+Z+\" \"+K+\" 0\")),ab.attr(\"stroke\",_).attr(\"stroke-width\",a.removeUnit(m)+3).attr(\"fill\",\"none\"),bb.attr(\"stroke\",l).attr(\"stroke-dasharray\",r).attr(\"stroke-width\",m).attr(\"fill\",\"none\"),p&&bb.attr(\"marker-end\",\"url(#\"+e.viewer.appendOwnID(\"arrow\")+\")\");var cb=null!=g.components?g.components.label:d.append(\"text\");cb.text(a.getValue(b,b.label)).style(\"fill\",k).style(\"font-weight\",n).style(\"font-style\",o).style(\"font-size\",j);var db=cb.node().getBBox();cb.attr(\"x\",-db.width/2+I+K/2+w*H).attr(\"y\",a.removeUnit(a.addPxs(-a.removeUnit(i.top),T,X,-x*H))),g.drawingData.textBBox=db,g.components={highlightPath:ab,path:bb,label:cb}}function f(b){if(\"#000000\"==b||\"#\"!=b.slice(0,1))return\"yellow\";var c=-.3,d=a.hexToRgb(b),e=a.rgbToHsl(d.r,d.g,d.b);return e.l+=c,e.l=e.l<0?0:e.l>1?1:e.l,d=a.hslToRgb(e.h,e.s,e.l),a.rgbToHex(d.r,d.g,d.b)}a.DepGraph.prototype.init=function(b,c,d){this.options=d||{},this.viewer=new a.GraphViewer(b,this.options.uid),a.DepGraph.instances[this.viewer.uid]=this,this.callbacks=new Object,this.setData(c),this.original_data=a.clone(this.data),this.createLayout(),this.update(),this.postProcesses(),this.autoHighLightOnMouseOver(),this.viewerSettings(),this.editObject=new a.EditObject(this)},a.DepGraph.prototype.getOriginalUID=function(){return this.viewer.uid.replace(/_*$/g,\"\")},a.DepGraph.prototype.viewerSettings=function(){this.viewer.callbacks.fullscreen.oncomplete.push({method:this.centerGraph,caller:this}),this.viewer.callbacks.fullscreen.onclose.push({method:this.centerGraph,caller:this})},a.DepGraph.prototype.centerGraph=function(){var b=this.viewer.chart,c=b[0].getBoundingClientRect(),d=this.vis.node().getBBox(),e=a.getTransformValues(this.vis),f=(c.width-d.width)/2,g=(c.height-d.height)/2;g=g>0?g:a.removeUnit(this.data.graph[\"#style\"].margin.top),f=f>0?f:a.removeUnit(this.data.graph[\"#style\"].margin.left),this.vis.attr(\"transform\",\"translate(\"+(f-d.x)+\",\"+(g-d.y)+\") scale(\"+e.scale[0]+\")\"),this.createScrollBar()},a.DepGraph.prototype.autoHighLightOnMouseOver=function(b){var c=this;null==b||b?(this.vis.selectAll(\"g.link\").on(\"mouseover.autohighlight\",function(){a.DepGraph.highlightLink(this,!0)}),this.vis.selectAll(\"g.link\").on(\"mouseout.autohighlight\",function(){a.DepGraph.highlightLink(this,!1)}),this.vis.selectAll(\"g.word\").on(\"mouseover.autohighlight\",function(){a.DepGraph.highlightWord(this,!0),c.options.onObjectMouseOver&&c.options.onObjectMouseOver.call(this,this,!0)}),this.vis.selectAll(\"g.word\").on(\"mouseout.autohighlight\",function(){a.DepGraph.highlightWord(this,!1),c.options.onObjectMouseOver&&c.options.onObjectMouseOver.call(this,this,!1)})):(this.vis.selectAll(\"g.link\").on(\"mouseover.autohighlight\",null),this.vis.selectAll(\"g.link\").on(\"mouseout.autohighlight\",null),this.vis.selectAll(\"g.word\").on(\"mouseover.autohighlight\",null),this.vis.selectAll(\"g.word\").on(\"mouseout.autohighlight\",null))},a.DepGraph.instances=a.DepGraph.instances||[],a.DepGraph.getInstance=function(b){if(b)try{if(a.DepGraph.prototype.isPrototypeOf(b))return b;null!=b.ownerSVGElement?b=b.ownerSVGElement.parentNode.id:b.nodeName&&\"svg\"==b.nodeName?b=b.parentNode.id:\"object\"==typeof b&&null!=b.id&&(b=b.id),regex=/.*-(\\w+)/;var c=regex.exec(b);return null!=c?a.DepGraph.instances[c[1]]:null}catch(d){return console.log(d),null}},a.DepGraph.prototype.setData=function(a){this.data=a,this.prepareData()},a.DepGraph.prototype.resetData=function(a){this.setData(a),this.createLayout(),this.update(),this.postProcesses(),this.autoHighLightOnMouseOver(),this.editObject.editMode&&this.editObject.editModeInit()},a.DepGraph.prototype.cleanData=function(){var c=this.vis.selectAll(\"g.link\");this.resetLinksProperties(c);var d=a.clone(this.data);return b(\"words\",d),b(\"links\",d),b(\"chunks\",d),d},a.DepGraph.prototype.postProcesses=function(){var b=this.vis.node().getBBox();this.vis.attr(\"transform\",\"translate(\"+(a.removeUnit(this.data.graph[\"#style\"].margin.left)-b.x)+\",\"+(a.removeUnit(this.data.graph[\"#style\"].margin.top)-b.y)+\") scale(1)\"),this.setViewMode()},a.DepGraph.prototype.postProcessesFixHeight=function(){var b=this.vis.node().getBBox(),c=a.getTransformValues(this.vis);this.vis.attr(\"transform\",\"translate(\"+c.translate[0]+\",\"+(a.removeUnit(this.data.graph[\"#style\"].margin.top)-b.y)+\") scale(1)\"),this.viewer.shrinkHeightToContent(a.removeUnit(this.data.graph[\"#style\"].margin.bottom)+20),this.scrollbar&&this.scrollbar.attr(\"y\",this.viewer.mainpanel.height()-40)},a.DepGraph.prototype.setViewMode=function(){if(this.options.viewmode&&\"full\"!=this.options.viewmode)this.setWidthLimitedViewMode(this.options.maxwidth||this.viewer.container.parent().width());else{var a=this.vis.node().getBBox();this.options.maxwidth&&this.options.maxwidth<a.width?(this.options.viewmode=\"cropped\",this.setWidthLimitedViewMode(this.options.maxwidth,!0)):(this.options.viewmode=\"full\",this.setFullViewMode())}},a.DepGraph.prototype.setFullViewMode=function(){this.viewer.shrinkToContent(a.removeUnit(this.data.graph[\"#style\"].margin.right),a.removeUnit(this.data.graph[\"#style\"].margin.bottom)+20)},a.DepGraph.prototype.setWidthLimitedViewMode=function(b,c){if(this.viewer.shrinkHeightToContent(a.removeUnit(this.data.graph[\"#style\"].margin.bottom)+20),b&&(this.options.viewsize=b),this.viewer.setWidth(this.options.viewsize),c||\"cropped\"==this.options.viewmode)this.createScrollBar();else{var d=this.vis.node().getBBox(),e=this.viewer.chart.width()/(d.width+2*a.removeUnit(this.data.graph[\"#style\"].margin.right));this.scale(e),this.viewer.shrinkHeightToContent(a.removeUnit(this.data.graph[\"#style\"].margin.bottom)+20)}},a.DepGraph.scrollBarWidth=30,a.DepGraph.prototype.setUpScrollBarView=function(b,c,d){var e=(b-c)/(c-a.DepGraph.scrollBarWidth);return this.scrollbar=this.svg.select(\".scrollbar\"),null==this.scrollbar.node()&&(this.scrollbar=this.svg.append(\"rect\").classed(\"scrollbar\",!0)),this.scrollbar.attr(\"x\",0).attr(\"y\",this.viewer.mainpanel.height()-40).attr(\"rx\",1).attr(\"ry\",1).attr(\"width\",a.DepGraph.scrollBarWidth).attr(\"height\",5).style(\"stroke\",\"grey\").style(\"fill\",\"lightgrey\").style(\"stroke-width\",1).__info__={maxX:c-a.DepGraph.scrollBarWidth,k:e},null!=d?this.scrollbarTranslate(d):void 0},a.DepGraph.prototype.scrollbarTranslate=function(a){var b=parseFloat(this.scrollbar.attr(\"x\")),c=a/this.scrollbar.__info__.k;return this.scrollbar.__info__.maxX<b+c?c=this.scrollbar.__info__.maxX-b:0>b+c&&(c=-b),a=this.scrollbar.__info__.k*c,this.scrollbar.attr(\"x\",b+c),a},a.DepGraph.prototype.scale=function(b){var c=a.DepGraph.getInstance(this),d=a.getTransformValues(c.vis);c.vis.attr(\"transform\",\"translate(\"+d.translate[0]*b+\",\"+d.translate[1]*b+\")\"+\" scale(\"+b+\")\")},a.DepGraph.prototype.translateGraph=function(b,c){var d=a.DepGraph.getInstance(this),e=a.getTransformValues(d.vis);d.scrollbar&&(b=d.scrollbarTranslate(b));var f=e.translate[0]-parseFloat(b);f=Math.round(1e6*f)/1e6,d.vis.attr(\"transform\",\"translate(\"+f+\",\"+(e.translate[1]-c)+\")\"+\" scale(\"+e.scale[0]+\")\"),d.hyperbolicView&&d.hyperbolicViewCompute()},a.DepGraph.prototype.createScrollBar=function(){var b=this,c=this.vis.node().getBBox(),d=c.width+2*a.removeUnit(this.data.graph[\"#style\"].margin.right),e=this.viewer.mainpanel.width();this.scrollbar&&jQuery(this.scrollbar.node()).remove(),d>e&&(this.setUpScrollBarView(d,e),this.scrollMouseSelected=null,this.scrollbar.on(\"mousedown\",function(){var b=a.DepGraph.getInstance(this);a.DepGraph.depgraphActive=\"-\"+b.viewer.uid,b.scrollMouseSelected=d3.event.clientX,d3.event.preventDefault?d3.event.preventDefault():d3.event.returnValue=!1}),this.viewer.addToolbarItem({name:\"resetView\",callback:function(){b.resetData(b.data)},style:\"reset-view\",group:\"-1\",\"static\":!0}),this.vis.selectAll(\"g.link\").on(\"click\",function(){b.displayFullLinkSpan(this)}),this.vis.selectAll(\"g.word\").on(\"click\",function(){b.hideChildren(this)}),d3.select(document).on(\"click.focus\",function(){var b=a.DepGraph.getInstance(d3.event.originalTarget||d3.event.srcElement||d3.event.target);a.DepGraph.depgraphActive=b?\"-\"+b.viewer.uid:null}),d3.select(document).on(\"mousedown.scrollbar\",function(){var b=a.DepGraph.getInstance(d3.event.originalTarget||d3.event.srcElement||d3.event.target);b?(a.DepGraph.depgraphActive=\"-\"+b.viewer.uid,d3.event.ctrlKey&&(b.scrollMouseSelected=d3.event.clientX,d3.event.preventDefault?d3.event.preventDefault():d3.event.returnValue=!1)):a.DepGraph.depgraphActive=null}),d3.select(document).on(\"mousewheel.scrollbar\",function(){var b=a.DepGraph.getInstance(a.DepGraph.depgraphActive);b&&b.scrollbar&&(d3.event.ctrlKey?b.zoom(3*d3.event.wheelDeltaY/-40):d3.event.altKey||b.translateGraph(3*d3.event.wheelDeltaY/-40,0),d3.event.preventDefault?d3.event.preventDefault():d3.event.returnValue=!1)}),d3.select(document).on(\"wheel.scrollbar\",function(){var b=a.DepGraph.getInstance(a.DepGraph.depgraphActive);b&&b.scrollbar&&(d3.event.ctrlKey?b.zoom(3*d3.event.deltaY):d3.event.altKey||b.translateGraph(3*d3.event.deltaY,0),d3.event.preventDefault?d3.event.preventDefault():d3.event.returnValue=!1)}),d3.select(document).on(\"mousemove.scrollbar\"+b.viewer.uid,function(){var b=a.DepGraph.getInstance(a.DepGraph.depgraphActive);if(b&&(b.scrollMouseSelected||0===b.scrollMouseSelected)){var c=d3.event.clientX-b.scrollMouseSelected;b.scrollbar&&(c*=b.scrollbar.__info__.k),b.translateGraph(c,0),b.scrollMouseSelected=d3.event.clientX}}),d3.select(document).on(\"mouseup.scrollbar\"+b.viewer.uid,function(){var b=a.DepGraph.getInstance(a.DepGraph.depgraphActive);b&&(b.scrollMouseSelected=null)})),d3.select(document).on(\"keydown.move\"+b.viewer.uid,function(){var b=10;if(a.DepGraph.depgraphActive){var c=a.DepGraph.getInstance(a.DepGraph.depgraphActive);37==d3.event.keyCode?c.translateGraph(-b,0):39==d3.event.keyCode?c.translateGraph(b,0):72==d3.event.keyCode&&(c.hyperbolicView=!c.hyperbolicView)}})},a.DepGraph.prototype.displayHelp=function(b){var c=b.getBoundingClientRect(),d={x:c.left,y:c.top+c.height+2},e=\"<div></div>\";e=jQuery(e),jQuery.ajax({type:\"POST\",url:a.helpurl,data:{app:\"depgraph\"},dataType:\"html\",success:function(a){e.html(a)},error:function(a,b){alert(b)}});var f=this.viewer.createBox({draggable:!0,closeButton:!0,autodestroy:!0});f.setFixedSize(600,500),f.setContent(jQuery(e)).setHeader(\"DepGraph Help\"),f.open(d)},a.DepGraph.prototype.createLayout=function(){function b(){var b=this.getBoundingClientRect(),e={x:b.left,y:b.top+b.height+2},f=\"<div>\";f+='Export Format : <select name=\"type\"><option value=\"png\">png</option><option value=\"json\" selected>json</option>'+(a.plugins&&a.plugins.tikzdep?'<option value=\"tikz-dep\">tikz-dep</option>':\"\")+'<option value=\"depxml\">depxml</option>'+'<option value=\"dep2pict\">dep2pict</option>'+'<option value=\"conll\">conll</option>'+\"</select><br/>\"+'<input id=\"export-data'+d.viewer.appendOwnID(\"\")+'\"  type=\"button\" value=\"Export\"></div>',f=jQuery(f);var g=d.viewer.createBox({closeButton:!0,autodestroy:!0});g.setContent(jQuery(f)),jQuery(\"#export-data\"+d.viewer.appendOwnID(\"\")).click(function(){var b=jQuery(\"select\",this.parentNode),e=b[0].options[b[0].selectedIndex].value;if(\"png\"==e)c();else{var f=d.cleanData();a.windowOpenPost({action:\"export\",data:f,gid:d.options.gid,source_format:\"json\",target_format:e},d.wsurl)}g.close(!0)}),g.open(e)}function c(){d3.select(\"rect.export_bg\").attr(\"width\",\"100%\").attr(\"height\",\"100%\");var b=d.svg.node().getBBox();d.svg.attr(\"width\",b.width),d.svg.attr(\"height\",b.height),d.scrollbar&&d.scrollbar.style(\"display\",\"none\");var c=(new XMLSerializer).serializeToString(d.svg.node());d.scrollbar&&d.scrollbar.style(\"display\",\"block\"),a.windowOpenPost({action:\"export\",data:c,source_format:\"json\",target_format:\"png\"},d.wsurl),d3.select(\"rect.export_bg\").attr(\"width\",\"0\").attr(\"height\",\"0\")}null!=this.svg&&this.svg.remove(),this.svg=d3.select(this.viewer.chart[0]).append(\"svg\").attr(\"width\",\"100%\").attr(\"height\",\"100%\").style(\"margin-top\",\"30px\"),this.viewer.chart.css(\"background-color\",this.data.graph[\"#style\"][\"background-color\"]),this.svg.append(\"rect\").classed(\"export_bg\",!0).attr(\"width\",\"0\").attr(\"height\",\"0\").style(\"fill\",this.data.graph[\"#style\"][\"background-color\"]),this.setSVGDefs(),this.vis=this.svg.append(\"g\").attr(\"transform\",\"translate(\"+a.removeUnit(this.data.graph[\"#style\"].margin.left)+\",\"+a.removeUnit(this.data.graph[\"#style\"].margin.top)+\") scale(1)\"),this.viewer.addToolbarItem({name:\"export\",callback:b,style:\"export\",group:\"0\",\"static\":!0}),this.viewer.addToolbarItem({name:\"help\",callback:function(){d.displayHelp(this)},style:\"main-help\",group:\"99\",\"static\":!0});var d=this},a.DepGraph.prototype.update=function(){var a=this.words=this.vis.selectAll(\"g.word\").data(this.data.graph.words,function(a){return a[\"#id\"]});a.enter().append(\"g\").classed(\"word\",!0);var b=a.exit();b.remove(),a.each(c);var f=this.chunks=this.vis.selectAll(\"g.chunk\").data(this.data.graph.chunks,function(a){return a[\"#id\"]});f.enter().insert(\"g\",\"g.word\").classed(\"chunk\",!0);var g=f.exit();g.remove(),f.each(d);var h=this.links=this.vis.selectAll(\"g.link\").data(this.data.graph.links,function(a){return a[\"#id\"]});h.enter().append(\"g\").classed(\"link\",!0);var i=h.exit();i.remove(),this.resetLinksProperties(h),this.preprocessLinksPosition(h),h.each(e)},a.DepGraph.prototype.insertWord=function(a,b){null==a[\"#id\"]&&(a[\"#id\"]=this.id++),null==a.id&&(a.id=\"_w\"+a[\"#id\"]),this.data.graph.words.splice(b,0,a);for(var c=b+1;c<this.data.graph.words.length;++c)this.data.graph.words[c][\"#position\"]++;this.update(),this.postProcesses(),this.editObject.editModeInit(),this.autoHighLightOnMouseOver()},a.DepGraph.prototype.insertLink=function(a){null==a[\"#id\"]&&(a[\"#id\"]=this.id++),this.data.graph.links.push(a),this.update(),this.postProcesses(),this.editObject.editModeInit(),this.autoHighLightOnMouseOver()},a.DepGraph.prototype.insertChunk=function(a){this.data.graph.chunks.push(a),this.update(),this.postProcesses(),this.editObject.editModeInit(),this.autoHighLightOnMouseOver()},a.DepGraph.prototype.removeWord=function(b){var c=[],d=this.getWordIndexById(b);if(null==d)return!1;var e=this.data.graph.words[d][\"#position\"],f=this.data.graph.words[d].id;this.data.graph.words.splice(d,1);for(var g=e;g<this.data.graph.words.length;++g)this.data.graph.words[g][\"#position\"]--;for(var g=0;g<this.data.graph.links.length;g++){var h=this.data.graph.links[g];(h.source==f||h.target==f)&&(c.push(a.clone(h)),this.data.graph.links.splice(g,1),g--)}return this.update(),this.postProcesses(),c},a.DepGraph.prototype.removeLink=function(a){var b=this.getLinkIndexById(a);return null==b?!1:(this.data.graph.links.splice(b,1),this.update(),this.postProcesses(),!0)},a.DepGraph.prototype.removeChunk=function(b){var c=this.getChunkIndexById(b);if(null==c)return!1;var d=[],e=this.data.graph.chunks[c].id;this.data.graph.chunks.splice(c,1);for(var f=0;f<this.data.graph.links.length;f++){var g=this.data.graph.links[f];(g.source==e||g.target==e)&&(d.push(a.clone(g)),this.data.graph.links.splice(f,1),f--)}return this.update(),this.postProcesses(),d},a.DepGraph.highlightLink=function(b,c,d){if(d||!b.selected&&!b.getStyle(\"highlighted\",!1)){d&&a.setStyle(b,\"highlighted\",c);var e=b.getStyle(\"link-color\"),g=b.getStyle(\"font-weight\");c!==!1?(b.components.highlightPath.attr(\"stroke\",f(e)),b.components.label.style(\"font-weight\",\"bold\")):(b.components.highlightPath.attr(\"stroke\",\"transparent\"),b.components.label.style(\"font-weight\",g))}},a.DepGraph.highlightWord=function(b,c,d){(d||!b.selected&&!b.getStyle(\"highlighted\",!1))&&(d&&a.setStyle(b,\"highlighted\",c),b.components.rect.style(\"fill\",c?\"yellow\":\"none\"))},a.DepGraph.highlightChunk=function(){},a.DepGraph.highlightObject=function(b,c,d){if(null!=b.classList&&b.classList.length>0){var e=b.classList[0];\"link\"==e?a.DepGraph.highlightLink(b,c,d):\"word\"==e?a.DepGraph.highlightWord(b,c,d):\"chunk\"==e&&a.DepGraph.highlightChunk(b,c,d)}},a.isObjectPermanentHighlighted=function(a){return a.getStyle(\"highlighted\",!1)},a.DepGraph.prototype.setSVGDefs=function(){this.defs=this.svg.append(\"defs\"),this.defs.append(\"marker\").attr(\"id\",this.viewer.appendOwnID(\"arrow\")).attr(\"viewBox\",\"0 0 10 10\").attr(\"refX\",\"8\").attr(\"refY\",\"5\").attr(\"markerUnits\",\"strokeWidth\").attr(\"orient\",\"auto\").attr(\"markerWidth\",\"3\").attr(\"markerHeight\",\"3\").append(\"polyline\").attr(\"points\",\"0,0 10,5 0,10\")},a.getNodePosition=function(b){if(b){if(null!=b.__data__[\"#position\"])return b.__data__[\"#position\"];var c=a.DepGraph.getInstance(b),d=c.getChunkRange(b.__data__),e=Math.floor(d.firstElement[\"#position\"]+d.lastElement[\"#position\"])/2;return e}return-1}}(window.depgraphlib),function(a){a.DepGraph.prototype.prepareData=function(){this.id=0,this.data.graph.words=this.data.graph.words||[],this.data.graph.links=this.data.graph.links||[],this.data.graph.chunks=this.data.graph.chunks||[];for(var a=0;a<this.data.graph.words.length;a++){var b=this.data.graph.words[a];b[\"#id\"]=this.id++,b[\"#position\"]=a,b.sublabel||(b.sublabel=[])}for(var a=0;a<this.data.graph.links.length;a++)this.data.graph.links[a][\"#id\"]=this.id++,this.data.graph.links[a][\"#properties\"]=null;for(var a=0;a<this.data.graph.chunks.length;a++)this.data.graph.chunks[a][\"#id\"]=this.id++;var c=this.data.graph[\"#style\"]?this.data.graph[\"#style\"]:this.data.graph[\"#style\"]=new Object,d=this.data.graph[\"#word-style\"]?this.data.graph[\"#word-style\"]:this.data.graph[\"#word-style\"]=new Object,e=this.data.graph[\"#link-style\"]?this.data.graph[\"#link-style\"]:this.data.graph[\"#link-style\"]=new Object,f=this.data.graph[\"#chunk-style\"]?this.data.graph[\"#chunk-style\"]:this.data.graph[\"#chunk-style\"]=new Object;c.margin=c.margin?c.margin:{top:\"50px\",right:\"20px\",bottom:\"20px\",left:\"20px\"},c.margin.top=c[\"margin-top\"]?c[\"margin-top\"]:c.margin.top,c.margin.right=c[\"margin-right\"]?c[\"margin-right\"]:c.margin.right,c.margin.left=c[\"margin-left\"]?c[\"margin-left\"]:c.margin.left,c.margin.bottom=c[\"margin-bottom\"]?c[\"margin-bottom\"]:c.margin.bottom,c[\"background-color\"]=c[\"background-color\"]?c[\"background-color\"]:\"white\",c[\"font-family\"]=c[\"font-family\"]?c[\"font-family\"]:\"inherit\",d.margin=d.margin?d.margin:{top:\"10px\",right:\"15px\",bottom:\"10px\",left:\"15px\"},d[\"sub-margin\"]=d[\"sub-margin\"]?d[\"sub-margin\"]:{top:\"4px\",right:\"4px\",bottom:\"4px\",left:\"4px\"},d[\"font-size\"]=d[\"font-size\"]?d[\"font-size\"]:\"14px\",d[\"sub-font-size\"]=d[\"sub-font-size\"]?d[\"sub-font-size\"]:\"10px\",d.color=d.color?d.color:\"black\",d[\"sub-color\"]=d[\"sub-color\"]?d[\"sub-color\"]:\"black\",d[\"font-weight\"]=d[\"font-weight\"]?d[\"font-weight\"]:\"normal\",d[\"sub-font-weight\"]=d[\"sub-font-weight\"]?d[\"sub-font-weight\"]:\"normal\",d[\"font-style\"]=d[\"font-style\"]?d[\"font-style\"]:\"normal\",d[\"sub-font-style\"]=d[\"sub-font-style\"]?d[\"sub-font-style\"]:\"normal\",e.margin=e.margin?e.margin:{top:\"5px\",right:\"10px\",bottom:\"10px\",left:\"10px\"},e[\"font-size\"]=e[\"font-size\"]?e[\"font-size\"]:\"12px\",e.color=e.color?e.color:\"black\",e[\"link-color\"]=e[\"link-color\"]?e[\"link-color\"]:\"#000000\",e[\"link-size\"]=e[\"link-size\"]?e[\"link-size\"]:\"2px\",e[\"font-weight\"]=e[\"font-weight\"]?e[\"font-weight\"]:\"normal\",e[\"font-style\"]=e[\"font-style\"]?e[\"font-style\"]:\"normal\",e.oriented=e.oriented?e.oriented:!0,e.align=e.align?e.align:\"center\",e.higlighted=!1,f.margin=f.margin?f.margin:{top:\"10px\",right:\"10px\",bottom:\"10px\",left:\"10px\"},f[\"sub-margin\"]=f[\"sub-margin\"]?f[\"sub-margin\"]:{top:\"4px\",right:\"4px\",bottom:\"4px\",left:\"4px\"},f[\"font-size\"]=f[\"font-size\"]?f[\"font-size\"]:\"12px\",f[\"sub-font-size\"]=f[\"sub-font-size\"]?f[\"sub-font-size\"]:\"10px\",f[\"background-color\"]=f[\"background-color\"]?f[\"background-color\"]:\"transparent\",f.color=f.color?f.color:\"black\",f[\"sub-color\"]=f[\"sub-color\"]?f[\"sub-color\"]:\"black\",f[\"border-color\"]=f[\"border-color\"]?f[\"border-color\"]:\"black\",f[\"font-weight\"]=f[\"font-weight\"]?f[\"font-weight\"]:\"normal\",f[\"sub-font-weight\"]=f[\"sub-font-weight\"]?f[\"sub-font-weight\"]:\"normal\",f[\"font-style\"]=f[\"font-style\"]?f[\"font-style\"]:\"normal\",f[\"sub-font-style\"]=f[\"sub-font-style\"]?f[\"sub-font-style\"]:\"normal\",f[\"border-size\"]=f[\"border-size\"]?f[\"border-size\"]:\"1px\"},a.isALink=function(a){return null!=a.__data__.target&&null!=a.__data__.source},a.isAWord=function(a){return null!=a.__data__[\"#position\"]},a.isAChunk=function(a){return null!=a.elements},a.DepGraph.prototype.getWordNodeByPosition=function(a){for(var b=this.vis.selectAll(\"g.word\"),c=0;c<b[0].length;c++)if(b[0][c].__data__[\"#position\"]==a)return b[0][c];return null},a.DepGraph.prototype.getWordNodeByOriginalId=function(a){for(var b=this.vis.selectAll(\"g.word\"),c=0;c<b[0].length;c++)if(b[0][c].__data__.id==a)return b[0][c]},a.DepGraph.prototype.getChunkNodeByOriginalId=function(a){for(var b=this.vis.selectAll(\"g.chunk\"),c=0;c<b[0].length;c++)if(b[0][c].__data__.id==a)return b[0][c]},a.DepGraph.prototype.getWordNodeById=function(a){for(var b=this.vis.selectAll(\"g.word\"),c=0;c<b[0].length;c++)if(b[0][c].__data__[\"#id\"]==a)return b[0][c]},a.DepGraph.prototype.getWordByOriginalId=function(a){for(var b in this.data.graph.words)if(this.data.graph.words[b].id==a)return this.data.graph.words[b]},a.DepGraph.prototype.getWordIndexById=function(a){for(var b in this.data.graph.words)if(this.data.graph.words[b][\"#id\"]==a)return b},a.DepGraph.prototype.getLinkById=function(a){for(var b in this.data.graph.links)if(this.data.graph.links[b][\"#id\"]==a)return this.data.graph.links[b]},a.DepGraph.prototype.getLinkNodeById=function(a){for(var b=this.vis.selectAll(\"g.link\"),c=0;c<b[0].length;c++)if(b[0][c].__data__[\"#id\"]==a)return b[0][c]},a.DepGraph.prototype.getLinkIndexById=function(a){for(var b in this.data.graph.links)if(this.data.graph.links[b][\"#id\"]==a)return b},a.DepGraph.prototype.getLinkIndexByOriginalId=function(a){for(var b in this.data.graph.links)if(this.data.graph.links[b].id==a)return b},a.DepGraph.prototype.getChunkIndexById=function(a){for(var b in this.data.graph.chunks)if(this.data.graph.chunks[b][\"#id\"]==a)return b},a.DepGraph.prototype.getObjectById=function(a){for(var b in this.data.graph.words)if(this.data.graph.words[b][\"#id\"]==a)return this.data.graph.words[b];for(var b in this.data.graph.links)if(this.data.graph.links[b][\"#id\"]==a)return this.data.graph.links[b];for(var b in this.data.graph.chunks)if(this.data.graph.chunks[b][\"#id\"]==a)return this.data.graph.chunks[b]},a.DepGraph.prototype.getObjectNodeByOriginalId=function(a){for(var b=this.vis.selectAll(\"g.word\"),c=0;c<b[0].length;c++)if(b[0][c].__data__.id==a)return b[0][c];b=this.vis.selectAll(\"g.chunk\");for(var c=0;c<b[0].length;c++)if(b[0][c].__data__.id==a)return b[0][c];b=this.vis.selectAll(\"g.link\");for(var c=0;c<b[0].length;c++)if(b[0][c].__data__.id==a)return b[0][c]},a.DepGraph.prototype.getObjectNodeFromObject=function(){},a.getStyleElement=function(a,b,c){return null!=a.__data__[\"#style\"]&&null!=a.__data__[\"#style\"][b]?a.__data__[\"#style\"][b]:c},SVGElement.prototype.getStyle=function(b,c){var d=a.DepGraph.getInstance(this);if(null!=this.__data__[\"#style\"]&&null!=this.__data__[\"#style\"][b])return this.__data__[\"#style\"][b];var e=null;return null!=this.className&&(e=d.data.graph[\"#\"+this.className.animVal+\"-style\"][b]),null==e&&null!=c?c:e},a.setStyle=function(a,b,c){null==a.__data__[\"#style\"]&&(a.__data__[\"#style\"]={}),c?a.__data__[\"#style\"][b]=c:delete a.__data__[\"#style\"][b]},a.DepGraph.prototype.addWord=function(b){var c=b[\"#position\"]||this.data.words.length;return this.insertWord(b,c),a.clone(b)},a.DepGraph.prototype.addLink=function(a,b,c,d,e){null==d&&(d=\"black\"),null==e&&(e=this.id++),a=a.__data__,b=b.__data__;var f=new Object;return f.source=a.id,f.target=b.id,f[\"#style\"]={\"link-color\":d},f.label=c,f[\"#id\"]=e,this.insertLink(f),f},a.DepGraph.prototype.addChunk=function(a,b,c,d,e,f){if(!a||!b||0==b.length)throw\"Missing required field.\";e=e||this.id++,f=f||e,d=d||\"transparent\";var g={label:a,sublabels:c,elements:b,\"#style\":{\"background-color\":d},\"#id\":e,id:f};return this.insertChunk(g),g},a.DepGraph.prototype.getChunkRange=function(a){for(var b={firstElement:null,lastElement:null},c=this.data.graph.words.length,d=0,e=0;e<a.elements.length;e++){var f=this.getWordByOriginalId(a.elements[e]);f[\"#position\"]<=c&&(b.firstElement=f,c=f[\"#position\"]),f[\"#position\"]>=d&&(b.lastElement=f,d=f[\"#position\"])}return b}}(window.depgraphlib),function(a){function b(a,b){var c=a.drawingData,d=c.hdir*b,e=0;c.hdir<0&&(e=d),j(a,e,-d)}function c(a,b,c,d){var e=a.link,f=b-a.anchorX;e.drawingData;var g,h;a.insideNodeIsTarget?(g=0,h=f,a.mustMoveReduce&&(g-=c,h+=c)):(h=-f,g=f,a.mustMoveReduce&&(h-=c)),d&&(g=-g,h=-h),j(e,g,h)}function d(a,b){var c=1,d=a.getLinkProperties(b),e=d.min+c,f=d.max-c,g=[];for(var h in a.newnodes){var i=a.newnodes[h][0][0].__data__[\"#position\"];i>=e&&f>=i&&(a.displayFullLinkSpan(a.getLinkNodeById(h),!0),g.push(h))}return g}function e(b,c){var d={elements:{insidenodes:[],toMoveNodes:[],toMoveLinks:[],insidelinks:[],crossinglinks:[],upperlinks:[]},leftX:0,rightX:0,reductionLength:0,position:0},e=1,g=b.getLinkProperties(c),h=d.leftBoundary=g.min+e,i=d.rightBoundary=g.max-e;if(d.position=h,2>=i-h)return\"impossibru!\";for(var j=b.vis.selectAll(\"g.word\"),k=0;k<j[0].length;k++){var l=j[0][k],m=l.__data__[\"#position\"];if(m>h&&i>m?d.elements.insidenodes.push(l):m>=i&&d.elements.toMoveNodes.push(l),m==h){var n=l.getStyle(\"margin\"),o=a.getTransformValues(d3.select(l)),p=l.getBBox(),q=a.removeUnit(a.addPxs(o.translate[0],p.width,n.right,n.left));d.leftX=q,d.nodeLeftX=l,d.reductionLength-=q}if(m==i){var n=l.getStyle(\"margin\"),o=a.getTransformValues(d3.select(l)),q=a.removeUnit(a.addPxs(o.translate[0],n.left));d.rightX=q,d.reductionLength+=q}}for(var r=b.vis.selectAll(\"g.link\"),s=0;s<r[0].length;++s){var t=r[0][s],g=b.getLinkProperties(t);if(g.min>h)if(g.max<i)d.elements.insidelinks.push(t);else if(g.min<i){var u=g.hdir>0?g.nodeStart:g.nodeEnd,v=f(u);d.elements.crossinglinks.push({link:t,anchorX:v,insideNodeIsTarget:g.hdir<0,mustMoveReduce:!0})}else d.elements.toMoveLinks.push(t);else if(g.max>i)d.elements.upperlinks.push(t);else if(g.max>h){var u=g.hdir>0?g.nodeEnd:g.nodeStart,v=f(u);d.elements.crossinglinks.push({link:t,anchorX:v,insideNodeIsTarget:g.hdir>0})}}return d}function f(b){b.getStyle(\"margin\");var c=a.getTransformValues(d3.select(b)),d=b.getBBox();return a.removeUnit(a.addPxs(c.translate[0],d.width/2))}function g(b){var c=b.getStyle(\"margin\"),d=a.getTransformValues(d3.select(b)),e=b.getBBox(),f=a.removeUnit(a.addPxs(d.translate[0],e.width,c.right,c.left));return f}function h(b,c){for(var d=b.vis.selectAll(\"g.word, g.dummy\"),e=0,f=0;f<d[0].length;++f){var g=d[0][f];if(g.toHide){if(g.toHide=!1,c&&(jQuery(g).css(\"display\",\"block\"),g.hidden=!1),!g.hidden){var h=g.getStyle(\"margin\"),i=g.getBBox();c?e-=a.removeUnit(a.addPxs(i.width,h.right,h.left)):(jQuery(g).css(\"display\",\"none\"),g.hidden=!0,e+=a.removeUnit(a.addPxs(i.width,h.right,h.left)))}}else{var k=d3.select(g),l=a.getTransformValues(k),m=l.translate[0]-e;k.attr(\"transform\",\"translate(\"+m+\",\"+l.translate[1]+\")\");for(var n=b.vis.selectAll(\"g.link\"),o=0;o<n[0].length;++o){var p=n[0][o],q=b.getLinkProperties(p);q.rootEdge?(p.__data__.source==g.__data__.id||p.__data__.target==g.__data__.id)&&j(p,-e,0):p.__data__.source==g.__data__.id?q.hdir<0?j(p,-e,e):j(p,-e,e):p.__data__.target==g.__data__.id&&(q.hdir<0?j(p,0,-e):j(p,0,-e))}}}}function i(a,b){for(var c={nodes:[],links:[]},d=a.vis.selectAll(\"g.link\"),e=0;e<d[0].length;++e){var f=d[0][e],g=a.getLinkProperties(f);if(g.rootEdge&&f.__data__.target==b.__data__.id)c.links.push(f);else if(f.__data__.source==b.__data__.id){if(c.nodes.push(g.nodeEnd),c.links.push(f),g.nodeEnd.hiddenChild)continue;var h=i(a,g.nodeEnd);c.nodes=c.nodes.concat(h.nodes),c.links=c.links.concat(h.links)}}return c}function j(a,b,c){var d=a.drawingData,e=a.__data__[\"#properties\"].rootEdge;d.x0+=b,d.h+=c,e?(a.components.highlightPath.attr(\"d\",\"M \"+d.x0+\",\"+(d.y0+d.v0)+\" v \"+-d.v0),a.components.path.attr(\"d\",\"M \"+d.x0+\",\"+(d.y0+d.v0)+\" v \"+-d.v0)):(a.components.highlightPath.attr(\"d\",\"M \"+d.x0+\",\"+d.y0+\" a \"+d.h/2+\" \"+d.v0+\" 0 0 \"+d.laf0+\" \"+d.h+\" 0\"),a.components.path.attr(\"d\",\"M \"+d.x0+\",\"+d.y0+\" a \"+d.h/2+\" \"+d.v0+\" 0 0 \"+d.laf0+\" \"+d.h+\" 0\")),a.components.label.attr(\"x\",-d.textBBox.width/2+d.x0+d.h/2+d.hdir*d.arcSize)}a.DepGraph.prototype.zoom=function(b){var c=a.getTransformValues(this.vis),d=.1,e=.5,f=2,g=c.scale[0];0>b?(g+=d,g>f&&(g=f)):(g-=d,e>g&&(g=e));var h=g/c.scale,i={x:d3.event.layerX,y:d3.event.layerY},j=this.svg[0][0].getBBox(),k={x:j.x-c.translate[0],y:j.y-c.translate[1]},l={x:j.x*h,y:j.y*h,w:j.width*h,h:j.height*h},m={x:k.x*h,y:k.y*h},n={x:i.x*(h-1),y:i.y*(h-1)},o={x:l.x-n.x-m.x,y:l.y-n.y-m.y},p=o.x;if(1!=h){var q=this.vis.node().getBBox(),r=(q.width+2*a.removeUnit(this.data.graph[\"#style\"].margin.right))*g,s=this.viewer.mainpanel.width(),t=this.setUpScrollBarView(r,s,a.removeUnit(this.data.graph[\"#style\"].margin.left)-o.x);null!=t&&(p=-t)}p=Math.round(1e6*p)/1e6,this.vis.attr(\"transform\",\"translate(\"+p+\",\"+c.translate[1]+\")\"+\" scale(\"+g+\")\")},a.DepGraph.prototype.linkDepthZoom=function(a){if(!this.onGoingLinkDepthZoomTransform){this.onGoingLinkDepthZoomTransform=!0,this.depthStructData||(this.depthStructData=this.getMaxLinkDepth(),this.linkDepthThresh=this.depthStructData.length-1),0>a?(this.linkDepthThresh--,this.linkDepthThresh=this.linkDepthThresh>=0?this.linkDepthThresh:0):(this.linkDepthThresh++,this.linkDepthThresh=this.linkDepthThresh<this.depthStructData.length?this.linkDepthThresh:this.depthStructData.length-1);for(var b=this.depthStructData[this.linkDepthThresh].nodes,c=b.length-1;c>=0;c--)this.hideChildren(b[c]);this.onGoingLinkDepthZoomTransform=!1}},a.DepGraph.prototype.getMaxLinkDepth=function(a,b){this.rootsNodes||(this.rootsNodes=this.getRootNodes()),a||(a=[],a.push({nodes:this.rootsNodes,links:[]}),b=0),b++,a.push({nodes:[],links:[]});for(var c=a[b-1].nodes,d=this.vis.selectAll(\"g.link\"),e=0;e<d[0].length;++e){var f=d[0][e],g=this.getLinkProperties(f);if(g.rootEdge&&1==b)a[0].links.push(f);else for(var h=c.length-1;h>=0;h--)c[h].__data__.id==f.__data__.source&&(a[b].nodes.push(g.nodeEnd),a[b].links.push(f))}return a[b].nodes.length>0&&this.getMaxLinkDepth(a,b),a},a.DepGraph.prototype.getRootNodes=function(){for(var a=[],b=[],c=this.vis.selectAll(\"g.link\"),d=0;d<c[0].length;++d){var e=c[0][d],f=this.getLinkProperties(e);\n    4  if(!f.rootEdge){var g=a.indexOf(f.nodeEnd);-1!=g&&a.splice(g,1),b.push(f.nodeEnd),g=b.indexOf(f.nodeStart),-1==g&&-1==a.indexOf(f.nodeStart)&&a.push(f.nodeStart)}}return a},a.DepGraph.prototype.displayFullLinkSpan=function(f,h){function i(a){s--?k(t):(clearInterval(f.onGoingAnimation),a.call(this),f.onGoingAnimation=!1)}function k(c){d3.selectAll(n.elements.upperlinks).each(function(){b(this,c)}),d3.selectAll(n.elements.toMoveLinks).each(function(){this.drawingData,j(this,-c,0)}),d3.selectAll(n.elements.toMoveNodes).attr(\"transform\",function(){var b=a.getTransformValues(d3.select(this)),d=b.translate[0]-c;return\"translate(\"+d+\",\"+b.translate[1]+\")\"});for(var d in l.newnodes){var e=l.newnodes[d][0][0].__data__[\"#position\"];e>=n.rightBoundary&&l.newnodes[d].attr(\"transform\",function(){var b=a.getTransformValues(d3.select(this)),d=b.translate[0]-c;return\"translate(\"+d+\",\"+b.translate[1]+\")\"})}}var l=this;if(!f.onGoingAnimation){var m=null;f.folded||h||(m=d(l,f));var n=f.animationData;if(n||(n=f.animationData=e(this,f)),null!==m&&(n.enclosedFoldedLinks=m),\"impossibru!\"!=n){var o=d3.select(f),p=this.getLinkProperties(o.node()),q=500,r=100,s=q/r;h&&(s=1);var t=n.reductionLength/s,u=0;if(f.folded){delete this.newnodes[f.__data__[\"#id\"]],n.newnode.remove(),t=-t;for(var v=n.elements.crossinglinks.length-1;v>=0;v--)jQuery(n.elements.crossinglinks[v].link).css(\"display\",\"none\");h?(i(),i(function(){for(var a=n.elements.insidelinks.length-1;a>=0;a--)jQuery(n.elements.insidelinks[a]).css(\"display\",\"block\"),n.elements.insidelinks[a].hidden=!1;for(var a=n.elements.insidenodes.length-1;a>=0;a--)jQuery(n.elements.insidenodes[a]).css(\"display\",\"block\"),n.elements.insidenodes[a].hidden=!1;for(var b=n.elements.crossinglinks.length-1;b>=0;b--)jQuery(n.elements.crossinglinks[b].link).css(\"display\",\"block\"),c(n.elements.crossinglinks[b],n.newnodeLinkAnchor,n.reductionLength,!0);l.adjustScroll()})):f.onGoingAnimation=setInterval(function(){i(function(){for(var a=n.elements.insidelinks.length-1;a>=0;a--)jQuery(n.elements.insidelinks[a]).css(\"display\",\"block\"),n.elements.insidelinks[a].hidden=!1;for(var a=n.elements.insidenodes.length-1;a>=0;a--)jQuery(n.elements.insidenodes[a]).css(\"display\",\"block\"),n.elements.insidenodes[a].hidden=!1;for(var b=n.elements.crossinglinks.length-1;b>=0;b--)jQuery(n.elements.crossinglinks[b].link).css(\"display\",\"block\"),c(n.elements.crossinglinks[b],n.newnodeLinkAnchor,n.reductionLength,!0);if(n.enclosedFoldedLinks)for(var a=n.enclosedFoldedLinks.length-1;a>=0;a--)l.displayFullLinkSpan(l.getLinkNodeById(n.enclosedFoldedLinks[a]),!0);l.adjustScroll()})},r),f.folded=!1}else{for(var u=n.elements.insidelinks.length-1;u>=0;u--)jQuery(n.elements.insidelinks[u]).css(\"display\",\"none\"),n.elements.insidelinks[u].hidden=!0;for(var u=n.elements.insidenodes.length-1;u>=0;u--)jQuery(n.elements.insidenodes[u]).css(\"display\",\"none\"),n.elements.insidenodes[u].hidden=!0;for(var v=n.elements.crossinglinks.length-1;v>=0;v--)jQuery(n.elements.crossinglinks[v].link).css(\"display\",\"none\");var w=p.nodeStart.getStyle(\"margin\"),x=this.vis.append(\"g\").classed(\"dummy\",!0).attr(\"transform\",\"translate(\"+g(n.nodeLeftX)+\",\"+(a.removeUnit(w.top)+10)+\")\");if(x.append(\"text\").text(\"( . . . )\").style(\"font-size\",\"25px\").style(\"font-weight\",\"bold\"),x[0][0].__data__={\"#position\":n.position,id:-2},!n.newnode){var y=x.node().getBBox();n.reductionLength-=a.removeUnit(a.addPxs(y.width,w.right,w.left)),n.newnodeLinkAnchor=g(n.nodeLeftX)+y.width/2}n.newnode=x,this.newnodes||(this.newnodes={}),this.newnodes[f.__data__[\"#id\"]]=x,x.on(\"click\",function(){l.displayFullLinkSpan(f)}),t=n.reductionLength/s,l.adjustScroll(n.newnodeLinkAnchor,n.reductionLength),h?(i(),i(function(){for(var a=n.elements.crossinglinks.length-1;a>=0;a--)jQuery(n.elements.crossinglinks[a].link).css(\"display\",\"block\"),c(n.elements.crossinglinks[a],n.newnodeLinkAnchor,n.reductionLength)})):f.onGoingAnimation=setInterval(function(){i(function(){for(var a=n.elements.crossinglinks.length-1;a>=0;a--)jQuery(n.elements.crossinglinks[a].link).css(\"display\",\"block\"),c(n.elements.crossinglinks[a],n.newnodeLinkAnchor,n.reductionLength)})},r),f.folded=!0}}}},a.DepGraph.prototype.adjustScroll=function(b,c){c=c||0;var d=a.getTransformValues(this.vis),e=this.vis.node().getBBox(),f=(e.width-c+2*a.removeUnit(this.data.graph[\"#style\"].margin.right))*d.scale[0],g=this.viewer.mainpanel.width(),h=(f-g)/(g-a.DepGraph.scrollBarWidth),i=h*this.scrollbar.attr(\"x\");b&&(i=b*d.scale[0]-g/2);var j=this.setUpScrollBarView(f,g,i);null!=j&&(i=-j),i=Math.round(1e6*i)/1e6,this.vis.attr(\"transform\",\"translate(\"+i+\",\"+d.translate[1]+\")\"+\" scale(\"+d.scale[0]+\")\")},a.DepGraph.prototype.hideChildren=function(b){var c=i(this,b),d=\"none\",e=!1;b.hiddenChild?(d=\"block\",e=!0,a.DepGraph.highlightWord(b,!1,!0)):a.DepGraph.highlightWord(b,!0,!0);for(var f=c.nodes.length-1;f>=0;f--)c.nodes[f].toHide=!0;for(var f=c.links.length-1;f>=0;f--)jQuery(c.links[f]).css(\"display\",d);h(this,e),b.hiddenChild=!b.hiddenChild;var g=a.getTransformValues(d3.select(b));this.adjustScroll(g.translate[0])}}(window.depgraphlib),function(a){a.EditObject.DefaultModeLib={init:null,save:function(a){var b=a.cleanData();jQuery.ajax({type:\"POST\",url:a.wsurl,data:{action:\"save\",format:a.dataFormat,options:\"\",data:b,uid:a.options.uid},dataType:\"json\",success:function(){a.editObject.lastSavedPtr=a.editObject.currentPtr,a.editObject.needToSaveState=!1,a.editObject.updateSaveState()},error:function(a,b){alert(b)}})},addLinkClick:function(b,c){if(null==b.editObject.previousSelectedObject||a.isALink(b.editObject.previousSelectedObject))a.EditObject.DefaultModeLib.selectObject.call(this,b,c);else if(d3.event.ctrlKey)a.isAWord(b.editObject.previousSelectedObject)&&a.isAWord(this)&&a.EditObject.DefaultModeLib.addChunkSettings(b,b.editObject.previousSelectedObject,this,c);else{if(this.__data__[\"#id\"]==b.editObject.previousSelectedObject.__data__[\"#id\"])return b.editObject.clearSelection(),void 0;a.EditObject.DefaultModeLib.addLinkSettings(b,b.editObject.previousSelectedObject,this,c)}},selectObject:function(b){if(b.editObject.highlightMode){var c=!a.isObjectPermanentHighlighted(this);return a.DepGraph.highlightObject(this,c,!0),b.editObject.setNeedToSave(),void 0}b.editObject.selectObject(this)},editKeyDownDefault:function(b,c){if(-1!=b.editObject.keysDown.indexOf(17)&&90==c.keyCode&&b.editObject.undo(),46==c.keyCode&&null!=b.editObject.previousSelectedObject)if(a.isALink(b.editObject.previousSelectedObject)){var d=a.clone(b.editObject.previousSelectedObject.__data__);d.color=a.getStyleElement(b.editObject.previousSelectedObject,\"link-color\",\"black\");var e=b.removeLink(b.editObject.previousSelectedObject.__data__[\"#id\"]);if(b.editObject.previousSelectedObject=null,e)return{baseAction:\"linkRemoval\",link:d}}else{if(a.isAWord(b.editObject.previousSelectedObject)){var f=a.clone(b.editObject.previousSelectedObject.__data__),g=b.removeWord(b.editObject.previousSelectedObject.__data__[\"#id\"]);return b.editObject.previousSelectedObject=null,{baseAction:\"wordRemoval\",word:f,affectedLinks:g}}if(a.isAChunk(b.editObject.previousSelectedObject)){var h=a.clone(b.editObject.previousSelectedObject.__data__),g=b.removeChunk(b.editObject.previousSelectedObject.__data__[\"#id\"]);return b.editObject.previousSelectedObject=null,{baseAction:\"chunkRemoval\",chunk:h,affectedLinks:g}}}},defaultUndo:function(a,b){if(\"linkRemoval\"==b.baseAction){var c=b.link,d=a.getObjectNodeByOriginalId(c.source),e=a.getObjectNodeByOriginalId(c.target);a.addLink(d,e,c.label,c.color,c[\"#id\"])}else if(\"linkAddition\"==b.baseAction)a.removeLink(b.addedLink[\"#id\"]);else if(\"wordAddition\"==b.baseAction)a.removeWord(b.addedWord[\"#id\"]);else if(\"wordRemoval\"==b.baseAction){var f=b.word;if(a.addWord(f),null!=b.affectedLinks)for(var g=0;g<b.affectedLinks.length;g++){var c=b.affectedLinks[g],d=a.getObjectNodeByOriginalId(c.source),e=a.getObjectNodeByOriginalId(c.target);c.color=c[\"#style\"]&&c[\"#style\"][\"link-color\"]?c[\"#style\"][\"link-color\"]:a.data.graph[\"#link-style\"][\"link-color\"],a.addLink(d,e,c.label,c.color,c[\"#id\"])}}else if(\"changeAttr\"==b.baseAction){var h=b.obj[\"#id\"],i=a.getObjectById(h);a.editObject.changeAttributes(i,b.oldAttrs),a.update(),a.postProcesses()}else if(\"chunkAddition\"==b.baseAction)a.removeChunk(b.addedChunk[\"#id\"]);else if(\"chunkRemoval\"==b.baseAction){var j=b.chunk;if(j.color=j[\"#style\"]&&j[\"#style\"][\"background-color\"]?j[\"#style\"][\"background-color\"]:a.data.graph[\"#chunk-style\"][\"background-color\"],a.addChunk(j.label,j.elements,j.sublabels,j.color,j.id,j[\"#id\"]),null!=b.affectedLinks)for(var g=0;g<b.affectedLinks.length;g++){var c=b.affectedLinks[g],d=a.getObjectNodeByOriginalId(c.source),e=a.getObjectNodeByOriginalId(c.target);c.color=c[\"#style\"]&&c[\"#style\"][\"link-color\"]?c[\"#style\"][\"link-color\"]:a.data.graph[\"#link-style\"][\"link-color\"],a.addLink(d,e,c.label,c.color,c[\"#id\"])}}},defaultRedo:function(a,b){if(\"linkAddition\"==b.baseAction){var c=b.addedLink;a.insertLink(c)}else if(\"linkRemoval\"==b.baseAction)a.removeLink(b.link[\"#id\"]);else if(\"wordRemoval\"==b.baseAction)a.removeWord(b.word[\"#id\"]);else if(\"wordAddition\"==b.baseAction){var d=b.addedWord;a.addWord(d)}else if(\"changeAttr\"==b.baseAction){var e=b.obj[\"#id\"],f=a.getObjectById(e);a.editObject.changeAttributes(f,b.newAttrs),a.update(),a.postProcesses()}else if(\"chunkRemoval\"==b.baseAction)a.removeChunk(b.chunk[\"#id\"]);else if(\"chunkAddition\"==b.baseAction){var g=b.addedChunk;g.color=g[\"#style\"]&&g[\"#style\"][\"background-color\"]?g[\"#style\"][\"background-color\"]:a.data.graph[\"#chunk-style\"][\"background-color\"],a.addChunk(g.label,g.elements,g.sublabels,g.color,g.id,g[\"#id\"])}},addNewWord:function(b,c){var d=b.viewer.screenCoordsForElt(c[0]),e={x:(d.ne.x+d.nw.x)/2,y:d.nw.y},f=jQuery(a.EditObject.DefaultModeLib.addWordPanel(b));b.viewer.createBox({closeButton:!0,draggable:!0}).setContent(f).open(e)},showEditPanel:function(b,c){var d=b.viewer.screenCoordsForElt(c[0]),e={x:(d.ne.x+d.nw.x)/2,y:d.nw.y},f=a.EditObject.DefaultModeLib.createEditPanel(b,c[0]);b.viewer.createBox({closeButton:!0,draggable:!0}).setContent(f).open(e)},createCreationPanel:function(b,c){var d={},e=c;null!=obj.classList&&obj.classList.length>0&&(e=obj.classList[0]);var f='<div><div id=\"'+b.viewer.appendOwnID(e+\"-save-properties-div\")+'\" onkeydown=\"if (event.keyCode == 13) {depgraphlib.EditObject.DefaultModeLib.saveProperties.call(this,arguments);}\">'+'<h3 id=\"edit-info-title\">Edit '+e+\" (original id: \"+d.id+\")</h3>\"+'<table class=\"main-properties-table\" ref=\"'+d[\"#id\"]+'\">';if(\"word\"==e)f=a.EditObject.DefaultModeLib.populateWordEditPanel(b,f,d);else if(\"link\"==e)f=a.EditObject.DefaultModeLib.populateLinkEditPanel(b,f,d);else{if(\"chunk\"!=e)throw'unknown object type : \"'+e+'\"';f=a.EditObject.DefaultModeLib.populateChunkEditPanel(b,f,d)}f+=\"</table>\",f+='<input id=\"'+b.viewer.appendOwnID(e+\"-save-properties\")+'\" type=\"button\" value=\"Save\" onclick=\"depgraphlib.EditObject.DefaultModeLib.saveProperties.call(this,arguments);\">',f+=\"</div></div>\";var g=jQuery(f);return g},createEditPanel:function(b,c){var d=c.__data__,e=\"\";null!=c.classList&&c.classList.length>0&&(e=c.classList[0]);var f='<div><div id=\"'+b.viewer.appendOwnID(e+\"-save-properties-div\")+'\" onkeydown=\"if (event.keyCode == 13) {depgraphlib.EditObject.DefaultModeLib.saveProperties.call(this,arguments);}\">'+'<h3 id=\"edit-info-title\">Edit '+e+\" (original id: \"+d.id+\")</h3>\"+'<table class=\"main-properties-table\" ref=\"'+d[\"#id\"]+'\">';if(\"word\"==e)f=a.EditObject.DefaultModeLib.populateWordEditPanel(b,f,d);else if(\"link\"==e)f=a.EditObject.DefaultModeLib.populateLinkEditPanel(b,f,d);else{if(\"chunk\"!=e)throw'unknown object type : \"'+e+'\"';f=a.EditObject.DefaultModeLib.populateChunkEditPanel(b,f,d)}f+=\"</table>\",f+='<input id=\"'+b.viewer.appendOwnID(e+\"-save-properties\")+'\" type=\"button\" value=\"Save\" onclick=\"depgraphlib.EditObject.DefaultModeLib.saveProperties.call(this,arguments);\">',f+=\"</div></div>\";var g=jQuery(f);return g},populateLinkEditPanel:function(b,c,d){var e=null!=d[\"#style\"]&&null!=d[\"#style\"][\"link-color\"]?d[\"#style\"][\"link-color\"]:b.data.graph[\"#link-style\"][\"link-color\"],f=b.editObject.dataModel;return f||(b.editObject.setDefaultDataModel(),f=b.editObject.dataModel),c+=f.links&&\"label\"==f.links[0].name&&f.links[0].values?a.ui.addCustomField(\"label\",a.EditObject.DefaultModeLib.getOptionsListValues(b,a.getValue(d,d.label),\"#data/label\",f.links[0].values)):a.ui.addTextField(\"label\",{id:\"link-edit-label\",name:\"label\",value:a.getValue(d,d.label),\"data-rel\":\"#data/label\"}),c+=a.ui.addCustomField(\"source\",a.EditObject.DefaultModeLib.getOptionsListWordsAndChunks(b,d.source,\"source\")),c+=a.ui.addCustomField(\"target\",a.EditObject.DefaultModeLib.getOptionsListWordsAndChunks(b,d.target,\"target\")),c+=a.ui.addCustomField(\"color\",a.ui.simpleColorPicker(\"colorPicker\",e,\"#style/link-color\"))},populateWordEditPanel:function(b,c,d){var e=b.editObject.dataModel;e||(b.editObject.setDefaultDataModel(),e=b.editObject.dataModel);for(var f=0;f<e.words.length;f++){var g,h;g=d[\"#data\"]?d[\"#data\"][e.words[f].name]||\"\":\"\",h=\"#data/\"+e.words[f].name,c+=e.words[f].values?a.ui.addCustomField(e.words[f].name,a.EditObject.DefaultModeLib.getOptionsListValues(b,g,h,e.words[f].values)):a.ui.addTextField(e.words[f].name,{id:\"word-edit-\"+e.words[f].name,\"data-rel\":h,name:e.words[f].name,value:g})}return c},populateChunkEditPanel:function(b,c,d){var e=b.editObject.dataModel;e||(b.editObject.setDefaultDataModel(),e=b.editObject.dataModel);var f=b.getChunkRange(d),g=a.ui.addCustomField(\"first element\",a.EditObject.DefaultModeLib.getOptionsListWords(b,f.firstElement.id,\"first-element\"));g+=a.ui.addCustomField(\"last element\",a.EditObject.DefaultModeLib.getOptionsListWords(b,f.lastElement.id,\"last-element\")),c+=a.ui.groupFields(\"Elements Range\",{name:\"chunkRange\",\"data-rel\":\"elements\"},g);var h=d[\"#style\"]&&d[\"#style\"][\"background-color\"]?d[\"#style\"][\"background-color\"]:b.data.graph[\"#chunk-style\"][\"background-color\"];c+=a.ui.addCustomField(\"color\",a.ui.simpleColorPicker(\"colorPicker\",h,\"#style/background-color\"));for(var i=0;i<e.chunks.length;i++){var j,k;j=wordData[\"#data\"]?d[\"#data\"][e.chunks[i].name]:\"\",k=\"#data/\"+e.chunks[i].name,c+=a.ui.addTextField(e.chunks[i].name,{id:\"chunk-edit-\"+e.chunks[i].name,\"data-rel\":k,name:e.chunks[i].name,value:j})}return c},saveProperties:function(){for(var b=a.DepGraph.getInstance(this),c=jQuery(this).parent().find(\"table.main-properties-table\"),d=b.getObjectById(c.attr(\"ref\")),e=c[0].rows,f=[],g=0;g<e.length;g++){var h,i,j=e[g],k=j.cells,l=k[1].firstChild,m=l.nodeName.toUpperCase();if(!l.getAttribute(\"data-rel\"))throw\"missing attribute data-rel in edit form\";if(i=l.getAttribute(\"data-rel\"),\"SELECT\"==m)h=l.options[l.options.selectedIndex].value;else if(\"INPUT\"==m)h=l.value;else if(\"simpleColorPicker\"==l.getAttribute(\"name\"))h=l.firstChild.rows[0].cells[0].firstChild.value;else{if(\"chunkRange\"!=l.getAttribute(\"name\"))throw\"unknown form element\";var n=l.firstChild.rows[0].cells[1].firstChild.options.selectedIndex,o=l.firstChild.rows[0].cells[1].firstChild.options[n].value,p=l.firstChild.rows[1].cells[1].firstChild.options.selectedIndex,q=l.firstChild.rows[1].cells[1].firstChild.options[p].value;h=[o,q]}f.push({path:i,value:h})}b.editObject.changeAttributes(d,f,!0),b.update(),b.postProcesses();var r=a.Box.getBox(this);r.close(!0)},addChunkSettings:function(b,c,d,e){var f=b.viewer.screenCoordsForElt(d),g={x:(f.ne.x+f.nw.x)/2,y:f.nw.y},h='<div><table style=\"margin:5px 0px 0px 0px;\">';h+=a.ui.addTextField(\"Chunk name :\",{name:\"chunk-name\",\"data-ref\":\"label\"}),h+='<tr><td colspant=\"2\"><input id=\"chunk-settings'+b.viewer.appendOwnID(\"\")+'\"  type=\"button\" style=\"margin:0\" value=\"Create Chunk\"></td></tr>',h+=\"</table></div>\",h=jQuery(h);var i=b.viewer.createBox({closeButton:!0,draggable:!0}).setContent(h).open(g);b.editObject.clearSelection(),jQuery(\"#chunk-settings\"+b.viewer.appendOwnID(\"\")).click(function(){var a=this.parentNode.parentNode.parentNode.childNodes[0].childNodes[1].childNodes[0].value,f=b.addChunk(a,[c.__data__.id,d.__data__.id]),g={baseAction:\"chunkAddition\",addedChunk:f};b.editObject.pushAction({mode:b.editObject.editMode,rollbackdata:g,data:{event:\"onWordSelect\",params:e}}),i.close(!0)})},getOptionsListValues:function(a,b,c,d){var e='<select data-rel=\"'+c+'\">';e+=\"<option \"+(b?\"\":'selected=\"true\"')+\"></option>\";for(var f=0;f<d.length;f++){var g=d[f]==b;e+='<option value=\"'+d[f]+'\" ',e+=g?'selected=\"true\"':\"\",e+=\">\"+d[f],e+=\"</option>\"}return e+=\"</select>\"},getOptionsListWords:function(a,b,c){for(var d='<select data-rel=\"'+c+'\">',e=0;e<a.data.graph.words.length;e++){var f=a.data.graph.words[e];d+='<option value=\"'+f.id+'\" ',d+=f.id==b?'selected=\"true\"':\"\",d+=\">#\"+f[\"#position\"]+\" \"+f.label+\" (\"+f.id+\")\",d+=\"</option>\"}return d+=\"</select>\"},getOptionsListWordsAndChunks:function(a,b,c){for(var d='<select data-rel=\"'+c+'\">',e=0;e<a.data.graph.words.length;e++){var f=a.data.graph.words[e];d+='<option value=\"'+f.id+'\" ',d+=f.id==b?'selected=\"true\"':\"\",d+=\">#\"+f[\"#position\"]+\" \"+f.label+\" (\"+f.id+\")\",d+=\"</option>\"}for(var e=0;e<a.data.graph.chunks.length;e++){var g=a.data.graph.chunks[e];d+='<option value=\"'+g.id+'\" ',d+=g.id==b?'selected=\"true\"':\"\",d+=\">c#\"+e+\" \"+g.label+\" (\"+g.id+\")\",d+=\"</option>\"}return d+=\"</select>\"},getOptionsPosition:function(a,b){for(var c='<select data-rel=\"'+b+'\">',d=0;d<a.data.graph.words.length+1;d++){var e=d>0&&d<a.data.graph.words.length+1?a.data.graph.words[d-1]:{label:\"^\"},f=d<a.data.graph.words.length?a.data.graph.words[d]:{label:\"$\"};c+='<option value=\"'+d+'\" ',c+=\">#\"+d+\" (\"+e.label+\" x \"+f.label+\")\",c+=\"</option>\"}return c+=\"</select>\"},addWordPanel:function(b){var c=\"\";return c+=\"<div><h3>Add a new word</h3>\",c+=\"<table><tr>\",c+=\"<td><label>Label</label></td>\",c+='<td><input type=\"text\" name=\"label\"></td></tr>',c+=\"<tr><td><label>Sublabels (separated by commas, use \\\\, for commas)</label></td>\",c+='<td><input type=\"text\" name=\"sublabels\"></td></tr>',c+=\"<tr><td><label>Position</label></td>\",c+=\"<td>\"+a.EditObject.DefaultModeLib.getOptionsPosition(b,\"#position\")+\"</td></tr>\",c+=\"</table></div>\"},addLinkSettings:function(a,b,c,d){var e=a.viewer.screenCoordsForElt(c),f={x:(e.ne.x+e.nw.x)/2,y:e.nw.y},g='<div><table style=\"margin:5px 0px 0px 0px;\"><tr><td>Link name : </td><td><input type=\"text\" name=\"link-name\" value=\"\"></td></tr><tr><td>Link color : </td><td><input type=\"text\" name=\"link-color\" value=\"black\"></td></tr><tr><td colspant=\"2\"><input id=\"link-settings'+a.viewer.appendOwnID(\"\")+'\"  type=\"button\" style=\"margin:0\" value=\"Create Link\"></td></tr>'+\"</table></div>\";g=jQuery(g);var h=a.viewer.createBox({closeButton:!0,draggable:!0}).setContent(g).open(f);a.editObject.clearSelection(),jQuery(\"#link-settings\"+a.viewer.appendOwnID(\"\")).click(function(){var e=this.parentNode.parentNode.parentNode.childNodes[0].childNodes[1].childNodes[0].value,f=this.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].childNodes[0].value,g=a.addLink(b,c,e,f),i={baseAction:\"linkAddition\",addedLink:g};a.editObject.pushAction({mode:a.editObject.editMode,rollbackdata:i,data:{event:\"onWordSelect\",params:d}}),h.close(!0)})},addWordSettings:function(a,b,c){var d=a.viewer.screenCoordsForElt(b),e={x:(d.ne.x+d.nw.x)/2,y:d.nw.y},f='<div><table style=\"margin:5px 0px 0px 0px;\"><tr><td>Word label : </td><td><input type=\"text\" name=\"word-label\" value=\"\"></td></tr><tr><td colspant=\"2\"><input id=\"word-settings'+a.viewer.appendOwnID(\"\")+'\"  type=\"button\" style=\"margin:0\" value=\"Insert Word\"></td></tr>'+\"</table></div>\";f=jQuery(f);var g=a.viewer.createBox({closeButton:!0,draggable:!0}).setContent(f).open(e);a.editObject.clearSelection(),jQuery(\"#word-settings\"+a.viewer.appendOwnID(\"\")).click(function(){var d=this.parentNode.parentNode.parentNode.childNodes[0].childNodes[1].childNodes[0].value;if(null==d||\"\"==d)return alert(\"you must fill all required fields\"),void 0;var e={label:d,sublabel:[],\"#position\":b.__data__[\"#position\"]+c},f=a.addWord(e),h={baseAction:\"wordAddition\",addedWord:f};a.editObject.pushAction({mode:a.editObject.editMode,rollbackdata:h,data:{event:\"onWordContext\",params:b}}),g.close(!0)})},addRootEdge:function(a,b){var c=\"black\",d=this.id++,e=new Object;e.target=b.__data__.id,e[\"#style\"]={\"link-color\":c},e.label=\"root\",e[\"#id\"]=d,a.insertLink(e);var f={baseAction:\"linkAddition\",addedLink:e};a.editObject.pushAction({mode:a.editObject.editMode,rollbackdata:f,data:{event:\"onWordContext\",params:b}})}}}(window.depgraphlib),function(a){a.EditObject.DefaultMode={name:\"default\",onInit:null,onWordSelect:a.EditObject.DefaultModeLib.addLinkClick,onLinkSelect:a.EditObject.DefaultModeLib.selectObject,onChunkSelect:a.EditObject.DefaultModeLib.addLinkClick,onGlobalContext:null,onWordContext:{\"Show Infos\":function(b,c){a.EditObject.DefaultModeLib.showEditPanel(b,c)},\"Add Node to the left\":function(b,c){a.EditObject.DefaultModeLib.addWordSettings(b,c[0],0)},\"Add Node to the right\":function(b,c){a.EditObject.DefaultModeLib.addWordSettings(b,c[0],1)},\"Add Root Edge\":function(b,c){a.EditObject.DefaultModeLib.addRootEdge(b,c[0])},Delete:function(b,c){var d=a.clone(c[0].__data__),e=b.removeWord(c[0].__data__[\"#id\"]);return b.editObject.previousSelectedObject=null,{baseAction:\"wordRemoval\",word:d,affectedLinks:e}}},onLinkContext:{\"Show Infos\":function(b,c){a.EditObject.DefaultModeLib.showEditPanel(b,c)},Delete:function(b,c){var d=a.clone(c[0].__data__);d.color=a.getStyleElement(c[0],\"link-color\",\"black\");var e=b.removeLink(c[0].__data__[\"#id\"]);return b.editObject.previousSelectedObject=null,e?{baseAction:\"linkRemoval\",link:d}:void 0}},onChunkContext:{\"Show Infos\":function(b,c){a.EditObject.DefaultModeLib.showEditPanel(b,c)},Delete:function(b,c){var d=a.clone(c[0].__data__),e=b.removeChunk(c[0].__data__[\"#id\"]);return b.editObject.previousSelectedObject=null,{baseAction:\"chunkRemoval\",chunk:d,affectedLinks:e}}},onKeyDown:a.EditObject.DefaultModeLib.editKeyDownDefault,onKeyPress:null,onKeyUp:null,save:null,undo:a.EditObject.DefaultModeLib.defaultUndo,redo:a.EditObject.DefaultModeLib.defaultRedo}}(window.depgraphlib),function(a){function b(b,c,d){for(var e=0;e<d.data.graph[b].length;++e)for(var f=d.data.graph[b][e],g=0;g<c[b].length;++g){var h=c[b][g];if(h.view){var i=a.getAttrPath(f,\"#data/\"+h.name);if(!i){var j=a.getAttrPath(f,h.view);a.setAttrPath(f,\"#data/\"+h.name,j)}a.setAttrPath(f,h.view,\"@#data/\"+h.name)}}}a.EditObject.prototype.init=function(b){this.depgraph=b,this.editMode=!1,this.mode=[],this.highlightMode=!1,this.dataModel=null,this.previousSelectedObject=null,this.actionsLog=[],this.currentPtr=-1,this.lastSavedPtr=-1,this.keysDown=[],this.addEditMode(a.EditObject.DefaultMode)},a.EditObject.prototype.setDefaultDataModel=function(){var a={words:[{name:\"label\",view:\"label\"}],links:[{name:\"label\",view:\"label\"}],chunks:[{name:\"label\",view:\"label\"}]},b=[\"words\",\"chunks\"];for(var c in b){for(var d=b[c],e=0,f=0;f<this.depgraph.data.graph[d].length;++f){var g=this.depgraph.data.graph[d][f];g.sublabel.length>e&&(e=g.sublabel.length)}for(var h=0;e>h;h++)a[d].push({name:\"sublabel\"+h,view:\"sublabel/\"+h})}this.setDataModel(a)},a.EditObject.prototype.setDataModel=function(a){this.dataModel=a,a.words&&b(\"words\",a,this.depgraph),a.links&&b(\"links\",a,this.depgraph),a.chunks&&b(\"chunks\",a,this.depgraph)},a.EditObject.prototype.dataChanged=function(){return this.needToSaveState?!0:0==this.actionsLog.length?!1:this.currentPtr!=this.lastSavedPtr?!0:!1},a.EditObject.prototype.addEditMode=function(a){this.mode[a.name]=a},a.EditObject.prototype.setEditMode=function(a,b){var c=this;if(this.canSave=b!==!1,null==a)a=\"default\";else{editModeExist=!1;for(i in this.mode)if(this.mode[i].name==a){editModeExist=!0;break}editModeExist||(alert(\"this edition mode does not exist! switching to default mode\"),a=\"default\")}this.editMode=a,this.needToSaveState=!1,window.onbeforeunload=a?function(a){if(c.dataChanged()){var b=\"Changes made to the graph are not saved. If you leave this page all modifications will be lost.\";return a=a||window.event,a&&(a.returnValue=b),b}}:null,this.editModeInit(),this.initToolbar()},a.EditObject.prototype.initToolbar=function(){function a(){var a=e.editObject;a.highlightMode=!a.highlightMode,a.highlightMode?(a.clearSelection(),e.viewer.setToolbarItemState(\"highlight\",!0)):e.viewer.setToolbarItemState(\"highlight\",!1)}function b(){var a=e.editObject;null!=a.mode[a.editMode].save&&a.mode[a.editMode].save(e)}function c(){var a=e.editObject;0==e.editObject.currentPtr&&e.viewer.setToolbarItemActive(\"undo\",!1);var b=e.editObject.actionsLog[e.editObject.currentPtr];null!=a.mode[b.mode].undo&&(a.mode[b.mode].undo.call(a,e,b.rollbackdata),null!=a.mode[b.mode].broadcast&&a.mode[b.mode].broadcast.call(null,{type:\"undo\",action:b})),e.editObject.currentPtr--,null!=a.mode[b.mode].redo&&e.viewer.setToolbarItemActive(\"redo\",!0),a.updateSaveState()}function d(){var a=e.editObject;e.editObject.currentPtr++,e.editObject.currentPtr==e.editObject.actionsLog.length-1&&e.viewer.setToolbarItemActive(\"redo\",!1);var b=e.editObject.actionsLog[e.editObject.currentPtr];null!=a.mode[b.mode].redo&&(a.mode[b.mode].redo.call(a,e,b.rollbackdata),null!=a.mode[b.mode].broadcast&&a.mode[b.mode].broadcast.call(null,{type:\"do\",action:b})),e.viewer.setToolbarItemActive(\"undo\",!0),a.updateSaveState()}var e=this.depgraph;e.viewer.resetToolbarItems();var f=[{name:\"undo\",callback:c,style:\"undo\",group:\"control\"},{name:\"redo\",callback:d,style:\"redo\",group:\"control\"},{name:\"highlight\",callback:a,style:\"highlightoff\"}];if(this.canSave&&f.push({name:\"save\",callback:b,style:\"saved\",group:\"1\"}),null!=this.mode[this.editMode].buttons)for(button in this.mode[this.editMode].buttons)f.push(button);e.viewer.addToolbarItems(f),(this.currentPtr<0||null==this.mode[this.editMode].undo)&&e.viewer.setToolbarItemActive(\"undo\",!1),(this.currentPtr==this.actionsLog.length-1||null==this.mode[this.editMode].redo)&&e.viewer.setToolbarItemActive(\"redo\",!1)},a.EditObject.prototype.undo=function(){var a=this,b=this.depgraph;0==b.editObject.currentPtr&&b.viewer.setToolbarItemActive(\"undo\",!1);var c=b.editObject.actionsLog[b.editObject.currentPtr];c?(null!=a.mode[c.mode].undo&&(a.mode[c.mode].undo.call(a,b,c.rollbackdata),null!=this.mode[this.editMode].broadcast&&this.mode[this.editMode].broadcast.call(null,{type:\"undo\",action:c})),b.editObject.currentPtr--,null!=a.mode[c.mode].redo&&b.viewer.setToolbarItemActive(\"redo\",!0),a.updateSaveState()):console.log('warning, there was no actions found at edit pointer \"'+b.editObject.currentPtr+'\"')},a.EditObject.prototype.setNeedToSave=function(){this.needToSaveState=!0,this.updateSaveState()},a.EditObject.prototype.updateSaveState=function(){this.canSave&&(this.lastSavedPtr!=this.currentPtr||this.needToSaveState?this.depgraph.viewer.getToolbarItem(\"save\").button.removeClass(\"saved\").addClass(\"save\"):this.depgraph.viewer.getToolbarItem(\"save\").button.removeClass(\"save\").addClass(\"saved\"))},a.EditObject.prototype.editModeInit=function(){function a(a,b,c){var d=h.editObject,b=b.menu;if(null!=d.mode[d.editMode][a][b]){var e=d.mode[d.editMode][a][b].call(this,h,c);d.pushAction({mode:d.editMode,rollbackdata:e,data:{event:\"onContextClick\",params:{object_type:a,menu:b}}})}}function b(a,b){var c=h.editObject;if(null!=c.mode[c.editMode].onWordSelect){var d=c.mode[c.editMode].onWordSelect.call(this,h,{d:a,i:b});c.pushAction({mode:c.editMode,rollbackdata:d,data:{event:\"onWordSelect\",params:{d:a,i:b}}})}}function c(a,b){var c=h.editObject;if(null!=c.mode[c.editMode].onLinkSelect){var d=c.mode[c.editMode].onLinkSelect.call(this,h,{d:a,i:b});c.pushAction({mode:c.editMode,rollbackdata:d,data:{event:\"onLinkSelect\",params:{d:a,i:b}}})}}function d(a,b){var c=h.editObject;if(null!=c.mode[c.editMode].onChunkSelect){var d=c.mode[c.editMode].onChunkSelect.call(this,h,{d:a,i:b});c.pushAction({mode:c.editMode,rollbackdata:d,data:{event:\"onChunkSelect\",params:{d:a,i:b}}})}}function e(){var a=h.editObject;if(a.keysDown.push(d3.event.keyCode),null!=a.mode[a.editMode].onKeyDown){var b=a.mode[a.editMode].onKeyDown.call(this,h,{keyCode:d3.event.keyCode});a.pushAction({mode:a.editMode,rollbackdata:b,data:{event:\"onKeyDown\",params:{keyCode:d3.event.keyCode}}})}}function f(){var a=h.editObject;if(null!=a.mode[a.editMode].onKeyPress){var b=a.mode[a.editMode].onKeyPress.call(this,h,{keyCode:d3.event.keyCode});a.pushAction({mode:a.editMode,rollbackdata:b,data:{event:\"onKeyPress\",params:{keyCode:d3.event.keyCode}}})}}function g(){var a=h.editObject,b=a.keysDown.indexOf(d3.event.keyCode);if(-1!=b&&a.keysDown.splice(b,1),null!=a.mode[a.editMode].onKeyUp){var c=a.mode[a.editMode].onKeyUp.call(this,h,{keyCode:d3.event.keyCode});a.pushAction({mode:a.editMode,rollbackdata:c,data:{event:\"onKeyUp\",params:{keyCode:d3.event.keyCode}}})}}var h=this.depgraph;if(this.mode[this.editMode].onInit&&this.mode[this.editMode].onInit.call(this,h),!this.editMode)return this.depgraph.vis.selectAll(\"g.word\").on(\"click\",null),this.depgraph.vis.selectAll(\"g.link\").on(\"click\",null),this.depgraph.vis.selectAll(\"g.chunk\").on(\"click\",null),d3.select(document).on(\"keydown.edit\"+this.depgraph.viewer.uid,null),this.depgraph.viewer.resetToolbarItems(),jQuery(\".link\",this.depgraph.vis.node()).contextMenu(\"\",{}),jQuery(\".word\",this.depgraph.vis.node()).contextMenu(\"\",{}),jQuery(\".chunk\",this.depgraph.vis.node()).contextMenu(\"\",{}),void 0;if(this.depgraph.vis.selectAll(\"g.word\").on(\"click\",b),this.depgraph.vis.selectAll(\"g.link\").on(\"click\",c),this.depgraph.vis.selectAll(\"g.chunk\").on(\"click\",d),d3.select(document).on(\"keydown.edit\"+this.depgraph.viewer.uid,e),d3.select(document).on(\"keypress.edit\"+this.depgraph.viewer.uid,f),d3.select(document).on(\"keyup.edit\"+this.depgraph.viewer.uid,g),null!=this.mode[this.editMode].onLinkContext){var i={};for(menu in this.mode[this.editMode].onLinkContext)i[menu]={menu:menu,click:function(b){a(\"onLinkContext\",this,b)},klass:\"menu-item-1\"};jQuery(\".link\",this.depgraph.vis.node()).contextMenu(\"link-context-menu\",i)}if(null!=this.mode[this.editMode].onWordContext){var i={};for(menu in this.mode[this.editMode].onWordContext)i[menu]={menu:menu,click:function(b){a(\"onWordContext\",this,b)},klass:\"menu-item-1\"};jQuery(\".word\",this.depgraph.vis.node()).contextMenu(\"word-context-menu\",i)}if(null!=this.mode[this.editMode].onChunkContext){var i={};for(menu in this.mode[this.editMode].onChunkContext)i[menu]={menu:menu,click:function(b){a(\"onChunkContext\",this,b)},klass:\"menu-item-1\"};jQuery(\".chunk\",this.depgraph.vis.node()).contextMenu(\"chunk-context-menu\",i)}if(null!=this.mode[this.editMode].onGlobalContext){var i={};for(menu in this.mode[this.editMode].onGlobalContext)i[menu]={menu:menu,click:function(b){a(\"onGlobalContext\",this,b)},klass:\"menu-item-1\"};jQuery(this.depgraph.svg.node()).contextMenu(\"main-menu\",i)}},a.EditObject.prototype.pushAction=function(a,b){if(b){var c=a,a=a.action;return a.mode==this.editMode&&(\"do\"==c.type?null!=this.mode[a.mode].redo&&this.mode[a.mode].redo.call(this,this.depgraph,a.rollbackdata):null!=this.mode[a.mode].undo&&this.mode[a.mode].undo.call(this,this.depgraph,a.rollbackdata)),void 0}null!=a.rollbackdata&&null!=this.mode[a.mode].undo&&(null!=this.mode[this.editMode].broadcast&&this.mode[this.editMode].broadcast.call(null,{type:\"do\",action:a}),this.depgraph.viewer.setToolbarItemActive(\"redo\",!1),this.depgraph.viewer.setToolbarItemActive(\"undo\",!0),this.actionsLog.splice(++this.currentPtr,this.actionsLog.length-this.currentPtr,a),this.updateSaveState())},a.EditObject.prototype.clearSelection=function(){if(null!=this.previousSelectedObject){try{this.previousSelectedObject.selected=!1,a.DepGraph.highlightObject(this.previousSelectedObject,!1)}catch(b){}this.previousSelectedObject=null}},a.EditObject.prototype.selectObject=function(b){return this.previousSelectedObject==b?(this.clearSelection(),void 0):(this.clearSelection(),this.previousSelectedObject=b,a.DepGraph.highlightObject(this.previousSelectedObject,!0),b.selected=!0,void 0)},a.EditObject.prototype.changeAttributes=function(b,c,d){for(var e=a.clone(b),f=[],g=0;g<c.length;g++){var h=a.setAttrPath(b,c[g].path,c[g].value);\n    5: f.push({path:c[g].path,value:h})}if(null!=d&&d){var i={mode:this.editMode,rollbackdata:{baseAction:\"changeAttr\",obj:e,attrs:c,oldAttrs:f,newAttrs:c}};this.pushAction(i)}},a.EditObject.prototype.addEditModeSwitcher=function(){var b=this;this.depgraph.viewer.addToolbarItem({\"static\":!0,name:\"customeditmode\",tooltip:\"Custom Edit Mode\",callback:function(){var c=confirm(\"You will not be able to get back to frmg edit mode, are you sure you want to edit manually the graph?\");1==c&&(a.hideAltLinks(b.depgraph,b.depgraph.editObject.previousSelectedObject),b.setEditMode(\"default\"),b.depgraph.viewer.removeToolbarItem(\"customeditmode\"))},style:\"default-edit\"})}}(window.depgraphlib),function(a){a.FRMGEditMode=function(b){function c(a){var b=h(a),c=a.editObject.mode[a.editObject.editMode].highlightInfos;jQuery.ajax({type:\"POST\",url:a.wsurl,data:{action:\"save\",format:\"frmgserver\",options:b,highlighting:c,data:a.sentence,uid:a.options.uid},dataType:\"json\",success:function(b){b.success?(a.editObject.lastSavedPtr=a.editObject.currentPtr,a.editObject.needToSaveState=!1,a.editObject.updateSaveState()):alert(\"error happened, couldn't save the modifications\")},error:function(a,b){alert(b)}})}function d(b){if(null==b.editObject.previousSelectedObject||a.isALink(b.editObject.previousSelectedObject)||o(b,b.editObject.previousSelectedObject),!j(b,this)){if(this==b.editObject.previousSelectedObject)return b.editObject.clearSelection(),void 0;b.editObject.selectObject(this),m(b,this)}}function e(a,b){if(\"removeEdge\"==b.baseAction||\"selectAlternative\"==b.baseAction){var c=b.previousParams;\"\"==c&&(c=a.original_data.graph.params),l(a,a.sentence,c)}}function f(b,c){if(46==c.keyCode&&null!=b.editObject.previousSelectedObject&&a.isALink(b.editObject.previousSelectedObject)){var c=k(b,b.sentence,b.editObject.previousSelectedObject.__data__);return{baseAction:\"removeEdge\",previousParams:h(b),currentParams:c}}}function g(b,c){if(null==b.editObject.previousSelectedObject||a.isALink(b.editObject.previousSelectedObject)||o(b,b.editObject.previousSelectedObject),!j(b,this)&&a.isALink(this)&&1==this.__data__[\"#data\"].virtual){var c=\"\";for(id in this.__data__.ref_ids)return c+=a.getOriginalFRMGMode(b)+\"eid=\"+this.__data__.ref_ids[id]+\"&+99999\",l(b,b.sentence,c),{baseAction:\"selectAlternative\",previousParams:h(b),currentParams:c}}}function h(a){var b=a.editObject;if(-1==b.currentPtr)return a.options.frmgparserparams||\"\";var c=b.actionsLog[b.currentPtr];return c.rollbackdata.currentParams}function j(b,c){if(b.editObject.highlightMode){b.editObject.clearSelection();var d=!a.isObjectPermanentHighlighted(c);a.DepGraph.highlightObject(c,d,!0),null==b.editObject.mode[b.editObject.editMode].highlightInfos&&(b.editObject.mode[b.editObject.editMode].highlightInfos=b.data.graph.highlighting?b.data.graph.highlighting:[]);var e=b.editObject.mode[b.editObject.editMode].highlightInfos,f=e.indexOf(c.__data__.id);return-1==f||d?-1==f&&d&&e.push(c.__data__.id):e.splice(f,1),b.editObject.setNeedToSave(),!0}return!1}function k(a,b,c){var d=a.getWordByOriginalId(c.source),e=a.getWordByOriginalId(c.target),f=d.__data__[\"#data\"],g=e.__data__[\"#data\"],h=\"edge=\"+f.lemma+\"&\"+f.cat+\"&\"+c.label+\"&\"+g.lemma+\"&\"+g.cat+\"&-8000\";return l(a,b,h),h}function l(a,c,d){a.viewer.ajaxStart(),jQuery.ajax({type:\"GET\",url:b,data:{sentence:c,options:d,schema:\"dep\",view:\"txt\"},dataType:\"json\",success:function(b){b.error?alert(\"Error happened\"):(a.editObject.mode.frmg.onGetNewResult&&a.editObject.mode.frmg.onGetNewResult.call(a,b),a.resetData(b)),a.viewer.ajaxFinished()},error:function(b,c){alert(c),a.viewer.ajaxFinished()}})}function m(a,b){for(link in b.__data__[\"#data\"].alternatives)a.data.graph.links.push(b.__data__[\"#data\"].alternatives[link]);a.update(),a.postProcessesFixHeight(),a.editObject.editModeInit(),a.autoHighLightOnMouseOver(),n(a,b.__data__[\"#data\"].alternatives)}function n(a,b){null==b&&(b=[]),a.vis.selectAll(\"g.link\").each(function(a,c){for(c in b)if(b[c][\"#id\"]==a[\"#id\"])return this.components.path.attr(\"stroke-dasharray\",\"5,5\"),void 0;this.components.path.attr(\"stroke\",\"grey\")})}function o(a,b){if(b){for(i in b.__data__[\"#data\"].alternatives){var c=b.__data__[\"#data\"].alternatives[i],d=a.getLinkIndexByOriginalId(c.id);if(null==d)return!1;a.data.graph.links.splice(d,1)}a.update(),a.postProcessesFixHeight()}}this.mode={name:\"frmg\",onWordSelect:d,onLinkSelect:g,onChunkSelect:a.EditObject.DefaultModeLib.selectObject,onWordContext:{\"Show Infos\":function(b,c){a.EditObject.DefaultModeLib.showEditPanel(b,c)},HighLight:function(a,b){j(a,b)}},onLinkContext:{\"Show Infos\":function(b,c){a.EditObject.DefaultModeLib.showEditPanel(b,c)},HighLight:function(a,b){j(a,b)}},onChunkContext:null,keyHandler:f,undo:e,save:c,highlightInfos:null,onGetNewResult:null},a.getOriginalFRMGMode=function(a){for(var b=a.options.frmgparserparams||\"\",c=[\"robust\",\"exotic\",\"transform\"],d=\"\",e=0;e<c.length;++e){var f=new RegExp(\".*(\"+c[e]+\").*\",\"g\"),g=f.exec(b);null!=g&&(d+=g[1]+\" \")}return d},a.getPreviousParams=h,a.getNewData=l,a.hideAltLinks=o}}(window.depgraphlib),function(a){function b(a){return-1!==a.indexOf(\"</a>\",a.length-4)?a:a+\"</a>\"}a.allowNotes=function(b){var c=a.DepGraph.getInstance(b);c.viewer.addToolbarItem({name:\"add-note\",callback:a.addNote,style:\"add-note\",\"static\":!0}),jQuery(document).on(\"click\",\"#note-submit-\"+c.options.uid,function(){a.submitNote(c)})},a.addNote=function(){var b=a.DepGraph.getInstance(this),c=this.getBoundingClientRect(),d={x:c.left,y:c.top+c.height+2},e='<form id=\"note-form-'+b.options.uid+'\">';e+='<textarea id=\"note-text-'+b.options.uid+'\" name=\"note\" rows=\"4\" cols=\"50\"></textarea><br>',e+='<input id=\"note-submit-'+b.options.uid+'\" name=\"note-submit\" type=\"button\" value=\"Add note\">',e+=\"</form>\";var f=\"<div></div>\";f=jQuery(f),f.append(e),b.viewer.createBox({closeButton:!0,position:d,autodestroy:!1,forceToolbar:!0}).setContent(f).setHeader(\"Add note\").open()},a.submitNote=function(b){var c=jQuery(\"#note-text-\"+b.options.uid),d=c.val(),e=a.Box.getBox(c[0]);jQuery.ajax({type:\"POST\",url:b.wsurl,data:{gnid:b.gnid,action:\"add note\",data:d},dataType:\"json\",success:function(a){console.log(a)},error:function(a,b){alert(b)}}),e.close(!0)},a.showRefs=function(){var c=a.DepGraph.getInstance(this),d=this.getBoundingClientRect(),e={x:d.left,y:d.top+d.height+2},f=\"<div>Reference Infos : <br>\";\"\"!=c.options.frmgparserparams&&(f+=\"(FRMG options:\"+c.options.frmgparserparams+\")<br>\"),f+=\"UID: \"+c.options.uid+\"<br>\",f+=c.revision_node_link||\"\",f+=\"Sentence : \"+b(c.sentenceLink)+\"<br>\"+\"Back Links : \"+c.refs+\"</div>\",f=jQuery(f),c.viewer.createBox({closeButton:!0,position:e,autodestroy:!0,forceToolbar:!0}).setContent(f).open()},a.mgwiki_d3js_module_action=function(a,b,c){jQuery.ajax({type:\"POST\",url:c,data:{gid:b,action:a},dataType:\"json\",success:function(a){console.log(a),a.success?window.location=\"\":alert(a.error)},error:function(a,b){alert(b)}})},a.promote=function(b,c){a.mgwiki_d3js_module_action(\"promote\",b,c)},a.reload=function(b,c){a.mgwiki_d3js_module_action(\"reload\",b,c)},a.remove=function(b,c){a.mgwiki_d3js_module_action(\"remove\",b,c)}}(window.depgraphlib),function(a){a.tpl={},a.tpl.notes=function(b,c){var d=jQuery(\"#notes-\"+c);d.on(\"click\",function(a){if(!jQuery(a.target).hasClass(\"note-delete\")){var b=jQuery(\".notes-content\",this);b.toggle()}});for(var e='<div class=\"notes-content hidden\"><table title=\"comments\">',f=0;f<b.length;f++)e+=\"<tr><td>[\"+b[f].name+\"] : \"+b[f].comment_body_value,b[f].canDelete&&(e+='<div id=\"'+f+\"note-\"+c+'\" cid=\"'+b[f].cid+'\" class=\"note-delete\"></div>'),e+=\"</td></tr>\";e+=\"</tr></table>\",d.append(e),jQuery(\".note-delete\").click(function(){var b=this,d=a.DepGraph.getInstance(\"#notes-\"+c);jQuery.ajax({type:\"POST\",url:d.wsurl,data:{gnid:d.gnid,action:\"delete note\",cid:jQuery(this).attr(\"cid\")},dataType:\"json\",success:function(){jQuery(b.parentNode.parentNode).remove()},error:function(a,b){alert(b)}}),console.log(this)})},a.tpl.base=function(){},a.tpl.editmode=function(b,c,d){depGraph=a.tpl.full(b),viewer.removeToolbarItem(\"edit\"),depGraph.sentence=\"$sentence\",depGraph.editObject.mode[\"default\"].save=a.EditObject.DefaultModeLib.save,depGraph.dataFormat=\"json\",depGraph.viewer.setFixedToolbar(),\"depxml\"==c?(frmgEditMode=new a.FRMGEditMode(d),depGraph.editObject.addEditMode(frmgEditMode.mode),depGraph.editObject.setEditMode(\"frmg\"),depGraph.editObject.addEditModeSwitcher()):depGraph.editObject.setEditMode(\"default\")},a.tpl.full=function(b){var c=new a.DepGraph(jQuery(\"#graph-container-\"+b.uid),b.json_data,b.json_options),d=c.viewer;if(c.wsurl=b.ws_url,\"full\"==c.options.viewmode&&d.noBorders(),c.sentenceLink=b.sentence_link,c.refs=b.refs,b.json_options.wrapped){d.addWrapper(b.title);var e=\"<div>\"+c.refs+\"</div>\";e=jQuery(e),c.viewer.container.append(e)}else d.addToolbarItem({name:\"refs\",callback:a.showRefs,style:\"refs\",\"static\":!0});b.json_options.gid&&d.addToolbarItem({name:\"edit\",style:\"edit\",callback:function(){window.location=base_url+\"/d3js/\"+b.json_options.gid+\"/edit\"}});var f=jQuery(\"#graph-star-\"+b.uid);return f.hasClass(\"graph-star-off\")&&f.on(\"click\",function(){a.promote(b.gid,b.ws_url)}),jQuery(\"#graph-reload-\"+b.uid).on(\"click\",function(){a.reload(b.gid,b.ws_url)}),jQuery(\"#graph-delete-\"+b.uid).on(\"click\",function(){var c=confirm(\"Deletion of the graph is irreversible. Confirm deletion?\");1==c&&a.remove(b.gid,b.ws_url)}),c}}(window.depgraphlib),function(a){a.plugins=a.plugins||{},a.plugins.tikzdep={},a.plugins.tikzdep.export=function(){}}(window.depgraphlib);\n\n/var/www/mgwiki/sites/all/modules/custom/d3js/js/depgraph/src/js/plugins/frmg_parser_custom.js:\n   38        \n   39        function frmg_save(depgraph){\n   40:         var params = getPreviousParams(depgraph);\n   41          var highlightInfos = depgraph.editObject.mode[depgraph.editObject.editMode].highlightInfos;\n   42          jQuery.ajax({\n   ..\n   99              if(depgraphlib.isALink(depgraph.editObject.previousSelectedObject)){\n  100                var params = removeLinkForNewData(depgraph,depgraph.sentence,depgraph.editObject.previousSelectedObject.__data__);\n  101:               return {baseAction:'removeEdge',previousParams:getPreviousParams(depgraph),currentParams:params};\n  102              }\n  103            }\n  ...\n  119              params += depgraphlib.getOriginalFRMGMode(depgraph) + \"eid=\" + this.__data__['ref_ids'][id] + \"&+99999\";\n  120              getNewData(depgraph,depgraph.sentence,params);\n  121:             return {baseAction:'selectAlternative',previousParams:getPreviousParams(depgraph),currentParams:params};\n  122            }\n  123          }\n  ...\n  143        };\n  144  \n  145:       function getPreviousParams(depgraph){\n  146          var eo = depgraph.editObject;\n  147          if(eo.currentPtr == -1){\n  ...\n  153        }\n  154        \n  155:       depgraphlib.getPreviousParams = getPreviousParams;\n  156        \n  157        function processhighlightmode(depgraph,currentobj){\n\n19 matches across 4 files\n",
+			"settings":
+			{
+				"buffer_size": 78042,
+				"line_ending": "Unix",
+				"name": "Find Results",
+				"scratch": true
+			}
+		},
+		{
+			"file": "mgwiki.depgraph.js",
+			"settings":
+			{
+				"buffer_size": 135595,
 				"line_ending": "Unix"
 			}
 		},
@@ -315,12 +345,12 @@
 			"file": "src/js/app/edition/edition.js",
 			"settings":
 			{
-				"buffer_size": 24589,
+				"buffer_size": 24600,
 				"line_ending": "Unix"
 			}
 		}
 	],
-	"build_system": "",
+	"build_system": "Packages/User/grunt-default.sublime-build",
 	"command_palette":
 	{
 		"height": 392.0,
@@ -382,7 +412,7 @@
 	},
 	"find_in_files":
 	{
-		"height": 0.0,
+		"height": 93.0,
 		"where_history":
 		[
 			""
@@ -393,6 +423,8 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"canSave",
+			"getPreviousParams",
 			"editModeInit",
 			"console",
 			"prepareData",
@@ -439,15 +471,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 46917,
+						"buffer_size": 47071,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								3742,
-								3742
+								22542,
+								22542
 							]
 						],
 						"settings":
@@ -457,7 +489,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 1445.0,
+						"translation.y": 9394.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -465,6 +497,185 @@
 				},
 				{
 					"buffer": 1,
+					"file": "depgraph_formats.inc",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 27442,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								9710,
+								9710
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 5312.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 78042,
+						"regions":
+						{
+							"match":
+							{
+								"flags": 112,
+								"regions":
+								[
+									[
+										203,
+										220
+									],
+									[
+										656,
+										673
+									],
+									[
+										961,
+										978
+									],
+									[
+										1085,
+										1102
+									],
+									[
+										1249,
+										1266
+									],
+									[
+										1269,
+										1286
+									],
+									[
+										1533,
+										1550
+									],
+									[
+										1996,
+										2013
+									],
+									[
+										2356,
+										2373
+									],
+									[
+										2495,
+										2512
+									],
+									[
+										2669,
+										2686
+									],
+									[
+										2689,
+										2706
+									],
+									[
+										72061,
+										72078
+									],
+									[
+										76761,
+										76778
+									],
+									[
+										77224,
+										77241
+									],
+									[
+										77584,
+										77601
+									],
+									[
+										77723,
+										77740
+									],
+									[
+										77897,
+										77914
+									],
+									[
+										77917,
+										77934
+									]
+								],
+								"scope": ""
+							}
+						},
+						"selection":
+						[
+							[
+								1095,
+								1095
+							]
+						],
+						"settings":
+						{
+							"detect_indentation": false,
+							"line_numbers": false,
+							"output_tag": 1,
+							"result_base_dir": "",
+							"result_file_regex": "^([A-Za-z\\\\/<].*):$",
+							"result_line_regex": "^ +([0-9]+):",
+							"scroll_past_end": true,
+							"syntax": "Packages/Default/Find Results.hidden-tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "mgwiki.depgraph.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 135595,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								129132,
+								129132
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 65600.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
 					"file": "src/js/app/graph/graphdata.js",
 					"semi_transient": false,
 					"settings":
@@ -490,11 +701,11 @@
 						"translation.y": 3653.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
+					"buffer": 5,
 					"file": "src/js/app/graph/graphvisualtricks.js",
 					"semi_transient": false,
 					"settings":
@@ -520,11 +731,11 @@
 						"translation.y": 10519.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 6,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
+					"buffer": 6,
 					"file": "src/js/plugins/mgwiki_graphs.js",
 					"semi_transient": false,
 					"settings":
@@ -550,11 +761,11 @@
 						"translation.y": 357.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 7,
 					"type": "text"
 				},
 				{
-					"buffer": 4,
+					"buffer": 7,
 					"file": "src/js/app/graph/anticross.js",
 					"semi_transient": false,
 					"settings":
@@ -580,11 +791,11 @@
 						"translation.y": 2940.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 8,
 					"type": "text"
 				},
 				{
-					"buffer": 5,
+					"buffer": 8,
 					"file": "src/js/app/ui/box.js",
 					"semi_transient": false,
 					"settings":
@@ -610,11 +821,11 @@
 						"translation.y": 228.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 9,
 					"type": "text"
 				},
 				{
-					"buffer": 6,
+					"buffer": 9,
 					"file": "src/js/app/edition/0editionlib.js",
 					"semi_transient": false,
 					"settings":
@@ -640,11 +851,11 @@
 						"translation.y": 10944.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 10,
 					"type": "text"
 				},
 				{
-					"buffer": 7,
+					"buffer": 10,
 					"file": "src/js/app/ui/viewer.js",
 					"semi_transient": false,
 					"settings":
@@ -670,11 +881,11 @@
 						"translation.y": 5727.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 7,
+					"stack_index": 11,
 					"type": "text"
 				},
 				{
-					"buffer": 8,
+					"buffer": 11,
 					"file": "src/js/app/edition/defaulteditmode.js",
 					"semi_transient": false,
 					"settings":
@@ -700,24 +911,24 @@
 						"translation.y": 306.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 8,
+					"stack_index": 12,
 					"type": "text"
 				},
 				{
-					"buffer": 9,
+					"buffer": 12,
 					"file": "src/js/app/edition/edition.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 24589,
+						"buffer_size": 24600,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								5719,
+								5719
 							]
 						],
 						"settings":
@@ -727,10 +938,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 1120.0,
+						"translation.y": 1238.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 9,
+					"stack_index": 1,
 					"type": "text"
 				}
 			]
@@ -767,6 +978,10 @@
 		]
 	},
 	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 112.0
+	},
 	"output.find_results":
 	{
 		"height": 0.0
