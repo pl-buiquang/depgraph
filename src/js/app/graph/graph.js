@@ -592,10 +592,17 @@
           }else{
             //TODO(paul) : send raw parameter if not in custom edit mode
             var ddata = me.cleanData();
+
+            var depxmlinfo = {sentence:me.sentence};
+            if(depgraphlib.getPreviousParams && me.editObject.editMode == 'frmg'){
+              depxmlinfo.params = depgraphlib.getPreviousParams(me);
+            }
+
             depgraphlib.windowOpenPost(
                 {'action':'export',
                   'data':ddata,
-                  'gid':me.options.gid,
+                  'depxmlinfo':depxmlinfo,
+                  'gid':me.options.gid || '',
                   'source_format':'json',
                   'target_format':format},
                 me.wsurl);
