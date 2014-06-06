@@ -24,6 +24,9 @@ function convertGraph($data,$sourceformat,$targetformat){
     case 'dep2pict':
       $json = dep2pict2depGraph($data);
       break;
+    case 'passage':
+      $json = passage2depGraph($data);
+      break;
   }
   switch ($targetformat){
     case 'depconll':
@@ -940,4 +943,161 @@ function retrieveCorrespondingNodes(&$words,$cluster_id){
     }
   }
   return $nodes;
+}
+
+
+/*********************************************************/
+/*                    PASSAGE                            */
+/*********************************************************/
+
+
+function passage2depGraph($xml_data){
+  $edge_used_keys = array('label','source','target');
+  $graph = &$dep_graph_array['graph'];
+  $graph['words'] = array();
+  $graph['links'] = array();
+  $graph['chunks'] = array();
+  $tokens = array();
+
+
+  if(is_string($xml_data)){
+    $xml_data = new SimpleXMLElement($xml_data);    
+  }
+  
+  if(isset($xml_data['highlighting'])){
+    $graph['highlighting'] = (string) $xml_data['highlighting'];
+    $graph['highlighting'] = preg_split("/,/", $graph['highlighting']);
+  }
+  
+  
+  $result = $xml_data->xpath("//T");
+  foreach($result as $token){
+    $tokens[(string)$token['id']] = trim((string)$token);
+  }
+  
+  $result = $xml_data->xpath("//W");
+  foreach($result as $node){
+    $node_obj = &$graph['words'][];
+    $node_obj['label'] = passageGetTokens((string)$node['tokens'],$tokens);
+    $node_obj['sublabel'] = array();
+    $node_obj['sublabel'][] = (string)$node["lemma"];
+    $node_obj['sublabel'][] = (string)$node["pos"];
+    $node_obj['id'] = (string)$node['id'];
+  }
+
+  $result = $xml_data->xpath("//G");
+  foreach($result as $chunk){
+    $chunk_obj = &$graph['chunks'][];
+    $chunk_obj['label'] = (string)$chunk['type'];
+    $chunk_obj['id'] = (string)$chunk['id'];
+    $chunk_obj['elements'] = array();
+    foreach ($chunk->W as $node) {
+      $chunk_obj['elements'][] = (string)$node['id'];
+    }
+  }
+
+  $result = $xml_data->xpath("//R");
+  $n = count($result);
+  foreach($result as $link){
+    passageGetLink($link,$graph['links'],$n);
+  }
+
+  return json_encode($dep_graph_array);
+}
+
+function passageGetLink($link,&$graphlinks,&$maxlinks){
+  $edge = array();
+  $edge['id'] = (string)$link['id'];
+  $edgeType = (string)$link["type"];
+  $edge['label'] = $edgeType;
+  if($edgeType =="COORD"){
+    $id = (string)$link['id'];
+    $id2 = "";
+    $maxlinks++;
+    
+    $id2 = preg_replace("/.*?R(\d+)/", $maxlinks, $id);
+    
+    $edge_obj1 = array();
+    $edge_obj2 = array();
+    $edge_obj1["id"] =  $id;
+    $edge_obj1["label"] = "COORD-G";
+    $edge_obj2["id"] =  $id2;
+    $edge_obj2["label"] = "COORD-D";
+    
+    $source = $link->coordonnant[0];
+    $target = (count($link->{"coord-g"})>0)?$link->{"coord-g"}[0]:null;
+    if($target != null && $source != null){
+      $edge_obj1.put("source", (string)$source['ref']);
+      $edge_obj1.put("target", (string)$target['ref']);
+      $graphlinks[] = $edge_obj1;
+      
+    }
+    
+    $target = (count($link->{"coord-d"})>0)?$link->{"coord-d"}[0]:null;
+    if($target != null && $source != null){
+      $edge_obj2.put("source", (string)$source['ref']);
+      $edge_obj2.put("target", (string)$target['ref']);
+      $graphlinks[] = $edge_obj2;
+      
+    }       
+    
+    
+    return;
+  }else if($edgeType =="SUJ-V"){
+    $sourceKey = "verbe";
+    $targetKey = "sujet";
+  }else if($edgeType =="CPL-V"){
+    $sourceKey = "verbe";
+    $targetKey = "complement";
+  }else if($edgeType =="MOD-N"){
+    $sourceKey = "nom";
+    $targetKey = "modifieur";
+  }else if($edgeType =="AUX-V"){
+    $sourceKey = "verbe";
+    $targetKey = "auxiliaire";
+  }else if($edgeType =="COD-V"){
+    $sourceKey = "verbe";
+    $targetKey = "cod";
+  }else if($edgeType =="MOD-V"){
+    $sourceKey = "verbe";
+    $targetKey = "modifieur";
+  }else if($edgeType =="COMP"){
+    $sourceKey = "verbe";
+    $targetKey = "complementeur";
+  }else if($edgeType =="MOD-A"){
+    $sourceKey = "adjectif";
+    $targetKey = "modifieur";
+  }else if($edgeType =="APPOS"){
+    $sourceKey = "premier";
+    $targetKey = "appose";
+  }else if($edgeType =="JUXT"){
+    $sourceKey = "premier";
+    $targetKey = "suivant";
+  }else if($edgeType =="MOD-R"){
+    $sourceKey = "adverbe";
+    $targetKey = "modifieur";
+  }else if($edgeType =="MOD-P"){
+    $sourceKey = "preposition";
+    $targetKey = "modifieur";
+  }else if($edgeType =="ATB-SO"){
+    $sourceKey = "verbe";
+    $targetKey = "attribut";
+    //@todo keep s-o information
+  }else{
+
+  }
+  $edge['target'] = (count($link->{$targetKey})>0)?$link->{$targetKey}[0]:null;
+  $edge['source'] = (count($link->{$sourceKey})>0)?$link->{$sourceKey}[0]:null;
+  $edge['target'] = (string)$edge['target']['ref'];
+  $edge['source'] = (string)$edge['source']['ref'];
+  $graphlinks[] = $edge;
+}
+
+function passageGetTokens($tokens_id,$tokens){
+  $tokens_id_array = explode(" ", $tokens_id);
+  $tokenstring = "";
+  for($i=0;$i<count($tokens_id_array);$i++){
+    $tokenstring.= " " . $tokens[$tokens_id_array[$i]];
+  }
+  return trim($tokenstring);
 }
