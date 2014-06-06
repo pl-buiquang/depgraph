@@ -247,7 +247,7 @@
 			"file": "src/js/app/graph/graph.js",
 			"settings":
 			{
-				"buffer_size": 47071,
+				"buffer_size": 47341,
 				"line_ending": "Unix"
 			}
 		},
@@ -471,15 +471,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 47071,
+						"buffer_size": 47341,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								22542,
-								22542
+								22543,
+								22543
 							]
 						],
 						"settings":
