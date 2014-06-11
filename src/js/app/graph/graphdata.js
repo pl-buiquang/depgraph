@@ -99,7 +99,7 @@
    * @memberof DepGraphLib
    */
   depgraphlib.isALink = function(obj){
-    return obj.__data__.target != null && obj.__data__.source != null;
+    return obj.__data__.target != null || obj.__data__.source != null;
   };
 
   /**

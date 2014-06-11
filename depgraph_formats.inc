@@ -857,8 +857,7 @@ function depXML2depGraph($xml_data){
       }
       if($source_node['id'] == null){
         // TODO SHOULD NOT HAPPEND
-        Logger::Log($id);
-        continue;
+        //Logger::Log($id,"source node id is null");
       }
       $type = (string) $info[3];
       $node['#data']['alternatives'][] = array(
@@ -913,10 +912,11 @@ function getTypeColor($type){
 function retrieveBestCorrespondingNode($words,$cluster_id,$cat){
   $best = null;
   $parts = preg_split("/_/",$cluster_id);
+  $i = 0;
   foreach($words as $word){
     $bounds = preg_split("/_/", $word['#data']['cluster']);
     $cond = ($bounds[1]>= $parts[1] && $bounds[1] < $parts[2]) || ($bounds[2]> $parts[1] && $bounds[2] <= $parts[2]);
-    if(true || $parts[1] == $parts[2]){
+    if($parts[1] == $parts[2]){
       $cond = $bounds[1] == $parts[1] && $bounds[2] == $parts[2];
     }
     if($cond){
