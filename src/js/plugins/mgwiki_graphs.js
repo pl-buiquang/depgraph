@@ -79,7 +79,7 @@
     }
 
 
-    depgraphlib.mgwiki_d3js_module_action = function(action,gid,wsurl){
+    depgraphlib.mgwiki_d3js_module_action = function(action,gid,wsurl,reload){
       jQuery.ajax({
         type: 'POST', 
         url: wsurl,
@@ -91,7 +91,9 @@
         success: function(data, textStatus, jqXHR) {
           console.log(data);
           if(data.success){
-            window.location = '';
+            if(reload){
+              window.location = '';
+            }
           }else{
             alert(data.error);
           }
@@ -101,17 +103,18 @@
         }
       });
     };
-    
+
+        
     depgraphlib.promote = function(gid,url){
-      depgraphlib.mgwiki_d3js_module_action('promote',gid,url);
+      depgraphlib.mgwiki_d3js_module_action('promote',gid,url,true);
     };
     
     depgraphlib.reload = function(gid,url){
-      depgraphlib.mgwiki_d3js_module_action('reload',gid,url);
+      depgraphlib.mgwiki_d3js_module_action('reload',gid,url,true);
     };
 
     depgraphlib.remove = function(gid,url){
-      depgraphlib.mgwiki_d3js_module_action('remove',gid,url);
+      depgraphlib.mgwiki_d3js_module_action('remove',gid,url,true);
     };
   
 }(window.depgraphlib));
