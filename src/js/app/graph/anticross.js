@@ -47,6 +47,9 @@
       var table = [];
       for(var i=0;i<n;++i){
         var link = links[0][i];
+        if(!link || !link.__data__){ // weird d3 bug
+          continue;
+        }
         var p = this.getLinkProperties(link);
         if(p.min == p.max){ // this is the special case when the link is the root
           p.strate = 1;

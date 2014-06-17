@@ -1027,16 +1027,16 @@ function passageGetLink($link,&$graphlinks,&$maxlinks){
     $source = $link->coordonnant[0];
     $target = (count($link->{"coord-g"})>0)?$link->{"coord-g"}[0]:null;
     if($target != null && $source != null){
-      $edge_obj1.put("source", (string)$source['ref']);
-      $edge_obj1.put("target", (string)$target['ref']);
+      $edge_obj1["source"]= (string)$source['ref'];
+      $edge_obj1["target"]= (string)$target['ref'];
       $graphlinks[] = $edge_obj1;
       
     }
     
     $target = (count($link->{"coord-d"})>0)?$link->{"coord-d"}[0]:null;
     if($target != null && $source != null){
-      $edge_obj2.put("source", (string)$source['ref']);
-      $edge_obj2.put("target", (string)$target['ref']);
+      $edge_obj2["source"]= (string)$source['ref'];
+      $edge_obj2["target"]= (string)$target['ref'];
       $graphlinks[] = $edge_obj2;
       
     }       
