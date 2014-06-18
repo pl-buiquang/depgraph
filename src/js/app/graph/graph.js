@@ -282,8 +282,15 @@
       if(defaultWidth){
         this.options.viewsize = defaultWidth;
       }
+      if(this.options.viewmode == 'fit'){
+        var graphBBox = this.vis.node().getBBox();
+        var graphWidth = graphBBox.width + 2*depgraphlib.removeUnit(this.data.graph['#style']['margin'].right); 
+        if(this.options.viewsize >= graphWidth){
+          this.options.viewsize = graphWidth;
+        }
+      }
       this.viewer.setWidth(this.options.viewsize);
-      if(forceCrop || this.options.viewmode == 'cropped'){
+      if(forceCrop || this.options.viewmode == 'cropped' || this.options.viewmode == 'fit'){
         this.createScrollBar();
       }else {// if(this.options.viewmode == 'stretched'){
         var visBBox = this.vis.node().getBBox();
