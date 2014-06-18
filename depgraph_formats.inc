@@ -61,8 +61,13 @@ function getSentence($graph){
   // TODO for now I assume that the label is the token, but it depends... of the format and more if original format is json
   $data = json_decode($graph,true);
   $sentence = "";
-  foreach ($data['graph']['words'] as $word){
-    $sentence .= " " . $word['label'];
+  if(isset($data) && isset($data['graph']) && isset($data['graph']['words'])){
+    foreach ($data['graph']['words'] as $word){
+      $sentence .= " " . $word['label'];
+    }  
+  }
+  if($sentence === ""){
+    return "could'nt retrieve sentence content!";
   }
   return trim($sentence);
 }
