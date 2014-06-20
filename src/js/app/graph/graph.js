@@ -688,7 +688,7 @@
       chunks.each(setChunkMaterials);
 
       var links = this.links = this.vis.selectAll("g.link")
-        .data(this.data.graph.links,function(d){return d['#id'];}); 
+        .data(this.data.graph.links,function(d){return d['#id'] || d['id'];}); 
       links.enter().append("g").classed("link",true);
       var links_exit = links.exit();
       links_exit.remove();

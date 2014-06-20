@@ -105,20 +105,36 @@
       }
 
       function selectAlternative(depgraph,params){
-        if(depgraph.editObject.previousSelectedObject != null && !depgraphlib.isALink(depgraph.editObject.previousSelectedObject)){
+        /*if(depgraph.editObject.previousSelectedObject != null && !depgraphlib.isALink(depgraph.editObject.previousSelectedObject)){
           hideAltLinks(depgraph,depgraph.editObject.previousSelectedObject);
-        }
+        }*/
         
         if(processhighlightmode(depgraph,this)){
           return;
         }
         
-        if(depgraphlib.isALink(this) && true == this.__data__['#data'].virtual){
-          var params = "";
-          for(id  in this.__data__['ref_ids']){
-            params += depgraphlib.getOriginalFRMGMode(depgraph) + "eid=" + this.__data__['ref_ids'][id] + "&+99999";
-            getNewData(depgraph,depgraph.sentence,params);
-            return {baseAction:'selectAlternative',previousParams:getPreviousParams(depgraph),currentParams:params};
+        if(depgraph.frmg_disamb_status && depgraphlib.isALink(this)){
+          if(true == this.__data__['#data'].virtual){
+            var params = "";
+            for(id  in this.__data__['ref_ids']){
+              params += depgraphlib.getOriginalFRMGMode(depgraph) + getSideParams(depgraph) + getLinkInfo(depgraph,this)+"+9999";//"eid=" + this.__data__['ref_ids'][id] + "&+99999";
+              getNewData(depgraph,depgraph.sentence,params);
+              return {baseAction:'selectAlternative',previousParams:getPreviousParams(depgraph),currentParams:params};
+            }  
+          }else{ // change frmg_disamb status (neutral, keep, remove)
+            if(d3.event.ctrlKey){ // remove / neutral
+              if(this.__data__.disamb_status == 2){ // remove
+                removeEdge(depgraph,this,false);
+              }else{ // neutral
+                removeEdge(depgraph,this,true);
+              }
+            }else{ // select / neutral
+              if(this.__data__.disamb_status == 1){ // keep
+                keepEdge(depgraph,this,false);
+              }else{ // neutral
+                keepEdge(depgraph,this,true);
+              }
+            }
           }
         }
       }
@@ -177,6 +193,76 @@
         }
       }
 
+      function initFrmgDisamb(depgraph){
+        depgraph.frmg_disamb = depgraph.frmg_disamb || {};
+        depgraph.frmg_disamb.keep = depgraph.frmg_disamb.keep || {};
+        depgraph.frmg_disamb.remove = depgraph.frmg_disamb.remove || {};
+      }
+
+      function keepEdge(depgraph,link,value){
+        initFrmgDisamb(depgraph);
+        if(value){
+          link.components.path.attr('stroke','green');
+          link.__data__.disamb_status = 1;
+          depgraph.frmg_disamb.keep[link.__data__.id] = getLinkInfo(depgraph,link)+"+9999";
+          delete depgraph.frmg_disamb.remove[link.__data__.id];  
+        }else{
+          link.components.path.attr('stroke','grey');
+          link.__data__.disamb_status = 0;
+          delete depgraph.frmg_disamb.keep[link.__data__.id];
+          delete depgraph.frmg_disamb.remove[link.__data__.id];
+        }
+      }
+
+      function removeEdge(depgraph,link,value){
+        initFrmgDisamb(depgraph);
+        if(value){
+          link.components.path.attr('stroke','red');
+          link.__data__.disamb_status = 2;
+          depgraph.frmg_disamb.remove[link.__data__.id] = getLinkInfo(depgraph,link)+"-9999";
+          delete depgraph.frmg_disamb.keep[link.__data__.id];
+        }else{
+          link.components.path.attr('stroke','grey');
+          link.__data__.disamb_status = 0;
+          delete depgraph.frmg_disamb.remove[link.__data__.id];
+          delete depgraph.frmg_disamb.keep[link.__data__.id];
+        }
+      }
+
+      function getSideParams(depgraph){
+        initFrmgDisamb(depgraph);
+        var params = "";
+        for(var i in depgraph.frmg_disamb.keep){
+          params += depgraph.frmg_disamb.keep[i]+ " ";
+        }
+        for(var i in depgraph.frmg_disamb.remove){
+          params += depgraph.frmg_disamb.remove[i]+ " ";
+        }
+        return params;
+      }
+
+      function getLinkInfo(depgraph,link){
+        var source = depgraph.getWordByOriginalId(link.__data__.source);
+        var target = depgraph.getWordByOriginalId(link.__data__.target);
+        var source_data = source['#data'];
+        var target_data = target['#data'];
+        /*var param = "edge=" + 
+          source_data['lemma'] + 
+          "&" + source_data['cat'] + 
+          "&" + link.label +
+          "&" + target_data['lemma'] + 
+          "&" + target_data['cat'] + 
+          "&";*/
+        var regex = /E(?:\d+)e(\d+)/g;
+        var id = link.__data__.id;
+        var match = regex.exec(link.__data__.id);
+        if(match){
+          id = match[1];
+        }
+        var param = "eid="+id+"&";
+        return param;
+      }
+
       function removeLinkForNewData(depgraph,sentence,link){
         var source = depgraph.getWordByOriginalId(link.source);
         var target = depgraph.getWordByOriginalId(link.target);
@@ -208,6 +294,7 @@
 
       function getNewData(depgraph,sentence,options){
         var newdata;
+        delete depgraph.frmg_disamb;
         depgraph.viewer.ajaxStart();
         jQuery.ajax({
           type: 'GET', 
@@ -247,7 +334,21 @@
         depgraph.postProcessesFixHeight();
         depgraph.editObject.editModeInit();
         depgraph.autoHighLightOnMouseOver();
-        allLinksToGrey(depgraph,node.__data__['#data']['alternatives']);
+        depgraph.frmg_disamb_status = true;
+        var prevParams = getPreviousParams(depgraph);
+        var exceptions = [];
+        /*for(var i in node.__data__['#data']['alternatives']){
+          exceptions.push(node.__data__['#data']['alternatives'][i]);
+        }*/
+        var regex = /eid=(\d+)&/g;
+        var match;
+        while (match = regex.exec(prevParams)) {
+          exceptions.push({'id':match[1]});
+        }
+        console.log(exceptions);
+        
+        
+        allLinksToGrey(depgraph,exceptions);
       }
 
 
@@ -256,13 +357,25 @@
           exceptions = [];
         }
         depgraph.vis.selectAll('g.link').each(function(d,i){
-          for(i in exceptions){
-            if(exceptions[i]['#id'] == d['#id']){
-              this.components.path.attr('stroke-dasharray',"5,5");
-              return;
+          if(!d['#id'] && d['#id']!==0){ // new alternative added 
+            this.components.path.attr('stroke-dasharray',"5,5");
+          }else{
+            var found = false;
+            for(i in exceptions){
+              var regex = /E(?:\d+)e(\d+)/g;
+              var match;
+              if (match = regex.exec(d['id'])) {
+                if(match[1]==exceptions[i]['id']){
+                  keepEdge(depgraph,this,true);
+                  found = true;
+                  break;
+                }
+              }
             }
+            if(!found){
+              this.components.path.attr('stroke','grey');
+            }  
           }
-          this.components.path.attr('stroke','grey');
         });
       }
 
