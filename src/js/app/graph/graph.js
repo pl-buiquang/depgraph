@@ -622,7 +622,7 @@
       }
       
       function exportPng(){
-        d3.select('rect.export_bg').attr('width','100%').attr('height','100%');
+        me.svg.select('rect.export_bg').attr('width','100%').attr('height','100%');
         var svgBBox = me.svg.node().getBBox();
         me.svg.attr('width',svgBBox.width);
         me.svg.attr('height',svgBBox.height);
@@ -652,7 +652,7 @@
               'target_format':'png'},
             me.wsurl);
         
-        d3.select('rect.export_bg').attr('width','0').attr('height','0');
+        me.svg.select('rect.export_bg').attr('width','0').attr('height','0');
       };
 
     };

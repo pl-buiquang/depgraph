@@ -4,64 +4,72 @@
 		"selected_items":
 		[
 			[
-				"edit",
-				"editObject"
+				"fr",
+				"frmg_disamb"
 			],
 			[
-				"tik",
-				"tikzdep"
-			],
-			[
-				"ex",
-				"exportBox"
-			],
-			[
-				"auto",
-				"autodestroy"
-			],
-			[
-				"clo",
-				"closeButton"
-			],
-			[
-				"tikz",
-				"tikz-dep"
-			],
-			[
-				"t",
-				"tikzdep"
-			],
-			[
-				"du",
-				"dummyNodes"
-			],
-			[
-				"selec",
-				"selectAll"
-			],
-			[
-				"depgraphlib-bo",
-				"depgraphlib-box-content"
-			],
-			[
-				"re",
-				"resizableborder-content"
-			],
-			[
-				"inl",
-				"inline-block"
-			],
-			[
-				"mi",
-				"minimize"
-			],
-			[
-				"prot",
-				"prototype"
+				"keep",
+				"keepEdge"
 			],
 			[
 				"depg",
-				"depgraphlib"
+				"depgraph"
+			],
+			[
+				"re",
+				"removeEdge"
+			],
+			[
+				"de",
+				"depgraph"
+			],
+			[
+				"ex",
+				"exceptions"
+			],
+			[
+				"pre",
+				"prevParams"
+			],
+			[
+				"cl",
+				"cluster_id"
+			],
+			[
+				"tok",
+				"tokenstring"
+			],
+			[
+				"edg",
+				"edgeType"
+			],
+			[
+				"ed",
+				"edge_obj1"
+			],
+			[
+				"for",
+				"foreach	foreach …"
+			],
+			[
+				"to",
+				"tokens_id_array"
+			],
+			[
+				"tokens",
+				"tokens_id"
+			],
+			[
+				"toke",
+				"tokens_id"
+			],
+			[
+				"ti",
+				"tikzdep"
+			],
+			[
+				"edit",
+				"editObject"
 			],
 			[
 				"no",
@@ -291,7 +299,15 @@
 			"file": "src/js/app/graph/graph.js",
 			"settings":
 			{
-				"buffer_size": 47341,
+				"buffer_size": 47969,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "depgraph_formats.inc",
+			"settings":
+			{
+				"buffer_size": 32295,
 				"line_ending": "Unix"
 			}
 		},
@@ -299,23 +315,47 @@
 			"file": "src/js/plugins/frmg_parser_custom.js",
 			"settings":
 			{
-				"buffer_size": 10514,
+				"buffer_size": 14705,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "src/js/app/utils/utils.js",
+			"file": "mgwiki.depgraph.js",
 			"settings":
 			{
-				"buffer_size": 10501,
+				"buffer_size": 135595,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "src/js/app/ui/toolbar.js",
+			"file": "src/js/app/graph/graphdata.js",
 			"settings":
 			{
-				"buffer_size": 10614,
+				"buffer_size": 19183,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/js/app/graph/graphvisualtricks.js",
+			"settings":
+			{
+				"buffer_size": 23525,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/js/plugins/mgwiki_graphs.js",
+			"settings":
+			{
+				"buffer_size": 3924,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/js/app/graph/anticross.js",
+			"settings":
+			{
+				"buffer_size": 8733,
 				"line_ending": "Unix"
 			}
 		},
@@ -328,20 +368,26 @@
 			}
 		},
 		{
-			"contents": "Searching 17 files for \"help\"\n\n/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/depgraphlib.js:\n   12  (function(depgraphlib){\n   13    \n   14:   depgraphlib.helpurl = \"http://alpage.inria.fr/frmgwiki/mgwiki/help/depgraph\";\n   15  \n   16    /**\n\n/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/graph/graph.js:\n  472      };\n  473  \n  474:     depgraphlib.DepGraph.prototype.displayHelp = function(elt){\n  475          var coords = elt.getBoundingClientRect();\n  476          var point = {x:coords.left,y:coords.top + coords.height + 2};\n  ...\n  479          jQuery.ajax({\n  480            type: 'POST', \n  481:           url: depgraphlib.helpurl,\n  482            data: {\n  483              app:\"depgraph\"\n  ...\n  492          });\n  493          var box = this.viewer.createBox({draggable:true,closeButton:true,autodestroy:true});\n  494:         box.setContent(jQuery(div)).setHeader('DepGraph Help');\n  495          \n  496          box.open(point);\n  ...\n  520  \n  521        this.viewer.addToolbarItem({name:'export',callback:exportData,style:'export',group:'0',static:true});\n  522:       this.viewer.addToolbarItem({name:'help',callback:function(){me.displayHelp(this);},style:'main-help',group:'99',static:true});\n  523        \n  524        var me = this;\n\n8 matches across 2 files\n\n\nSearching 17 files for \"help\"\n\n/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/depgraphlib.js:\n   12  (function(depgraphlib){\n   13    \n   14:   depgraphlib.helpurl = \"http://alpage.inria.fr/frmgwiki/mgwiki/help/depgraph\";\n   15  \n   16    /**\n\n/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/graph/graph.js:\n  491      };\n  492  \n  493:     depgraphlib.DepGraph.prototype.displayHelp = function(elt){\n  494          var coords = elt.getBoundingClientRect();\n  495          var point = {x:coords.left,y:coords.top + coords.height + 2};\n  ...\n  498          jQuery.ajax({\n  499            type: 'POST', \n  500:           url: depgraphlib.helpurl,\n  501            data: {\n  502              app:\"depgraph\"\n  ...\n  511          });\n  512          var box = this.viewer.createBox({draggable:true,closeButton:true,autodestroy:true});\n  513:         box.setContent(jQuery(div)).setHeader('DepGraph Help');\n  514          \n  515          box.open(point);\n  ...\n  539  \n  540        this.viewer.addToolbarItem({name:'export',callback:exportData,style:'export',group:'0',static:true});\n  541:       this.viewer.addToolbarItem({name:'help',callback:function(){me.displayHelp(this);},style:'main-help',group:'99',static:true});\n  542        \n  543        var me = this;\n\n8 matches across 2 files\n",
+			"file": "src/js/app/edition/0editionlib.js",
 			"settings":
 			{
-				"buffer_size": 2674,
-				"line_ending": "Unix",
-				"name": "Find Results",
-				"scratch": true
+				"buffer_size": 34837,
+				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "src/js/app/depgraphlib.js",
+			"file": "src/js/app/ui/viewer.js",
 			"settings":
 			{
-				"buffer_size": 5143,
+				"buffer_size": 21951,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/js/app/edition/defaulteditmode.js",
+			"settings":
+			{
+				"buffer_size": 5933,
 				"line_ending": "Unix"
 			}
 		},
@@ -354,25 +400,20 @@
 			}
 		}
 	],
-	"build_system": "Packages/User/depgraph-mgwiki.sublime-build",
+	"build_system": "Packages/User/grunt-default.sublime-build",
 	"command_palette":
 	{
-		"height": 369.0,
+		"height": 392.0,
 		"selected_items":
 		[
-			[
-				"pack",
-				"Package Control: Install Package"
-			]
 		],
-		"width": 467.0
+		"width": 392.0
 	},
 	"console":
 	{
-		"height": 139.0,
+		"height": 0.0,
 		"history":
 		[
-			"import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404' + 'e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by) "
 		]
 	},
 	"distraction_free":
@@ -386,40 +427,36 @@
 	},
 	"file_history":
 	[
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/vendor/jquery-contextMenu-master/jquery.contextMenu.js",
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/graph/graph.js",
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/utils/utils.js",
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/plugins/mgwiki_graphs.js",
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/plugins/tikz-dep-export.js",
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/graph/graphvisualtricks.js",
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/depgraphlib.js",
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/plugins/frmg_parser_custom.js",
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/style/depgraph.css",
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/edition/0editionlib.js",
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/edition/edition.js",
+		"/var/www/mgwiki/sites/all/modules/custom/d3js/js/depgraph/depgraph_formats.inc",
+		"/var/www/mgwiki/sites/all/modules/custom/d3js/js/depgraph/src/style/depgraph.css",
+		"/var/www/mgwiki/sites/all/modules/custom/d3js/js/depgraph/index.html",
+		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/build/depgraph.js",
 		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/ui/viewer.js",
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/plugins/mgwiki_template_ui.js",
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/ui/toolbar.js",
 		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/edition/defaulteditmode.js",
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/ui/box.js",
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/Gruntfile.js",
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/node_modules/grunt-jsdoc/node_modules/jsdoc/node_modules/markdown/test/fixtures/docs-php-markdown-extra/Inline_HTML_with_Markdown_content.html",
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/vendor/mutate/mutate.events.js",
+		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/edition/edition.js",
 		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/graph/graphdata.js",
-		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/graph/anticross.js",
+		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/edition/0editionlib.js",
+		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/plugins/mgwiki_graphs.js",
+		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/plugins/mgwiki_template_ui.js",
 		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/depgraph.js",
-		"/home/buiquang/.config/sublime-text-3/Packages/User/depgraph-mgwiki.sublime-build",
 		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/doc/DepGraphLib.EditObject.html",
 		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/depgraph_formats.inc",
 		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/doc/defaulteditmode.js.html",
 		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/node_modules/grunt-contrib-concat/test/expected/default_options",
 		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/node_modules/grunt-contrib-uglify/node_modules/uglify-js/node_modules/optimist/example/default_singles.js",
 		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/node_modules/grunt-contrib-uglify/node_modules/uglify-js/node_modules/optimist/example/default_hash.js",
+		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/plugins/frmg_parser_custom.js",
+		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/style/depgraph.css",
+		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/utils/utils.js",
+		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/ui/toolbar.js",
+		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/graph/anticross.js",
 		"/var/www/devtest/index.php",
 		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/doc/viewer.js.html",
 		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/doc/graphdata.js.html",
 		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/doc/graph.js.html",
+		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/Gruntfile.js",
 		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/graph/displaylonglinkspan.js",
+		"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app/ui/box.js",
 		"/var/www/mgwiki-dev/sites/all/modules/custom/mgwiki_corpus/js/cma/src/app/corpusUpload.js"
 	],
 	"find":
@@ -431,7 +468,7 @@
 		"height": 93.0,
 		"where_history":
 		[
-			"/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/plugins,/var/www/mgwiki-dev/sites/all/modules/custom/d3js/js/depgraph/src/js/app",
+			"/var/www/mgwiki/sites/all/modules/custom/d3js/js/depgraph/src",
 			""
 		]
 	},
@@ -440,37 +477,23 @@
 		"case_sensitive": false,
 		"find_history":
 		[
-			"help",
-			"gelp",
-			"arcSize",
-			"cropped",
-			"showRefs",
-			"getPreviousParams",
+			"console",
+			"disamp",
+			"getNewData",
+			"depXML2depGraph",
+			"removeEdge",
+			"onLinkClick",
+			"getLinkInfo",
 			"removeLinkForNewData",
-			"urlFRMGServer",
-			"helpurl",
-			"help",
-			"highlight",
-			"save",
-			"export",
-			"removeLink",
-			"addFullScreenButton",
-			"fullsc",
-			"addToolbar",
-			"newnode",
-			"shrinkToContent",
-			"$",
-			"{}\n",
-			"\"></div>'+",
-			"'<div class=\"",
-			"node",
-			"link.color = link['#style']['link-color']",
-			"windowOpenPost",
-			"scroll",
-			"box",
-			"();",
-			"help",
-			"tooltip",
+			"mgwiki_d3js_module_action",
+			"showAltLinks",
+			"targetKey",
+			"sourceKey",
+			"edgeType.equalsIgnoreCase(",
+			"  \n",
+			"canSave",
+			"getPreviousParams",
+			"editModeInit",
 			"console",
 			"prepareData",
 			"this",
@@ -497,7 +520,9 @@
 		"regex": false,
 		"replace_history":
 		[
-			"jQuery"
+			"$targetKey",
+			"$sourceKey",
+			"$edgeType =="
 		],
 		"reverse": false,
 		"show_context": true,
@@ -508,7 +533,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 2,
 			"sheets":
 			[
 				{
@@ -517,15 +542,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 47341,
+						"buffer_size": 47969,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								22749,
-								22749
+								25683,
+								25683
 							]
 						],
 						"settings":
@@ -535,87 +560,57 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 9458.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "src/js/plugins/frmg_parser_custom.js",
-					"semi_transient": true,
-					"settings":
-					{
-						"buffer_size": 10514,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								5673,
-								5673
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1992.0,
+						"translation.y": 11276.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 2,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "src/js/app/utils/utils.js",
+					"buffer": 1,
+					"file": "depgraph_formats.inc",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 10501,
+						"buffer_size": 32295,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								5564,
-								5564
+								18507,
+								18507
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"syntax": "Packages/HTML/HTML.tmLanguage",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true
 						},
-						"translation.x": -0.0,
-						"translation.y": 3029.0,
+						"translation.x": 0.0,
+						"translation.y": 14090.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
-					"file": "src/js/app/ui/toolbar.js",
+					"buffer": 2,
+					"file": "src/js/plugins/frmg_parser_custom.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 10614,
+						"buffer_size": 14705,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								5323,
-								5323
+								7858,
+								7858
 							]
 						],
 						"settings":
@@ -625,19 +620,79 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2346.0,
+						"translation.y": 3014.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "mgwiki.depgraph.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 135595,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								129132,
+								129132
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 65600.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
 					"type": "text"
 				},
 				{
 					"buffer": 4,
-					"file": "src/js/app/ui/box.js",
+					"file": "src/js/app/graph/graphdata.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 9404,
+						"buffer_size": 19183,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								399,
+								399
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "src/js/app/graph/graphvisualtricks.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 23525,
 						"regions":
 						{
 						},
@@ -655,134 +710,27 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 3009.0,
+						"translation.y": 10519.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 7,
 					"type": "text"
 				},
 				{
-					"buffer": 5,
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2674,
-						"regions":
-						{
-							"match":
-							{
-								"flags": 112,
-								"regions":
-								[
-									[
-										182,
-										186
-									],
-									[
-										232,
-										236
-									],
-									[
-										430,
-										434
-									],
-									[
-										687,
-										691
-									],
-									[
-										943,
-										947
-									],
-									[
-										1175,
-										1179
-									],
-									[
-										1211,
-										1215
-									],
-									[
-										1236,
-										1240
-									],
-									[
-										1520,
-										1524
-									],
-									[
-										1570,
-										1574
-									],
-									[
-										1768,
-										1772
-									],
-									[
-										2025,
-										2029
-									],
-									[
-										2281,
-										2285
-									],
-									[
-										2513,
-										2517
-									],
-									[
-										2549,
-										2553
-									],
-									[
-										2574,
-										2578
-									]
-								],
-								"scope": ""
-							}
-						},
-						"selection":
-						[
-							[
-								2027,
-								2027
-							]
-						],
-						"settings":
-						{
-							"detect_indentation": false,
-							"line_numbers": false,
-							"output_tag": 2,
-							"result_base_dir": "",
-							"result_file_regex": "^([A-Za-z\\\\/<].*):$",
-							"result_line_regex": "^ +([0-9]+):",
-							"scroll_past_end": true,
-							"syntax": "Packages/Default/Find Results.hidden-tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 558.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
 					"buffer": 6,
-					"file": "src/js/app/depgraphlib.js",
+					"file": "src/js/plugins/mgwiki_graphs.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5143,
+						"buffer_size": 3924,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								278,
-								278
+								3644,
+								3644
 							]
 						],
 						"settings":
@@ -792,7 +740,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 1165.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 5,
@@ -800,6 +748,156 @@
 				},
 				{
 					"buffer": 7,
+					"file": "src/js/app/graph/anticross.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8733,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6881,
+								6881
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2991.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "src/js/app/ui/box.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9404,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4057,
+								4057
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1452.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "src/js/app/edition/0editionlib.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 34837,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 10944.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 10,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "src/js/app/ui/viewer.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 21951,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								13146,
+								13146
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": -0.0,
+						"translation.y": 5727.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 11,
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "src/js/app/edition/defaulteditmode.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5933,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": -0.0,
+						"translation.y": 306.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 12,
+					"type": "text"
+				},
+				{
+					"buffer": 12,
 					"file": "src/js/app/edition/edition.js",
 					"semi_transient": false,
 					"settings":
@@ -811,8 +909,8 @@
 						"selection":
 						[
 							[
-								6042,
-								6042
+								17610,
+								17610
 							]
 						],
 						"settings":
@@ -821,11 +919,11 @@
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true
 						},
-						"translation.x": -0.0,
-						"translation.y": 2040.0,
+						"translation.x": 0.0,
+						"translation.y": 7460.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 3,
 					"type": "text"
 				}
 			]
@@ -895,7 +993,7 @@
 		[
 			[
 				"",
-				"/var/www/mgwiki-dev/sites/all/modules/custom/mgwiki_corpus/js/cma/cma.sublime-project"
+				"/var/www/mgwiki/sites/all/modules/custom/d3js/js/depgraph/depgraph.sublime-project"
 			]
 		],
 		"width": 380.0
@@ -915,7 +1013,7 @@
 	"show_open_files": true,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 351.0,
+	"side_bar_width": 258.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{
