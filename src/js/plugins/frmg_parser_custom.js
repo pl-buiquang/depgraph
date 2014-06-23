@@ -242,10 +242,10 @@
       }
 
       function getLinkInfo(depgraph,link){
-        var source = depgraph.getWordByOriginalId(link.__data__.source);
+        /*var source = depgraph.getWordByOriginalId(link.__data__.source);
         var target = depgraph.getWordByOriginalId(link.__data__.target);
         var source_data = source['#data'];
-        var target_data = target['#data'];
+        var target_data = target['#data'];*/
         /*var param = "edge=" + 
           source_data['lemma'] + 
           "&" + source_data['cat'] + 
