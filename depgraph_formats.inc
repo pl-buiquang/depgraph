@@ -678,7 +678,7 @@ function depXML2depGraph($xml_data){
         $node_obj["#data"][$key] = $value;
         
         // merge some nodes
-        $node_ids = array_keys($clusters,$value);
+        /*$node_ids = array_keys($clusters,$value);
         $mergeHappened = false;
         foreach($node_ids as $nodeid){
           $mergeCond = $graph['words'][$nodeid]['#data']['cat'] == (string)$node['cat'];
@@ -693,7 +693,7 @@ function depXML2depGraph($xml_data){
            break;
         }else{
           $clusters[$i] = $value; 
-        }
+        }*/
         
         
         $associated_clusters = $xml_data->xpath("//cluster[@id = '$value']");
@@ -798,12 +798,12 @@ function depXML2depGraph($xml_data){
         $link_obj[$key] = $value;
       }else if(array_search($key, $edge_used_keys)!==false){
         if($key == "source" || $key == "target"){
-          foreach($merged_nodes as $origin => $target){
+          /*foreach($merged_nodes as $origin => $target){
             if($origin == $value){
               $value = $target;
               break;
             }
-          }
+          }*/
         }
         $link_obj[$key] = $value;
       }else{
