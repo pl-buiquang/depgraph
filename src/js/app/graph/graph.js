@@ -505,7 +505,26 @@
     };
 
     depgraphlib.DepGraph.prototype.displayHelp = function(elt){
-      var me = this;
+      var exportButton = this.viewer.getToolbarItem('export').button[0];
+      var saveButton = this.viewer.getToolbarItem('save').button[0];
+      var intro = introJs();
+      intro.setOptions({
+        steps:[
+        {
+          intro:'<h1>Bienvenue!</h1><p>Pour voir l\'aide complète rendez vous à la <a href="'+depgraphlib.helpurl+'">page d\'aide dédiée à depgraph</a></p>'
+        },
+        {
+          intro:"Exporte le graphe en différent format",
+          element:exportButton
+        },
+        {
+          intro:"Sauvegarde le graphe",
+          element:saveButton
+        }
+        ]
+      });
+      intro.start();
+      /*var me = this;
       var coords = elt.getBoundingClientRect();
       var point = {x:coords.left,y:coords.top + coords.height + 2};
       var div ='<div></div>';
@@ -528,7 +547,7 @@
       box.setFixedSize(600,500);
       box.setContent(jQuery(div)).setHeader('DepGraph Help');
       
-      box.open(point);
+      box.open(point);*/
     };
     
     /**
