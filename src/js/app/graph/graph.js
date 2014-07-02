@@ -690,13 +690,13 @@
     depgraphlib.DepGraph.prototype.update = function(){
       
       var me = this; 
-      
+
       var words = this.words = this.vis.selectAll("g.word")
       .data(this.data.graph.words,function(d){return d['#id'];});
       words.enter().append("g").classed("word",true);
       var words_exit = words.exit();
       words_exit.remove();
-      words = this.vis.selectAll('g.word'); // reselecting words due to weird d3js bug
+      //words = this.vis.selectAll('g.word'); // reselecting words due to weird d3js bug
       words.each(setWordMaterials);
       
       var chunks = this.chunks = this.vis.selectAll("g.chunk")
@@ -704,7 +704,7 @@
       chunks.enter().insert("g",'g.word').classed("chunk",true);
       var chunks_exit = chunks.exit();
       chunks_exit.remove();
-      chunks = this.vis.selectAll('g.chunk'); // reselecting chunks due to weird d3js bug
+      //chunks = this.vis.selectAll('g.chunk'); // reselecting chunks due to weird d3js bug
       chunks.each(setChunkMaterials);
 
       var links = this.links = this.vis.selectAll("g.link")
