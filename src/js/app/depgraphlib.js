@@ -11,7 +11,7 @@
 
 (function(depgraphlib){
   
-  depgraphlib.helpurl = "http://localhost/mgwiki-dev/mgwiki/help/depgraph";
+  depgraphlib.helpurl = "content/helpdepgraph";
 
   /**
    * @class {object} DepGraph

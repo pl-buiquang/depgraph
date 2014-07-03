@@ -446,7 +446,9 @@
     depgraphlib.GraphViewer.prototype.setHeight = function(height){
       height = 30 + parseInt(height);
       this._height = height;
+      var prevHeight = depgraphlib.removeUnit(this.mainpanel.css('height'));
       this.mainpanel.css('height',height);
+      this.mainpanel.trigger('heightChange',{prevHeight:prevHeight,newHeight:height});
       this.margin.top = this.chart.height()/10 + this.basemargin + ((this.imagemode)?0:20);
       this.margin.bottom = this.basemargin + (this.imagemode)?0:20;
       this.ajaxLoader.height(height-this.toolbar.height());

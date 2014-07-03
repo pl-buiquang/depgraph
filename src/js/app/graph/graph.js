@@ -501,8 +501,17 @@
     };
 
     depgraphlib.DepGraph.prototype.displayHelp = function(elt){
-      var exportButton = this.viewer.getToolbarItem('export').button[0];
-      var saveButton = this.viewer.getToolbarItem('save').button[0];
+      var exportButton = this.viewer.getToolbarItem('export');
+      var saveButton = this.viewer.getToolbarItem('save');
+      var fullscreenButton = this.viewer.getToolbarItem('fullscreen');
+      var resetViewButton = this.viewer.getToolbarItem('resetView');
+      var refsButton = this.viewer.getToolbarItem('refs');
+      var editButton = this.viewer.getToolbarItem('edit');
+      var addNoteButton = this.viewer.getToolbarItem('add-note');
+      var highlightButton = this.viewer.getToolbarItem('highlight');
+      var customEditModeButton = this.viewer.getToolbarItem('customeditmode');
+
+
       var intro = introJs();
       intro.setOptions({
         steps:[
@@ -701,6 +710,7 @@
       }else{
         if(me.to){
           clearInterval(me.to);
+          delete me.to;
         }
       }
       
