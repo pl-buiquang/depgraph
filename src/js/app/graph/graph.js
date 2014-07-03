@@ -501,6 +501,9 @@
     };
 
     depgraphlib.DepGraph.prototype.displayHelp = function(elt){
+      var me = this;
+      this.viewer.setFixedToolbar(true);
+
       var exportButton = this.viewer.getToolbarItem('export');
       var saveButton = this.viewer.getToolbarItem('save');
       var fullscreenButton = this.viewer.getToolbarItem('fullscreen');
@@ -510,23 +513,70 @@
       var addNoteButton = this.viewer.getToolbarItem('add-note');
       var highlightButton = this.viewer.getToolbarItem('highlight');
       var customEditModeButton = this.viewer.getToolbarItem('customeditmode');
-
-
+      var steps = [
+        {
+          intro:'<h1>Bienvenue!</h1><p>Pour voir l\'aide complète rendez vous à la <a target="_blank" href="'+depgraphlib.helpurl+'">page d\'aide dédiée à depgraph</a></p>',
+          element:me.viewer.mainpanel[0]
+        }
+        
+        ];
+      if(exportButton){
+        steps.push({
+          intro:"Exporte le graphe en différent format",
+          element:exportButton.button[0]
+        });
+      }
+      if(saveButton){
+        steps.push({
+          intro:"Sauvegarde le graphe",
+          element:saveButton.button[0]
+        });
+      }
+      if(fullscreenButton){
+        steps.push({
+          intro:"Visualisation du graphe en plein ecran",
+          element:fullscreenButton.button[0]
+        });
+      }  
+      if(resetViewButton){
+        steps.push({
+          intro:"Pour les graphes dont l'affichage est partiel, il est possible de cacher l'intérieur de certains arcs ainsi que cacher les dépendances descendant d'un noeud en cliquant sur l'arc/noeud souhaité. Pour réinitialiser la vue à son état d'origine, il suffit de cliquer sur ce boutton.",
+          element:resetViewButton.button[0]
+        });
+      }
+      if(refsButton){
+        steps.push({
+          intro:"Affiche les références du graphe (révision, page de la phrase associée, liens vers les pages référençant le graphe et identifiant du graphe",
+          element:refsButton.button[0]
+        });
+      }
+      if(editButton){
+        steps.push({
+          intro:"Quitte la page courante et rentre dans la page d'édition du graphe.",
+          element:editButton.button[0]
+        });
+      }
+      if(addNoteButton){
+        steps.push({
+          intro:"Permet d'ajouter une note/commentaire sur le graphe. Les notes sont accessibles (après rechargement de la page) en cliquant sur l'icone similaire située à droite du graphe (si des commentaires existent).",
+          element:addNoteButton.button[0]
+        });
+      }
+      if(highlightButton){
+        steps.push({
+          intro:"Entrer/Sortir du mode d'édition de surlignage. Dans ce mode, les liens et noeuds sélectionnés sont mis en valeurs. Les éléments mis en valeurs peuvent ensuite servir de base à la création d'une signature particulière qui peut ensuite être utilisé comme base pour une recherche de graphe similaires.",
+          element:highlightButton.button[0]
+        });
+      }
+      if(customEditModeButton){
+        steps.push({
+          intro:"Les graphes générés en format depxml proposent comme mode d'édition principal les alternatives de désambiguisation du parser FrMG. Pour entrer en mode d'édition classique, cliquer sur ce boutton.",
+          element:customEditModeButton.button[0]
+        });
+      }
       var intro = introJs();
       intro.setOptions({
-        steps:[
-        {
-          intro:'<h1>Bienvenue!</h1><p>Pour voir l\'aide complète rendez vous à la <a target="_blank" href="'+depgraphlib.helpurl+'">page d\'aide dédiée à depgraph</a></p>'
-        },
-        {
-          intro:"Exporte le graphe en différent format",
-          element:exportButton
-        },
-        {
-          intro:"Sauvegarde le graphe",
-          element:saveButton
-        }
-        ]
+        steps:steps
       });
       intro.start();
       /*var me = this;
