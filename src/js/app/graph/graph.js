@@ -42,9 +42,7 @@
       this.createLayout();
       this.update();
 
-      this.postProcesses();
       
-      this.autoHighLightOnMouseOver();
       this.viewerSettings();
       
       this.editObject = new depgraphlib.EditObject(this);
@@ -179,9 +177,7 @@
       this.createLayout();
       this.update();
 
-      this.postProcesses();
       
-      this.autoHighLightOnMouseOver();
       if(this.editObject.editMode){
         this.editObject.editModeInit();  
       }
@@ -511,7 +507,7 @@
       intro.setOptions({
         steps:[
         {
-          intro:'<h1>Bienvenue!</h1><p>Pour voir l\'aide complète rendez vous à la <a href="'+depgraphlib.helpurl+'">page d\'aide dédiée à depgraph</a></p>'
+          intro:'<h1>Bienvenue!</h1><p>Pour voir l\'aide complète rendez vous à la <a target="_blank" href="'+depgraphlib.helpurl+'">page d\'aide dédiée à depgraph</a></p>'
         },
         {
           intro:"Exporte le graphe en différent format",
@@ -691,6 +687,25 @@
       
       var me = this; 
 
+      var parents = jQuery(this.viewer.container).parents(':hidden');
+      if(parents.length>0){
+        if(!me.to){
+          me.to = setInterval(function(){
+            me.update();
+      
+          },500);
+            
+        }
+        
+        return;
+      }else{
+        if(me.to){
+          clearInterval(me.to);
+        }
+      }
+      
+      
+
       var words = this.words = this.vis.selectAll("g.word")
       .data(this.data.graph.words,function(d){return d['#id'];});
       words.enter().append("g").classed("word",true);
@@ -719,6 +734,8 @@
       this.preprocessLinksPosition(links);
       links.each(setLinkMaterials);
       
+      this.postProcesses();
+      this.autoHighLightOnMouseOver();
     };
 
     /**
@@ -738,9 +755,7 @@
         this.data.graph.words[i]['#position']++;
       }
       this.update();
-      this.postProcesses();
       this.editObject.editModeInit();
-      this.autoHighLightOnMouseOver();
     };
 
     /**
@@ -753,9 +768,7 @@
       }
       this.data.graph.links.push(link);
       this.update();
-      this.postProcesses();
       this.editObject.editModeInit();
-      this.autoHighLightOnMouseOver();
     };
 
     /**
@@ -766,9 +779,7 @@
     depgraphlib.DepGraph.prototype.insertChunk = function(chunk) {
       this.data.graph.chunks.push(chunk);
       this.update();
-      this.postProcesses();
       this.editObject.editModeInit();
-      this.autoHighLightOnMouseOver();
     };
 
     /**
@@ -802,7 +813,6 @@
       }
       
       this.update();
-      this.postProcesses();
       return affectedLinks;
     };
 
@@ -818,7 +828,6 @@
       }
       this.data.graph.links.splice(index,1);
       this.update();
-      this.postProcesses();
       return true;
     };
 
@@ -849,7 +858,6 @@
       }
       
       this.update();
-      this.postProcesses();
       return affectedLinks;
     };
 

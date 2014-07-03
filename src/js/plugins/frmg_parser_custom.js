@@ -333,7 +333,6 @@
         depgraph.update();
         depgraph.postProcessesFixHeight();
         depgraph.editObject.editModeInit();
-        depgraph.autoHighLightOnMouseOver();
         depgraph.frmg_disamb_status = true;
         var prevParams = getPreviousParams(depgraph);
         var exceptions = [];
