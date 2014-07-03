@@ -170,7 +170,6 @@
           var obj = depgraph.getObjectById(id);
           depgraph.editObject.changeAttributes(obj,rollbackdata.oldAttrs);
           depgraph.update();
-          depgraph.postProcesses();
         }else if(rollbackdata.baseAction == 'chunkAddition'){
           depgraph.removeChunk(rollbackdata.addedChunk['#id']);
         }else if(rollbackdata.baseAction == 'chunkRemoval'){
@@ -214,7 +213,6 @@
            var obj = depgraph.getObjectById(id);
            depgraph.editObject.changeAttributes(obj,actionData.newAttrs);
            depgraph.update();
-           depgraph.postProcesses();
          }else if(actionData.baseAction == 'chunkRemoval'){
            depgraph.removeChunk(actionData.chunk['#id']);
          }else if(actionData.baseAction == 'chunkAddition'){
@@ -537,7 +535,6 @@
         }
         depgraph.editObject.changeAttributes(obj,attrs,true);
         depgraph.update();
-        depgraph.postProcesses();
         var box = depgraphlib.Box.getBox(this);
         box.close(true);
       },
