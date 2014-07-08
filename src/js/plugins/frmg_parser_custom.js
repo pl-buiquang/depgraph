@@ -27,10 +27,10 @@
             'HighLight' : function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
               processhighlightmode(depgraph,element[0]);
             },
-            /*'Delete':function(depgraph,element){
+            'Delete':function(depgraph,element){
               var params = removeLinkForNewData(depgraph,depgraph.sentence,element[0].__data__);
               return {baseAction:'removeEdge',previousParams:getPreviousParams(depgraph),currentParams:params};
-            }*/
+            }
           },
           onChunkContext : null,
           keyHandler : editKeyDownFRMG,
@@ -268,19 +268,19 @@
       }
 
       function removeLinkForNewData(depgraph,sentence,link){
-        var source = depgraph.getWordByOriginalId(link.source);
-        var target = depgraph.getWordByOriginalId(link.target);
-        var source_data = source['#data'];
-        var target_data = target['#data'];
-        var param = "edge=" + 
-          source_data['lemma'] + 
-          "&" + source_data['cat'] + 
-          "&" + link.label +
-          "&" + target_data['lemma'] + 
-          "&" + target_data['cat'] + 
-          "&-8000";
-        getNewData(depgraph,sentence,param);
-        return param;
+        var params = depgraphlib.getOriginalFRMGMode(depgraph) + getSideParams(depgraph);
+        var regex = /E(?:\d+)e(\d+)/g;
+        var id = link.id;
+        var match = regex.exec(link.id);
+        if(match){
+          id = match[1];
+        }
+        var param = "eid="+id+"&";
+        params += "eid=" + 
+          id +
+          "&-9000";
+        getNewData(depgraph,sentence,params);
+        return params;
       }
 
 

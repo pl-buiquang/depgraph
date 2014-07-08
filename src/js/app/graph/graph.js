@@ -173,11 +173,20 @@
      * @param json_data
      */
     depgraphlib.DepGraph.prototype.resetData = function(json_data){
+      var prevScrollbarPos = 0;
+      if(this.scrollbar){
+        prevScrollbarPos = this.scrollbar.attr('x') * this.scrollbar.__info__.k;
+      }
+
       this.setData(json_data);
       this.createLayout();
       this.update();
 
-      
+      if(this.scrollbar){
+        this.translateGraph(prevScrollbarPos);
+      }
+
+
       if(this.editObject.editMode){
         this.editObject.editModeInit();  
       }
