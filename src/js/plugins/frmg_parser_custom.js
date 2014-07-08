@@ -117,7 +117,8 @@
           if(true == this.__data__['#data'].virtual){
             var params = "";
             for(id  in this.__data__['ref_ids']){
-              params += depgraphlib.getOriginalFRMGMode(depgraph) + getSideParams(depgraph) + getLinkInfo(depgraph,this)+"+9999";//"eid=" + this.__data__['ref_ids'][id] + "&+99999";
+              params += depgraphlib.getOriginalFRMGMode(depgraph) + getSideParams(depgraph) +
+                getLinkInfo(depgraph,this)+"+99999";//"eid=" + this.__data__['ref_ids'][id] + "&+99999";
               getNewData(depgraph,depgraph.sentence,params);
               return {baseAction:'selectAlternative',previousParams:getPreviousParams(depgraph),currentParams:params};
             }  
@@ -204,7 +205,7 @@
         if(value){
           link.components.path.attr('stroke','green');
           link.__data__.disamb_status = 1;
-          depgraph.frmg_disamb.keep[link.__data__.id] = getLinkInfo(depgraph,link)+"+9999";
+          depgraph.frmg_disamb.keep[link.__data__.id] = getLinkInfo(depgraph,link)+"+99999";
           delete depgraph.frmg_disamb.remove[link.__data__.id];  
         }else{
           link.components.path.attr('stroke','grey');
@@ -219,7 +220,7 @@
         if(value){
           link.components.path.attr('stroke','red');
           link.__data__.disamb_status = 2;
-          depgraph.frmg_disamb.remove[link.__data__.id] = getLinkInfo(depgraph,link)+"-9999";
+          depgraph.frmg_disamb.remove[link.__data__.id] = getLinkInfo(depgraph,link)+"-99999";
           delete depgraph.frmg_disamb.keep[link.__data__.id];
         }else{
           link.components.path.attr('stroke','grey');
