@@ -589,6 +589,8 @@
     return x;
   }
 
+  depgraphlib.getLeftX = getLeftX;
+
 
   depgraphlib.DepGraph.prototype.hideChildren = function(word){
     var list = collectChildren(this,word);
@@ -677,25 +679,27 @@
     }
   }
 
-  function collectChildren(depgraph,word){
-    var list = {nodes:[],links:[]};
+  function collectChildren(depgraph,word,list){
+    if(!list){
+      list = {nodes:[],links:[]};
+    }
     var links = depgraph.vis.selectAll('g.link');
     for(var j = 0; j < links[0].length ; ++j){
       var nodelink = links[0][j];
       var p = depgraph.getLinkProperties(nodelink);
       if(p.rootEdge && nodelink.__data__.target == word.__data__.id){
-        list.links.push(nodelink);
+        if(list.links.indexOf(nodelink)==-1){
+          list.links.push(nodelink);  
+        }
         continue;
       }
       if(nodelink.__data__.source == word.__data__.id){
-        list.nodes.push(p.nodeEnd);
-        list.links.push(nodelink);
-        if(p.nodeEnd.hiddenChild){
+        if(p.nodeEnd.hiddenChild || list.nodes.indexOf(p.nodeEnd)!=-1){
           continue;
         }
-        var sublist = collectChildren(depgraph,p.nodeEnd);
-        list.nodes = list.nodes.concat(sublist.nodes);
-        list.links = list.links.concat(sublist.links);
+        list.nodes.push(p.nodeEnd);
+        list.links.push(nodelink);
+        var sublist = collectChildren(depgraph,p.nodeEnd,list);
       }
     }
     return list;

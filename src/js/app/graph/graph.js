@@ -354,6 +354,10 @@
         x = me.scrollbarTranslate(x);  
       }
 
+      if(!y){
+        y = 0;
+      }
+
       var newx = previousValues.translate[0]-parseFloat(x);
       newx = Math.round(newx*1000000)/1000000;
 
