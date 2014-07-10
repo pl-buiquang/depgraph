@@ -940,7 +940,7 @@ function retrieveCorrespondingNodes(&$words,$cluster_id){
   foreach($words as &$word){
     $bounds = preg_split("/_/", $word['#data']['cluster']);
     $cond = ($bounds[1]>= $parts[1] && $bounds[1] < $parts[2]) || ($bounds[2]> $parts[1] && $bounds[2] <= $parts[2]);
-    if(true || $parts[1] == $parts[2]){
+    if($parts[1] == $parts[2]){
       $cond = $bounds[1] == $parts[1] && $bounds[2] == $parts[2];
     }
     if($cond){
