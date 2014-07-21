@@ -17,7 +17,7 @@
               depgraphlib.EditObject.DefaultModeLib.showEditPanel(depgraph,element);
             },
             'HighLight' : function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
-              processhighlightmode(depgraph,element);
+              processhighlightmode(depgraph,element[0]);
             }
           },
           onLinkContext : {
@@ -25,7 +25,11 @@
               depgraphlib.EditObject.DefaultModeLib.showEditPanel(depgraph,element);
             },
             'HighLight' : function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
-              processhighlightmode(depgraph,element);
+              processhighlightmode(depgraph,element[0]);
+            },
+            'Delete':function(depgraph,element){
+              var params = removeLinkForNewData(depgraph,depgraph.sentence,element[0].__data__);
+              return {baseAction:'removeEdge',previousParams:getPreviousParams(depgraph),currentParams:params};
             }
           },
           onChunkContext : null,
@@ -122,7 +126,7 @@
               return {baseAction:'selectAlternative',previousParams:getPreviousParams(depgraph),currentParams:params};
             }  
           }else{ // change frmg_disamb status (neutral, keep, remove)
-            if(d3.event.ctrlKey){ // remove / neutral
+            if(d3.event.ctrlKey || d3.event.shiftKey){ // remove / neutral
               if(this.__data__.disamb_status == 2){ // remove
                 removeEdge(depgraph,this,false);
               }else{ // neutral
@@ -264,19 +268,19 @@
       }
 
       function removeLinkForNewData(depgraph,sentence,link){
-        var source = depgraph.getWordByOriginalId(link.source);
-        var target = depgraph.getWordByOriginalId(link.target);
-        var source_data = source.__data__['#data'];
-        var target_data = target.__data__['#data'];
-        var param = "edge=" + 
-          source_data['lemma'] + 
-          "&" + source_data['cat'] + 
-          "&" + link.label +
-          "&" + target_data['lemma'] + 
-          "&" + target_data['cat'] + 
-          "&-8000";
-        getNewData(depgraph,sentence,param);
-        return param;
+        var params = depgraphlib.getOriginalFRMGMode(depgraph) + getSideParams(depgraph);
+        var regex = /E(?:\d+)e(\d+)/g;
+        var id = link.id;
+        var match = regex.exec(link.id);
+        if(match){
+          id = match[1];
+        }
+        var param = "eid="+id+"&";
+        params += "eid=" + 
+          id +
+          "&-9000";
+        getNewData(depgraph,sentence,params);
+        return params;
       }
 
 
@@ -330,9 +334,18 @@
         for(link in node.__data__['#data']['alternatives']){
           depgraph.data.graph.links.push(node.__data__['#data']['alternatives'][link]);
         }
+
+        var prevScrollbarPos = 0;
+        if(depgraph.scrollbar){
+          prevScrollbarPos = depgraph.scrollbar.attr('x') * depgraph.scrollbar.__info__.k;
+        }
+        
         depgraph.update();
         depgraph.postProcessesFixHeight();
         depgraph.editObject.editModeInit();
+
+        depgraph.translateGraph(prevScrollbarPos);
+
         depgraph.frmg_disamb_status = true;
         var prevParams = getPreviousParams(depgraph);
         var exceptions = [];
@@ -391,8 +404,18 @@
           }
           depgraph.data.graph.links.splice(index,1);
         }
+
+        var prevScrollbarPos = 0;
+        if(depgraph.scrollbar){
+          prevScrollbarPos = depgraph.scrollbar.attr('x') * depgraph.scrollbar.__info__.k;
+        }
+
         depgraph.update();
         depgraph.postProcessesFixHeight();
+        depgraph.editObject.editModeInit();
+
+        depgraph.translateGraph(prevScrollbarPos);
+        depgraph.frmg_disamb_status = false;
       }
       
       depgraphlib.hideAltLinks = hideAltLinks;

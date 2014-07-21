@@ -231,6 +231,7 @@
               jQuery(data.elements.insidelinks[i]).css("display","block");
               data.elements.insidelinks[i].hidden = false;
             }
+            hideAffectedChunks(me,data.elements.chunksToHide,false);
             for (var i = data.elements.insidenodes.length - 1; i >= 0; i--) {
               jQuery(data.elements.insidenodes[i]).css("display","block");
               data.elements.insidenodes[i].hidden = false;
@@ -254,6 +255,7 @@
             jQuery(data.elements.insidelinks[i]).css("display","block");
             data.elements.insidelinks[i].hidden = false;
           }
+          hideAffectedChunks(me,data.elements.chunksToHide,false);
           for (var i = data.elements.insidenodes.length - 1; i >= 0; i--) {
             jQuery(data.elements.insidenodes[i]).css("display","block");
             data.elements.insidenodes[i].hidden = false;
@@ -275,6 +277,7 @@
         jQuery(data.elements.insidelinks[i]).css("display","none");
         data.elements.insidelinks[i].hidden = true;
       }
+      hideAffectedChunks(me,data.elements.chunksToHide);
       for (var i = data.elements.insidenodes.length - 1; i >= 0; i--) {
         jQuery(data.elements.insidenodes[i]).css("display","none");
         data.elements.insidenodes[i].hidden = true;
@@ -350,6 +353,7 @@
 
     function animationStep(i){
       //reduceLink(link,i);
+      var alreadyMovedChunks = [];
       d3.selectAll(data.elements.upperlinks).each(function(d,index){
         reduceLink(this,i);
       });
@@ -358,6 +362,7 @@
         changeLinkPositionAndSize(this,-i,0);
       });
       d3.selectAll(data.elements.toMoveNodes).attr("transform",function(d,index){
+        moveAssociatedChunk(me,this,i,alreadyMovedChunks,data.elements.chunksToHide);
         var prevVals = depgraphlib.getTransformValues(d3.select(this))
         var x = prevVals.translate[0]-i;
         return "translate("+x+","+prevVals.translate[1]+")";  
@@ -496,6 +501,7 @@
         toMoveNodes:[],
         toMoveLinks:[],
         insidelinks:[],
+        chunksToHide:[],
         crossinglinks:[],
         upperlinks:[],
       },
@@ -544,7 +550,7 @@
         data.reductionLength += x;
       }
     }
-    
+    data.elements.chunksToHide = getAffectedChunks(depgraph,data.elements.insidenodes);
 
     var links = depgraph.vis.selectAll('g.link');
     for(var j = 0; j < links[0].length ; ++j){
@@ -589,6 +595,8 @@
     return x;
   }
 
+  depgraphlib.getLeftX = getLeftX;
+
 
   depgraphlib.DepGraph.prototype.hideChildren = function(word){
     var list = collectChildren(this,word);
@@ -601,6 +609,8 @@
     }else{
       depgraphlib.DepGraph.highlightWord(word,true,true);
     }
+    var chunksHidden = getAffectedChunks(this,list.nodes);
+    hideAffectedChunks(this,chunksHidden,!word.hiddenChild);
     for (var i = list.nodes.length - 1; i >= 0; i--) {
       list.nodes[i].toHide = true;  
     };
@@ -608,7 +618,7 @@
       jQuery(list.links[i]).css("display",display);
     };
 
-    moveNodes(this,reset);
+    moveNodes(this,reset,chunksHidden);
 
     word.hiddenChild = !word.hiddenChild;
 
@@ -616,7 +626,28 @@
     this.adjustScroll(tval.translate[0]);
   };
 
-  function moveNodes(depgraph,reset){
+  function moveAssociatedChunk(depgraph,node,offset,alreadyMovedChunks,hiddenChunks){
+    if(!hiddenChunks){
+      hiddenChunks = [];
+    }
+    var affectedChunks = getAffectedChunks(depgraph,[node]);
+    if(affectedChunks.length>1){
+      console.log("more than one chunk associated to one node... selecting first,ignoring the rest");
+    }
+    if(affectedChunks.length!=0){
+      var chunk = affectedChunks[0];
+      if(alreadyMovedChunks.indexOf(chunk)==-1 && (hiddenChunks.indexOf(chunk) != -1 || jQuery(affectedChunks[0]).css("display")!="none")){
+        alreadyMovedChunks.push(chunk);
+        var dnode = d3.select(chunk);
+        var prevVals = depgraphlib.getTransformValues(dnode);
+        var x = prevVals.translate[0]-offset;
+        dnode.attr("transform","translate("+x+","+prevVals.translate[1]+")"); 
+      }
+    }
+  };
+
+  function moveNodes(depgraph,reset,chunksHidden){
+    var alreadyMovedChunks = [];
     var words = depgraph.vis.selectAll('g.word, g.dummy');
     var offset = 0;
     for(var j = 0; j < words[0].length ; ++j){
@@ -642,7 +673,8 @@
         var dnode = d3.select(node);
         var prevVals = depgraphlib.getTransformValues(dnode);
         var x = prevVals.translate[0]-offset;
-        dnode.attr("transform","translate("+x+","+prevVals.translate[1]+")"); 
+        dnode.attr("transform","translate("+x+","+prevVals.translate[1]+")");
+        moveAssociatedChunk(depgraph,node,offset,alreadyMovedChunks,chunksHidden);
         //--
         var links = depgraph.vis.selectAll('g.link');
         for(var k = 0; k< links[0].length ; ++k){
@@ -677,25 +709,58 @@
     }
   }
 
-  function collectChildren(depgraph,word){
-    var list = {nodes:[],links:[]};
+  function hideAffectedChunks(depgraph,affectedChunks,val){
+    var display = "block";
+    if(val || val == undefined){
+      display = "none";
+    }
+    for(var i = 0; i<affectedChunks.length;++i){
+      jQuery(affectedChunks[i]).css("display",display);  
+    }
+    return affectedChunks;
+  };
+
+  function getAffectedChunks(depgraph,affectedNodes){
+    var affectedChunks = [];
+    var targets = affectedNodes.slice(0);
+    var chunks = depgraph.vis.selectAll('g.chunk');
+    for(var i = 0; i<chunks[0].length; i++){
+      var insideNodes = chunks[0][i].__data__.elements;
+      if(targets.length==0){
+        break;
+      }
+      for(var j=0;j<targets.length;j++){
+        if(insideNodes.indexOf(targets[j].__data__.id)!=-1){
+          affectedChunks.push(chunks[0][i]);
+          targets.splice(j,1);
+          break;
+        }
+      }
+    }
+    return affectedChunks;
+  };
+
+  function collectChildren(depgraph,word,list){
+    if(!list){
+      list = {nodes:[],links:[]};
+    }
     var links = depgraph.vis.selectAll('g.link');
     for(var j = 0; j < links[0].length ; ++j){
       var nodelink = links[0][j];
       var p = depgraph.getLinkProperties(nodelink);
       if(p.rootEdge && nodelink.__data__.target == word.__data__.id){
-        list.links.push(nodelink);
+        if(list.links.indexOf(nodelink)==-1){
+          list.links.push(nodelink);  
+        }
         continue;
       }
       if(nodelink.__data__.source == word.__data__.id){
-        list.nodes.push(p.nodeEnd);
-        list.links.push(nodelink);
-        if(p.nodeEnd.hiddenChild){
+        if(p.nodeEnd.hiddenChild || list.nodes.indexOf(p.nodeEnd)!=-1){
           continue;
         }
-        var sublist = collectChildren(depgraph,p.nodeEnd);
-        list.nodes = list.nodes.concat(sublist.nodes);
-        list.links = list.links.concat(sublist.links);
+        list.nodes.push(p.nodeEnd);
+        list.links.push(nodelink);
+        var sublist = collectChildren(depgraph,p.nodeEnd,list);
       }
     }
     return list;

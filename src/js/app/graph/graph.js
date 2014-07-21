@@ -173,11 +173,20 @@
      * @param json_data
      */
     depgraphlib.DepGraph.prototype.resetData = function(json_data){
+      var prevScrollbarPos = 0;
+      if(this.scrollbar){
+        prevScrollbarPos = this.scrollbar.attr('x') * this.scrollbar.__info__.k;
+      }
+
       this.setData(json_data);
       this.createLayout();
       this.update();
 
-      
+      if(this.scrollbar){
+        this.translateGraph(prevScrollbarPos);
+      }
+
+
       if(this.editObject.editMode){
         this.editObject.editModeInit();  
       }
@@ -352,6 +361,10 @@
       
       if(me.scrollbar){
         x = me.scrollbarTranslate(x);  
+      }
+
+      if(!y){
+        y = 0;
       }
 
       var newx = previousValues.translate[0]-parseFloat(x);
@@ -794,6 +807,13 @@
       this.preprocessLinksPosition(links);
       links.each(setLinkMaterials);
       
+      if(me.toCleanup){
+        for(var i=0;i<me.toCleanup.length;++i){
+          delete me.toCleanup[i].oic;
+        }  
+      }
+      
+
       this.postProcesses();
       this.autoHighLightOnMouseOver();
     };
@@ -1154,6 +1174,10 @@
       var originArc = false;
       if(!p.nodeStart || p.rootEdge){
         p.nodeStart = p.nodeEnd;
+        me.toCleanup = me.toCleanup || [];
+        me.toCleanup.push(p.nodeStart);
+        p.nodeStart.oic = p.nodeStart.oic || 0;
+        p.nodeStart.oic++;
         originArc = true;
       }
       
@@ -1170,9 +1194,19 @@
       var SxOffset = (hdir>0)?5*p.offsetXmin+minOffset:-5*p.offsetXmax-minOffset;
       var ExOffset = (hdir>0)?-5*p.offsetXmax-minOffset:5*p.offsetXmin+minOffset;
       var arcSize = 0;
+
+      if(originArc){
+        SxOffset-=5*(p.nodeStart.oic-1);
+      }
+
       var x0 = X0[0]+Sdx+SxOffset;
       var x1 = X1[0]+Edx+ExOffset;
       var h = x1-x0-hdir*2*arcSize;
+
+      if(originArc){
+        h=0;
+      }
+
       //For missing main label and constant labels height
       if(me.wordY==null){
         var words = me.vis.selectAll('g.word');
@@ -1268,8 +1302,13 @@
         .style('font-style',fontStyle)
         .style('font-size',fontSize);
       var textBBox = text.node().getBBox();
-      text.attr('x',-textBBox.width/2+x0+h/2+hdir*arcSize)
-        .attr('y',depgraphlib.removeUnit(depgraphlib.addPxs(-depgraphlib.removeUnit(margin.top),y0,v0,-vdir*arcSize)));
+      if(originArc){
+        text.attr('x',-textBBox.width/2+x0)
+          .attr('y',depgraphlib.removeUnit(depgraphlib.addPxs(-depgraphlib.removeUnit(margin.top),y0,v0-(p.nodeStart.oic-1)*10)));
+      }else{
+        text.attr('x',-textBBox.width/2+x0+h/2+hdir*arcSize)
+          .attr('y',depgraphlib.removeUnit(depgraphlib.addPxs(-depgraphlib.removeUnit(margin.top),y0,v0,-vdir*arcSize)));
+      }
       
       // to access easily to link components
       elt.drawingData.textBBox = textBBox;
