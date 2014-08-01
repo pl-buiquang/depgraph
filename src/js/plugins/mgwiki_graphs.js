@@ -5,7 +5,9 @@
  */
 (function(depgraphlib){
 
-  
+
+
+
   depgraphlib.allowNotes = function(graph_id){
     var depgraph = depgraphlib.DepGraph.getInstance(graph_id);
     depgraph.viewer.addToolbarItem({name:'add-note',callback:depgraphlib.addNote,style:'add-note','static':true});

@@ -14,7 +14,7 @@
           onChunkSelect : depgraphlib.EditObject.DefaultModeLib.selectObject,
           onWordContext : {
             'Show Infos': function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
-              depgraphlib.EditObject.DefaultModeLib.showEditPanel(depgraph,element);
+              depgraphlib.EditObject.DefaultModeLib.showEditPanel(depgraph,element,true);
             },
             'HighLight' : function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
               processhighlightmode(depgraph,element[0]);
@@ -22,7 +22,7 @@
           },
           onLinkContext : {
             'Show Infos': function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
-              depgraphlib.EditObject.DefaultModeLib.showEditPanel(depgraph,element);
+              depgraphlib.EditObject.DefaultModeLib.showEditPanel(depgraph,element,true);
             },
             'HighLight' : function(depgraph,element) {  // element is the jquery obj clicked on when context menu launched
               processhighlightmode(depgraph,element[0]);

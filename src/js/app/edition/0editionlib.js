@@ -246,10 +246,10 @@
        * 
        * @memberof DepGraphLib.EditObject.DefaultModeLib
        */
-      showEditPanel : function(depgraph,obj){
+      showEditPanel : function(depgraph,obj,viewonly){
         var coords = depgraph.viewer.screenCoordsForElt(obj[0]);
         var point = {x:(coords.ne.x + coords.nw.x)/2,y:coords.nw.y};
-        var div = depgraphlib.EditObject.DefaultModeLib.createEditPanel(depgraph,obj[0]);
+        var div = depgraphlib.EditObject.DefaultModeLib.createEditPanel(depgraph,obj[0],viewonly);
         depgraph.viewer.createBox({closeButton:true,draggable:true}).setContent(div).open(point);
       },
       
@@ -300,7 +300,7 @@
        * 
        * @memberof DepGraphLib.EditObject.DefaultModeLib
        */
-       createEditPanel : function(depgraph,obj){
+       createEditPanel : function(depgraph,obj,viewonly){
         var data = obj.__data__;
         var klass = '';
         if(obj.classList != null && obj.classList.length > 0){
@@ -322,11 +322,16 @@
         }
         
         div += '</table>';
-        div += '<input id="'+depgraph.viewer.appendOwnID(klass+'-save-properties')+'" type="button" value="Save" onclick="depgraphlib.EditObject.DefaultModeLib.saveProperties.call(this,arguments);">';
+        if(!viewonly){
+          div += '<input id="'+depgraph.viewer.appendOwnID(klass+'-save-properties')+'" type="button" value="Save" onclick="depgraphlib.EditObject.DefaultModeLib.saveProperties.call(this,arguments);">';
+        }
         div += '</div></div>';
         
         
         var jdiv = jQuery(div);
+        if(viewonly){
+          jdiv.find('select,input').attr('disabled',true);
+        }
         // typeahead autocomplete
         /*var substringMatcher = function(strs) {
           return function findMatches(q, cb) {
@@ -616,7 +621,7 @@
           var wordData = depgraph.data.graph.words[i];
           optionList += '<option value="'+wordData.id+'" ';
           optionList += ((wordData.id==selectedOriginalId)?'selected="true"':'');
-          optionList += '>#' + wordData['#position'] + ' ' + wordData['label'] + ' (' + wordData.id +')';
+          optionList += '>#' + wordData['#position'] + ' ' + depgraphlib.getValue(wordData,wordData['label']) + ' (' + wordData.id +')';
           optionList += '</option>';
         }
         optionList += '</select>';
@@ -640,14 +645,14 @@
           var wordData = depgraph.data.graph.words[i];
           optionList += '<option value="'+wordData.id+'" ';
           optionList += ((wordData.id==selectedOriginalId)?'selected="true"':'');
-          optionList += '>#' + wordData['#position'] + ' ' + wordData['label'] + ' (' + wordData.id +')';
+          optionList += '>#' + wordData['#position'] + ' ' + depgraphlib.getValue(wordData,wordData['label']) + ' (' + wordData.id +')';
           optionList += '</option>';
         }
         for(var i=0;i<depgraph.data.graph.chunks.length;i++){
           var chunkData = depgraph.data.graph.chunks[i];
           optionList += '<option value="'+chunkData.id+'" ';
           optionList += ((chunkData.id==selectedOriginalId)?'selected="true"':'');
-          optionList += '>c#' + i + ' ' + chunkData['label'] + ' (' + chunkData.id +')';
+          optionList += '>c#' + i + ' ' + depgraphlib.getValue(chunkData,chunkData['label']) + ' (' + chunkData.id +')';
           optionList += '</option>';
         }
         optionList += '</select>';
@@ -667,7 +672,7 @@
           var wordData = (i>0 && i<depgraph.data.graph.words.length+1)?depgraph.data.graph.words[i-1]:{label:'^'};
           var nextWordData = (i<depgraph.data.graph.words.length)?depgraph.data.graph.words[i]:{label:'$'};
           optionList += '<option value="'+i+'" ';
-          optionList += '>#' + i + ' (' + wordData['label'] + ' x ' + nextWordData['label'] +')';
+          optionList += '>#' + i + ' (' + depgraphlib.getValue(wordData,wordData['label']) + ' x ' + depgraphlib.getValue(nextWordData,nextWordData['label']) +')';
           optionList += '</option>';
         }
         optionList += '</select>';
