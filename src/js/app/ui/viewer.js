@@ -423,8 +423,9 @@
     depgraphlib.GraphViewer.prototype.setWidth = function(width){
       if(!width){
         width = this.mainpanel.width();
+      }else{
+        this._width = width;
       }
-      this._width = width;
       this.mainpanel.css('width',width);
       if(this.ajaxLoader){
         this.ajaxLoader.width(width);
