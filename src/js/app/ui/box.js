@@ -166,7 +166,7 @@
    */
   depgraphlib.Box.instances = depgraphlib.Box.instances || [];
 
-  depgraphlib.Box.zindextop = 600;
+  depgraphlib.Box.zindextop = 6000;
 
   /**
   * Instances of boxes that are minimized
@@ -176,7 +176,7 @@
   /**
    * @function open
    * @param {DOMObject|object.<number,number>} position
-   * @returns {depgraphlib.Box}
+   * @returns {DepGraphLib.Box}
    * 
    * @memberof DepGraphLib.Box#
    */

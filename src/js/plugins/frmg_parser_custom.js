@@ -150,7 +150,7 @@
        */
       depgraphlib.getOriginalFRMGMode = function(depgraph){
         var baseOptions = depgraph.options.frmgparserparams || '';
-        var possibleOptions = ['robust','exotic','transform'];
+        var possibleOptions = ['robust','exotic','transform','rename'];
         var originalMode = '';
         for(var i=0;i<possibleOptions.length;++i){
           var regex = new RegExp(".*("+possibleOptions[i]+").*","g");
@@ -275,7 +275,6 @@
         if(match){
           id = match[1];
         }
-        var param = "eid="+id+"&";
         params += "eid=" + 
           id +
           "&-9000";
