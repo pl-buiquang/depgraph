@@ -256,9 +256,11 @@
 
       /**
        * @function createCreationPanel
-       * @param  {[type]} depgraph [description]
-       * @param  {[type]} type     [description]
-       * @return {[type]}          [description]
+       * @param  {DepGraphLib.Depgraph} depgraph - the graph object
+       * @param  {string} type     - the type of object to create a panel from (word, link or chunk)
+       * @return {object}          a jquery selection of the html defining the creation panel
+       *
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
        */
       createCreationPanel : function(depgraph,type){
         var data = {};
@@ -585,11 +587,11 @@
       /**
        * @function getOptionsListValues
        * @desc return a form of list of defined values
-       * @param  {[type]} depgraph           [description]
-       * @param  {[type]} selectedOriginalId [description]
-       * @param  {[type]} data_rel           [description]
-       * @param {string} values [description]
-       * @return {[type]}                    [description]
+       * @param  {DepGraphLib.DepGraph} depgraph           - the graph object
+       * @param  {string} selectedOriginalValue - the original value of the field
+       * @param  {string} data_rel           - the data-rel identifier to bind the value with
+       * @param {string} values - the possible values of the field
+       * @return {string}                    the string representing the html select object
        */
       getOptionsListValues : function(depgraph,selectedOriginalValue,data_rel,values){
         var optionList = '<select data-rel="'+data_rel+'">';

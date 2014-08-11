@@ -416,12 +416,15 @@
           var depgraph = depgraphlib.DepGraph.getInstance(d3.event.originalTarget);
           depgraph.setViewMode();
         });*/
-        this.vis.selectAll('g.link').on("click",function(){
-          me.displayFullLinkSpan(this);
-        });
-        this.vis.selectAll('g.word').on("click",function(){
-          me.hideChildren(this);
-        });
+
+        if(!this.editObject.editMode){
+          this.vis.selectAll('g.link').on("click",function(){
+            me.displayFullLinkSpan(this);
+          });
+          this.vis.selectAll('g.word').on("click",function(){
+            me.hideChildren(this);
+          });
+        }
 
 
         d3.select(document).on('click.focus',function(e){

@@ -199,9 +199,9 @@
   /**
    * @function getValue
    * @description  get the value of a field referencing to an other in its object parent
-   * @param  {[type]} obj   [description]
-   * @param  {[type]} field [description]
-   * @return {[type]}       [description]
+   * @param  {object} obj   - the data object where to fetch the value
+   * @param  {string} field - if field starts with '@' : the reference name of the inner field of the object to fetch value from, else the field is returned as value
+   * @return {object}       the value of the field
    */
   depgraphlib.getValue = function(obj,field){
     if(field){
