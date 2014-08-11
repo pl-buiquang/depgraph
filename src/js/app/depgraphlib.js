@@ -11,7 +11,7 @@
 
 (function(depgraphlib){
   
- depgraphlib.helpurl = "content/helpdepgraph";
+ depgraphlib.helpurl = "/frmgwiki/content/helpdepgraph";
 
   /**
    * @class {object} DepGraph
