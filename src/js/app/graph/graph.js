@@ -417,7 +417,7 @@
           depgraph.setViewMode();
         });*/
 
-        if(!this.editObject.editMode){
+        if(!this.editObject || !this.editObject.editMode){
           this.vis.selectAll('g.link').on("click",function(){
             me.displayFullLinkSpan(this);
           });
