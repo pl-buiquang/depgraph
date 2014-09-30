@@ -12,11 +12,11 @@
    * @param {object} obj - an javascript object
    * @param {string} path - a path to the property of the object in xpath style format (path is cut by slashes)
    * @param {*} value - the value to set the property to
-   *
+   * @param {boolean} overrideReference - if set to true, will break reference and set up new value to this field whether it is a reference or not
    * @memberof DepGraphLib
    *
    */
- depgraphlib.setAttrPath = function(obj,path,value){
+ depgraphlib.setAttrPath = function(obj,path,value,overrideReference){
     var pathComponents = path.split('/');
     var attr = obj;
     for(var k = 0 ; k < pathComponents.length-1; k++){
@@ -29,7 +29,7 @@
     }
     var val = depgraphlib.getValue(obj,attr[pathComponents[pathComponents.length-1]]);
     var oldVal = depgraphlib.clone(val);
-    if(attr[pathComponents[pathComponents.length-1]] && attr[pathComponents[pathComponents.length-1]].indexOf('@')==0){
+    if(!overrideReference && attr[pathComponents[pathComponents.length-1]] && attr[pathComponents[pathComponents.length-1]].indexOf('@')==0){
       depgraphlib.setValue(obj,attr[pathComponents[pathComponents.length-1]],value);
     }else{
       attr[pathComponents[pathComponents.length-1]] = value;  
