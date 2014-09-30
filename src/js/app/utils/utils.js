@@ -29,10 +29,10 @@
     }
     var val = depgraphlib.getValue(obj,attr[pathComponents[pathComponents.length-1]]);
     var oldVal = depgraphlib.clone(val);
-    if(val == undefined){
-      attr[pathComponents[pathComponents.length-1]] = value;  
+    if(attr[pathComponents[pathComponents.length-1]] && attr[pathComponents[pathComponents.length-1]].indexOf('@')==0){
+      depgraphlib.setValue(obj,attr[pathComponents[pathComponents.length-1]],value);
     }else{
-      depgraphlib.setValue(obj,val,value);
+      attr[pathComponents[pathComponents.length-1]] = value;  
     }
     return oldVal;
   };
