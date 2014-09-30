@@ -32,7 +32,7 @@
     if(val == undefined){
       attr[pathComponents[pathComponents.length-1]] = value;  
     }else{
-      val = value;  
+      depgraphlib.setValue(obj,val,value);
     }
     return oldVal;
   };
@@ -57,7 +57,7 @@
       }
       attr = tmp;
     }
-    var oldVal = depgraphlib.clone(obj,attr[pathComponents[pathComponents.length-1]]);
+    var oldVal = depgraphlib.clone(attr[pathComponents[pathComponents.length-1]]);
     return oldVal;
   };
   
@@ -203,7 +203,7 @@
 
   /**
    * @function getValue
-   * @description  get the value of a field referencing to an other in its object parent
+   * @description  get the value of a field potentially referencing to an other in its object parent
    * @param  {object} obj   - the data object where to fetch the value
    * @param  {string} field - if field starts with '@' : the reference name of the inner field of the object to fetch value from, else the field is returned as value
    * @return {object}       the value of the field
@@ -230,6 +230,39 @@
       return field;
     }  
   };
+
+  /**
+   * @function setValue
+   * @description set the value to a field that potentially referencing to an other in its object parent
+   * @param {object} obj   - the data object where to fetch the value
+   * @param {string} field - if field starts with '@' : the reference name of the inner field of the object to fetch value from, else the field
+   * @param {string} value - the new value of the field
+   */
+  depgraphlib.setValue = function(obj,field,value){
+    if(field && field.indexOf('@')==0){
+      var refid = field.substring(1);
+      for(var property in obj){
+        if(property == refid){
+          obj[refid] = value;
+          return;
+        }
+      }
+      if(refid.indexOf('#data/')==0){
+        refid = refid.substring(6);
+      }
+      if(obj['#data']){
+        for(var property in obj['#data']){
+          if(property == refid){
+            obj['#data'][refid] = value;
+            return;
+          }
+        } 
+      }
+    }else{
+      field = value;
+      return;
+    }  
+  }
 
   /**
    * resolve the references in a json object
