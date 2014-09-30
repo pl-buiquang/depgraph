@@ -29,7 +29,11 @@
     }
     var val = depgraphlib.getValue(obj,attr[pathComponents[pathComponents.length-1]]);
     var oldVal = depgraphlib.clone(val);
-    val = value;
+    if(val == undefined){
+      attr[pathComponents[pathComponents.length-1]] = value;  
+    }else{
+      val = value;  
+    }
     return oldVal;
   };
 
@@ -53,7 +57,7 @@
       }
       attr = tmp;
     }
-    var oldVal = depgraphlib.clone(depgraphlib.getValue(obj,attr[pathComponents[pathComponents.length-1]]));
+    var oldVal = depgraphlib.clone(obj,attr[pathComponents[pathComponents.length-1]]);
     return oldVal;
   };
   
