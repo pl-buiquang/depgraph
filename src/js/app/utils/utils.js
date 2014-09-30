@@ -57,7 +57,7 @@
       }
       attr = tmp;
     }
-    var oldVal = depgraphlib.clone(obj,attr[pathComponents[pathComponents.length-1]]);
+    var oldVal = depgraphlib.clone(attr[pathComponents[pathComponents.length-1]]);
     return oldVal;
   };
   
