@@ -213,7 +213,7 @@
       var refid = field.substring(1);
       for(var property in obj){
         if(property == refid){
-          return obj[refid];
+          return depgraphlib.getValue(obj,obj[refid]);
         }
       }
       if(refid.indexOf('#data/')==0){
@@ -222,7 +222,7 @@
       if(obj['#data']){
         for(var property in obj['#data']){
           if(property == refid){
-            return obj['#data'][refid];
+            return depgraphlib.getValue(obj,obj['#data'][refid]);
           }
         } 
       }
@@ -243,7 +243,7 @@
       var refid = field.substring(1);
       for(var property in obj){
         if(property == refid){
-          obj[refid] = value;
+          depgraphlib.setValue(obj,obj[refid],value);
           return;
         }
       }
@@ -253,7 +253,7 @@
       if(obj['#data']){
         for(var property in obj['#data']){
           if(property == refid){
-            obj['#data'][refid] = value;
+            depgraphlib.setValue(obj,obj['#data'][refid],value);
             return;
           }
         } 
