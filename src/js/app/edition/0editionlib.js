@@ -427,7 +427,7 @@
         for(var i=0;i<dataModel.words.length ; i++){
           var value;
           var data_rel;
-          value = (wordData['#data'])?(wordData['#data'][dataModel.words[i].name] || ''):'';
+          value = depgraphlib.getValue(wordData,(wordData['#data'])?(wordData['#data'][dataModel.words[i].name] || ''):'');
           data_rel = '#data/'+dataModel.words[i].name;
           if(dataModel.words[i].values){
             editDiv += depgraphlib.ui.addCustomField(dataModel.words[i].name,depgraphlib.EditObject.DefaultModeLib.getOptionsListValues(depgraph,value,data_rel,dataModel.words[i].values));
@@ -477,7 +477,7 @@
         for(var i=0;i<dataModel.chunks.length ; i++){
           var value;
           var data_rel;
-          value = (wordData['#data'])?chunkData['#data'][dataModel.chunks[i].name]:'';
+          value = depgraphlib.getValue(chunkData,(chunkData['#data'])?chunkData['#data'][dataModel.chunks[i].name]:'');
           data_rel = '#data/'+dataModel.chunks[i].name;
           /*if(dataModel.chunks[i].hidden){
             
