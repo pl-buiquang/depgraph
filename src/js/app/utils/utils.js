@@ -205,31 +205,26 @@
    * @return {object}       the value of the field
    */
   depgraphlib.getValue = function(obj,field){
-    if(field){
-      if(field.indexOf('@')==0){
-        var refid = field.substring(1);
-        for(var property in obj){
+    if(field && field.indexOf('@')==0){
+      var refid = field.substring(1);
+      for(var property in obj){
+        if(property == refid){
+          return obj[refid];
+        }
+      }
+      if(refid.indexOf('#data/')==0){
+        refid = refid.substring(6);
+      }
+      if(obj['#data']){
+        for(var property in obj['#data']){
           if(property == refid){
-            return obj[refid];
+            return obj['#data'][refid];
           }
-        }
-        if(refid.indexOf('#data/')==0){
-          refid = refid.substring(6);
-        }
-        if(obj['#data']){
-          for(var property in obj['#data']){
-            if(property == refid){
-              return obj['#data'][refid];
-            }
-          } 
-        }
-      }else{
-        return field;
-      }  
+        } 
+      }
     }else{
-      return "";
-    }
-    
+      return field;
+    }  
   };
 
   /**
