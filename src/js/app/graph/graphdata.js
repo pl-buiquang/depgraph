@@ -524,6 +524,22 @@
     }
     return range;
   };
+
+  /**
+   * @function computeSentence
+   * @returns {string} the computed sentence from data
+   * @memberof DepGraphLib.DepGraph#
+  */
+  depgraphlib.DepGraph.prototype.computeSentence = function(){
+    var sentence = "";
+    for(var i in this.data.graph.words){
+      var token = this.data.graph.words[i].label.trim();
+      if(token != "" && token != "_"){
+        sentence += " "+token;
+      }
+    }
+    return sentence;
+  };
   
   
 }(window.depgraphlib));
