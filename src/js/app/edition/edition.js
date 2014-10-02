@@ -100,9 +100,9 @@
               var modelVal = depgraphlib.getAttrPath(entity,'#data/'+model.name)
               if(!modelVal){
                 var viewVal = depgraphlib.getAttrPath(entity,model.view);
-                depgraphlib.setAttrPath(entity,'#data/'+model.name,viewVal);
+                depgraphlib.setAttrPath(entity,'#data/'+model.name,viewVal,true);
               }
-              depgraphlib.setAttrPath(entity,model.view,'@#data/'+model.name);
+              depgraphlib.setAttrPath(entity,model.view,'@#data/'+model.name,true);
             }
           }
         }

@@ -191,7 +191,6 @@
       /**
        * @function defaultRedo
        * @desc redo callback for the default edit mode
-       * TODO(paul) implement this
        * @param depgraph
        * @param actionData
        *
@@ -225,6 +224,7 @@
       
       /**
        * @function addNewWord
+       * @description show the panel for word creation
        * @param depgraph
        * @param obj
        * 
@@ -241,7 +241,7 @@
       /**
        * @function showEditPanel
        * @desc show edit properties panel for an object node (word, link or chunk)
-       * @param {DepGraphLib.Depgraph} depgraph - the graph object
+       * @param {DepGraphLib.DepGraph} depgraph - the graph object
        * @param obj
        * 
        * @memberof DepGraphLib.EditObject.DefaultModeLib
@@ -256,7 +256,7 @@
 
       /**
        * @function createCreationPanel
-       * @param  {DepGraphLib.Depgraph} depgraph - the graph object
+       * @param  {DepGraphLib.DepGraph} depgraph - the graph object
        * @param  {string} type     - the type of object to create a panel from (word, link or chunk)
        * @return {object}          a jquery selection of the html defining the creation panel
        *
@@ -296,7 +296,7 @@
       /**
        * @function createEditPanel
        * @desc create the form allowing edition of properties of an object (word, link or chunk)
-       * @param {DepGraphLib.Depgraph} depgraph - the graph object
+       * @param {DepGraphLib.DepGraph} depgraph - the graph object
        * @param {object} obj - the d3js node element
        * @return {object} a jquery selection of an edition panel
        * 
@@ -380,7 +380,7 @@
       /**
        * @function populateLinkEditPanel
        * @desc fill in the edit properties panel for a link object
-       * @param {DepGraphLib.Depgraph} depgraph - the graph object
+       * @param {DepGraphLib.DepGraph} depgraph - the graph object
        * @param {string} editDiv - the html string that will become a panel
        * @param {DepGraphLink} linkData - the link
        * 
@@ -410,7 +410,7 @@
       /**
        * @function populateWordEditPanel
        * @desc fill in the edit properties panel for a word object 
-       * @param {DepGraphLib.Depgraph} depgraph - the graph object
+       * @param {DepGraphLib.DepGraph} depgraph - the graph object
        * @param {string} editDiv - the html string that will become a panel
        * @param {DepGraphWord} wordData - the word
        * 
@@ -427,7 +427,7 @@
         for(var i=0;i<dataModel.words.length ; i++){
           var value;
           var data_rel;
-          value = (wordData['#data'])?(wordData['#data'][dataModel.words[i].name] || ''):'';
+          value = depgraphlib.getValue(wordData,(wordData['#data'])?(wordData['#data'][dataModel.words[i].name] || ''):'');
           data_rel = '#data/'+dataModel.words[i].name;
           if(dataModel.words[i].values){
             editDiv += depgraphlib.ui.addCustomField(dataModel.words[i].name,depgraphlib.EditObject.DefaultModeLib.getOptionsListValues(depgraph,value,data_rel,dataModel.words[i].values));
@@ -443,7 +443,15 @@
         return editDiv;
       },
 
-
+      /**
+       * @function populateChunkEditPanel
+       * @desc fill in the edit properties panel for a chunk object
+       * @param  {DepGraphLib.DepGraph} depgraph  the graph object
+       * @param  {string} editDiv   the html string that will become a panel
+       * @param  {DepGraphChunk} chunkData the chunk object
+       * @memberof DepGraphLib.EditObject.DefaultModeLib
+       * @return {string} the html that will become a panel 
+       */
       populateChunkEditPanel : function (depgraph,editDiv,chunkData){
         var dataModel = depgraph.editObject.dataModel;
         if(!dataModel){
@@ -469,7 +477,7 @@
         for(var i=0;i<dataModel.chunks.length ; i++){
           var value;
           var data_rel;
-          value = (wordData['#data'])?chunkData['#data'][dataModel.chunks[i].name]:'';
+          value = depgraphlib.getValue(chunkData,(chunkData['#data'])?chunkData['#data'][dataModel.chunks[i].name]:'');
           data_rel = '#data/'+dataModel.chunks[i].name;
           /*if(dataModel.chunks[i].hidden){
             
@@ -780,7 +788,13 @@
         
       },
 
-
+      /**
+       * @function addRootEdge
+       * @desc add a root edge to a node
+       * @param {DepGraphLib.DepGraph} depgraph 
+       * @param {DepGraphWord} element  the node to which add a root edge
+       * @memberOf DepGraphLib.EditObject.DefaultModeLib
+       */
       addRootEdge : function(depgraph,element){
         var color = 'black';
         var id = this.id++;

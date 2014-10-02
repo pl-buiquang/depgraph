@@ -12,11 +12,11 @@
    * @param {object} obj - an javascript object
    * @param {string} path - a path to the property of the object in xpath style format (path is cut by slashes)
    * @param {*} value - the value to set the property to
-   *
+   * @param {boolean} overrideReference - if set to true, will break reference and set up new value to this field whether it is a reference or not
    * @memberof DepGraphLib
    *
    */
- depgraphlib.setAttrPath = function(obj,path,value){
+ depgraphlib.setAttrPath = function(obj,path,value,overrideReference){
     var pathComponents = path.split('/');
     var attr = obj;
     for(var k = 0 ; k < pathComponents.length-1; k++){
@@ -27,8 +27,13 @@
       }
       attr = tmp;
     }
-    var oldVal = depgraphlib.clone(attr[pathComponents[pathComponents.length-1]]);
-    attr[pathComponents[pathComponents.length-1]] = value;
+    var val = depgraphlib.getValue(obj,attr[pathComponents[pathComponents.length-1]]);
+    var oldVal = depgraphlib.clone(val);
+    if(!overrideReference && attr[pathComponents[pathComponents.length-1]] && attr[pathComponents[pathComponents.length-1]].indexOf('@')==0){
+      depgraphlib.setValue(obj,attr[pathComponents[pathComponents.length-1]],value);
+    }else{
+      attr[pathComponents[pathComponents.length-1]] = value;  
+    }
     return oldVal;
   };
 
@@ -198,38 +203,74 @@
 
   /**
    * @function getValue
-   * @description  get the value of a field referencing to an other in its object parent
+   * @description  get the value of a field potentially referencing to an other in its object parent
    * @param  {object} obj   - the data object where to fetch the value
    * @param  {string} field - if field starts with '@' : the reference name of the inner field of the object to fetch value from, else the field is returned as value
    * @return {object}       the value of the field
    */
   depgraphlib.getValue = function(obj,field){
-    if(field){
-      if(field.indexOf('@')==0){
-        var refid = field.substring(1);
-        for(var property in obj){
+    if(field && field.indexOf('@')==0){
+      var refid = field.substring(1);
+      for(var property in obj){
+        if(property == refid){
+          return depgraphlib.getValue(obj,obj[refid]);
+        }
+      }
+      if(refid.indexOf('#data/')==0){
+        refid = refid.substring(6);
+      }
+      if(obj['#data']){
+        for(var property in obj['#data']){
           if(property == refid){
-            return obj[refid];
+            return depgraphlib.getValue(obj,obj['#data'][refid]);
           }
-        }
-        if(refid.indexOf('#data/')==0){
-          refid = refid.substring(6);
-        }
-        if(obj['#data']){
-          for(var property in obj['#data']){
-            if(property == refid){
-              return obj['#data'][refid];
-            }
-          } 
-        }
-      }else{
-        return field;
-      }  
+        } 
+      }
     }else{
-      return "";
-    }
-    
+      return field;
+    }  
   };
+
+  /**
+   * @function setValue
+   * @description set the value to a field that potentially referencing to an other in its object parent
+   * @param {object} obj   - the data object where to fetch the value
+   * @param {string} field - if field starts with '@' : the reference name of the inner field of the object to fetch value from, else the field
+   * @param {string} value - the new value of the field
+   */
+  depgraphlib.setValue = function(obj,field,value){
+    if(field && field.indexOf('@')==0){
+      var refid = field.substring(1);
+      for(var property in obj){
+        if(property == refid){
+          if(obj[refid] && obj[refid].indexOf('@')==0){
+            depgraphlib.setValue(obj,obj[refid],value);
+          }else{
+            obj[refid] = value;
+          }
+          return;
+        }
+      }
+      if(refid.indexOf('#data/')==0){
+        refid = refid.substring(6);
+      }
+      if(obj['#data']){
+        for(var property in obj['#data']){
+          if(property == refid){
+            if(obj['#data'][refid] && obj['#data'][refid].indexOf('@')==0){
+              depgraphlib.setValue(obj,obj['#data'][refid],value);
+            }else{
+              obj['#data'][refid] = value;
+            }
+            return;
+          }
+        } 
+      }
+    }else{
+      field = value;
+      return;
+    }  
+  }
 
   /**
    * resolve the references in a json object
