@@ -65,9 +65,18 @@
       }
       div += 'UID: '+me.options.uid+'<br>';
       div += me.revision_node_link || '';
-      div += 'Sentence : ' + fix_missing_a_closing_tag(me.sentenceLink) + '<br>'
-      + 'Back Links : ' + me.refs
-      +'</div>';
+      if(me.sentenceLink && me.sentenceLink != "#"){
+        div += 'Sentence : ' + fix_missing_a_closing_tag(me.sentenceLink) + '<br>'
+      }else{
+        if(!me.sentence){
+          me.sentence = me.computeSentence();
+        }
+        div += 'Sentence : ' + me.sentence + '<br>'
+      }
+      if(me.refs){
+        div += 'Back Links : ' + me.refs
+      }
+      div +='</div>';
       div = jQuery(div);
       me.viewer.createBox({closeButton:true,position:point,autodestroy:true,forceToolbar:true}).setContent(div).open();
     };

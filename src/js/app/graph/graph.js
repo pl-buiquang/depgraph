@@ -645,6 +645,9 @@
 
       this.viewer.addToolbarItem({name:'export',callback:exportData,style:'export',group:'0',static:true});
       this.viewer.addToolbarItem({name:'help',callback:function(){me.displayHelp(this);},style:'main-help',group:'99',static:true});
+      if(typeof depgraphlib.showRefs != 'undefined'){
+        this.viewer.addToolbarItem({name:'refs',callback:depgraphlib.showRefs,style:'refs','static':true});
+      }
       
       var me = this;
       /**
