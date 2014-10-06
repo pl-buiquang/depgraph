@@ -29,7 +29,7 @@
     }
     var val = depgraphlib.getValue(obj,attr[pathComponents[pathComponents.length-1]]);
     var oldVal = depgraphlib.clone(val);
-    if(!overrideReference && attr[pathComponents[pathComponents.length-1]] && attr[pathComponents[pathComponents.length-1]].indexOf('@')==0){
+    if(!overrideReference && attr[pathComponents[pathComponents.length-1]] && typeof attr[pathComponents[pathComponents.length-1]] == 'string' && attr[pathComponents[pathComponents.length-1]].indexOf('@')==0){
       depgraphlib.setValue(obj,attr[pathComponents[pathComponents.length-1]],value);
     }else{
       attr[pathComponents[pathComponents.length-1]] = value;  
@@ -209,7 +209,7 @@
    * @return {object}       the value of the field
    */
   depgraphlib.getValue = function(obj,field){
-    if(field && field.indexOf('@')==0){
+    if(field && typeof field == 'string' && field.indexOf('@')==0){
       var refid = field.substring(1);
       for(var property in obj){
         if(property == refid){
@@ -239,7 +239,7 @@
    * @param {string} value - the new value of the field
    */
   depgraphlib.setValue = function(obj,field,value){
-    if(field && field.indexOf('@')==0){
+    if(field && typeof field == 'string' && field.indexOf('@')==0){
       var refid = field.substring(1);
       for(var property in obj){
         if(property == refid){

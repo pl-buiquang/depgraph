@@ -46,7 +46,7 @@
           var sl = 0;
           for(var j = 0; j<this.depgraph.data.graph[type].length ; ++j){
             var entity = this.depgraph.data.graph[type][j];
-            if(entity.sublabel.length>sl){
+            if(entity.sublabel && entity.sublabel.length>sl){
               sl = entity.sublabel.length;
             }
           }
@@ -91,6 +91,12 @@
         }
       };
 
+      /**
+       * @function setDataModelForType
+       * @param {string} type      the type of the item to set the datamodel for (words, links or chunks)
+       * @param {object} dataModel the data model
+       * @param {DepGraphLib.DepGraph} depgraph  the depgraph object
+       */
       function setDataModelForType(type,dataModel,depgraph){
         for(var j = 0; j<depgraph.data.graph[type].length ; ++j){
           var entity = depgraph.data.graph[type][j];
