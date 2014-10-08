@@ -533,7 +533,7 @@
   depgraphlib.DepGraph.prototype.computeSentence = function(){
     var sentence = "";
     for(var i in this.data.graph.words){
-      var token = this.data.graph.words[i].label.trim();
+      var token = depgraphlib.getValue(this.data.graph.words[i],this.data.graph.words[i].label).trim();
       if(token != "" && token != "_"){
         sentence += " "+token;
       }
