@@ -583,7 +583,7 @@ background: linear-gradient(#ffffff, #EDEDED);
   width:100%;
   margin:10px;
   border: 1px dotted black;
-  background: url('img/ajax-loader.gif') no-repeat center;
+  background: url('img/ajax-loader-2.gif') no-repeat center;
 }
 
  .depgraphlib-box{
