@@ -578,6 +578,14 @@ background: linear-gradient(#ffffff, #EDEDED);
 /*                        Box                                           */
 /************************************************************************/
 
+.depgraphlib-box-loading{
+  height:150px;
+  width:100%;
+  margin:10px;
+  border: 1px dotted black;
+  background: url('img/ajax-loader.gif') no-repeat center;
+}
+
  .depgraphlib-box{
   position:fixed !important;
   display:block;

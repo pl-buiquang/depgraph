@@ -203,7 +203,18 @@
       this.object.css('top',point.y);
       this.object.css('left',point.x);
     }
-  }
+    return this;
+  };
+
+  depgraphlib.Box.prototype.defaultInit = function(){
+    var divloader = '<div style="width:300px; height:150px;"><div class="depgraphlib-box-loading"></div></div>';
+    var width = jQuery(window).width()-50;
+    var height = jQuery(window).height()-50;
+    this.object.css('top',height/2-100);
+    this.object.css('left',width/2-100);
+    this.setContent(divloader);
+    return this;
+  };
   
   /**
    * 

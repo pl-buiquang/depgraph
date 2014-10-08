@@ -43,6 +43,21 @@
       dataType : 'json',
       success: function(data, textStatus, jqXHR) {
         console.log(data);
+        jQuery.ajax({
+          type: 'POST', 
+          url: depgraph.wsurl,
+          data: {
+            gnid:depgraph.gnid,
+            action:'get notes'          },
+          dataType : 'json',
+          success: function(data, textStatus, jqXHR) {
+            console.log(data);
+            depgraphlib.tpl.notesRender(data,depgraph.options.uid);
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            alert(textStatus);
+          }
+        });
       },
       error: function(jqXHR, textStatus, errorThrown) {
         alert(textStatus);
@@ -78,7 +93,28 @@
       }
       div +='</div>';
       div = jQuery(div);
-      me.viewer.createBox({closeButton:true,position:point,autodestroy:true,forceToolbar:true}).setContent(div).open();
+      if(me.wsurl){
+        jQuery.ajax({
+          type: 'POST', 
+          url: me.wsurl,
+          data: {
+            uid:me.options.uid,
+            action:"_getSig",
+          },
+          dataType:'text',
+          success: function(data, textStatus, jqXHR) {
+            console.log(data);
+            div.append("<div>Signature : "+data+"</div>");
+            me.viewer.createBox({closeButton:true,position:point,autodestroy:true,forceToolbar:true}).setContent(div).open();
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR);
+            me.viewer.createBox({closeButton:true,position:point,autodestroy:true,forceToolbar:true}).setContent(div).open();
+          }
+        });      
+      }else{
+        me.viewer.createBox({closeButton:true,position:point,autodestroy:true,forceToolbar:true}).setContent(div).open();
+      }
     };
 
     function fix_missing_a_closing_tag(link){

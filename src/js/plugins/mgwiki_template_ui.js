@@ -4,13 +4,17 @@
       
   };
   
-  depgraphlib.tpl.notes = function(comments,uid){
+  depgraphlib.tpl.notesRender = function(comments,uid){
     var container = jQuery("#notes-"+uid);
-    container.on("click",function(event){
+    if(comments.length==0){
+      return;
+    }
+    container.html('<div class="graph-note"></div>');
+    jQuery('.graph-note',container).on("click",function(event){
       if(jQuery(event.target).hasClass("note-delete")){
         return;
       }
-      var content = jQuery('.notes-content',this);
+      var content = jQuery('.notes-content',this.parentNode);
       content.toggle();
     });
     var div = '<div class="notes-content hidden"><table title="comments">';
