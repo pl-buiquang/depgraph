@@ -622,7 +622,11 @@ function depGraph2depXML($data){
 function comp_node_position($a,$b){
   if($a["#data"]['left']==$b["#data"]['left']){
     if($a["#data"]['right']==$b["#data"]['right']){
-      return 0;
+      if($a['id']<$b['id']){
+        return -1;
+      }else{
+        return 1;
+      }
     }else if($a["#data"]['right']<$b["#data"]['right']){
       return -1;
     }else{
@@ -987,6 +991,10 @@ function passage2depGraph($xml_data){
     $node_obj['sublabel'] = array();
     $node_obj['sublabel'][] = (string)$node["lemma"];
     $node_obj['sublabel'][] = (string)$node["pos"];
+    $node_obj['#data'] = array(
+      "pos"=>(string)$node["pos"],
+      "lemma"=>(string)$node["lemma"]
+    );
     $node_obj['id'] = (string)$node['id'];
   }
 

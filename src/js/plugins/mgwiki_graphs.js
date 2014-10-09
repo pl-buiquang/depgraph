@@ -5,7 +5,22 @@
  */
 (function(depgraphlib){
 
-
+  /**
+   * try to guess the format of the graph between two type (conll and depconll), this is used for getting signature for format agnostic graphs
+   * @param  {Depgraphlib.DepGraph} depgraph
+   * @return {string} the format class (conll or depconll)
+   */
+  depgraphlib.guessFormat = function(depgraph){
+    for(var i in depgraph.data.graph.words){
+      if(depgraph.data.graph.words[i]['#data']){
+        if(depgraph.data.graph.words[i]['#data']['pos']){
+          return "conll";
+        }else{
+          return "depconll";
+        }
+      }
+    }
+  };
 
 
   depgraphlib.allowNotes = function(graph_id){
@@ -94,12 +109,15 @@
       div +='</div>';
       div = jQuery(div);
       if(me.wsurl){
+        var ddata = me.cleanData();
         jQuery.ajax({
           type: 'POST', 
           url: me.wsurl,
           data: {
             uid:me.options.uid,
             action:"_getSig",
+            data:ddata,
+            format:me.options.format || depgraphlib.guessFormat(me)
           },
           dataType:'text',
           success: function(data, textStatus, jqXHR) {
