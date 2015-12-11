@@ -27,6 +27,9 @@ function convertGraph($data,$sourceformat,$targetformat){
     case 'passage':
       $json = passage2depGraph($data);
       break;
+    case 'udep':
+      $json = udep2depGraph($data);
+      break;
   }
   switch ($targetformat){
     case 'depconll':
@@ -46,6 +49,9 @@ function convertGraph($data,$sourceformat,$targetformat){
       break;
     case 'tikz-dep':
       $formateddata = depGraph2tikz($json);
+      break;
+    case 'udep':
+      $formateddata = depGraph2udep($json);
       break;
   }
   
@@ -382,6 +388,160 @@ function depGraph2depconll($data){
   }
   return implode("\n",$lines);
 }
+
+
+/*********************************************************/
+/*                      conll                            */
+/*********************************************************/
+
+function udep2depGraph($data){
+  if(is_string($data)){
+    $data = preg_replace("/^#(.*?)\n/m", '', $data);
+    $data = preg_split('/\n/',$data);
+  }
+  
+  $graph['words'] = array();
+  $graph['links'] = array();
+  $graph['chunks'] = array();
+
+  $aggl = array();
+  
+  foreach($data as $line){
+    
+    $line = trim($line,"\n ");
+    
+    if($line == ""){
+      continue;
+    }
+    
+    $items = preg_split('/\t/', $line);
+    
+  
+    if(count($items)<8){
+      $items = preg_split('/\s+/', $line);//   throw new Exception('Le format semble être incorrect');
+    }
+
+    $indexes = preg_split('/-/',$items[0]);
+    
+    if (count($indexes) == 2) {
+            /* extra line for agglutinates */
+        $min = $indexes[0];
+        $max = $indexes[1];
+        if ($min < $max) {
+            $aggl[$min] = $items[1];
+            for($i = $min; $i < $max; $i++ ) {
+                $aggl[$i+1] = '_';
+                    /* add a segmentation link */
+                $link = &$graph['links'][];
+                $link['source'] = $min;
+                $link['target'] = $i+1;
+                $link['label'] = "";
+                $link['#style']['link-color'] = getTypeColor("ellipsis");
+                $link['#style']['oriented'] = false;
+                $link['#style']['stroke-dasharray'] = "5,5,1,5";
+                $link['#data']['type'] = "segmentation";
+            }
+        }
+        continue;
+    } 
+    
+    $features = array();
+    $heads = array();
+    $relations = array();
+    $regex_feature = '/(\w+)\s*=\s*(\w+)\s*\|*\s*/';
+    $regex_rel = '/([A-Za-z0-9_\-\+:\.]+)\s*\|*\s*/';
+    preg_match_all($regex_feature, $items[5], $features, PREG_SET_ORDER);
+    preg_match_all($regex_rel, $items[6], $heads);
+    preg_match_all($regex_rel, $items[7], $relations);
+    
+    $word = &$graph['words'][];
+    $word['id'] = $items[0];
+    $word['#data'] = array();
+    $word['label'] = $items[1];
+    if (isset($aggl[$items[0]])) {
+        $word['label'] = $aggl[$items[0]];
+    }
+    $word['sublabel'][] = $items[2];
+    $word['sublabel'][] = $items[3];
+    $word['#data']['token'] = $items[1];
+    $word['#data']['lemma'] = $items[2];
+    $word['#data']['cpos'] = $items[3];
+    $word['#data']['pos'] = $items[4];
+    foreach($features as $feat){
+      $word['#data']['feat'][trim($feat[1])] = trim($feat[2]);
+    }
+
+    $n;
+    if(($n = count($heads[1])) != count($relations[1])){
+      echo 'error';
+      //watchdog('debug',count($heads[1]) . '__' . count($relations[1]));
+      //      throw new Exception('Le format semble être incorrect');
+    }
+    for($i = 0; $i< $n ; ++$i){
+      $rel = $relations[1][$i];
+      $source = $heads[1][$i];
+      if($source === '0'){
+        $link = &$graph['links'][];
+        $link['source'] = $source;
+        $link['target'] = $items[0];
+        $link['label'] = $rel;
+        continue;
+      }
+      $link = &$graph['links'][];
+      $link['source'] = $source;
+      $link['target'] = $items[0];
+      $link['label'] = $rel;
+      if(!strncmp($rel, "S:", 2)){
+        $link['#style'] = array('link-color' => 'red','color' => 'red');
+      }else if(!strncmp($rel, "D:", 2)){
+        $link['#style'] = array('link-color' => 'blue','color' => 'blue');
+      }
+    }
+    }
+    
+    $dep_graph_array['graph'] = $graph;
+    return json_encode($dep_graph_array);
+
+}
+
+function depGraph2udep($data){
+  if(is_string($data)){
+    $data = json_decode($data,true);
+  }
+  
+  $ref_ids = array();
+  $lines = array();
+  foreach($data['graph']['words'] as $word){
+    $line = &$lines[];
+    $ref_ids[$word['id']] = &$line;
+    $line = array();
+    $line[0]=isset($word['id'])?$word['id']:'_';
+    $line[1]=isset($word['label'])?$word['label']:'_';
+    $line[2]=isset($word['#data']['lemma'])?$word['#data']['lemma']:'_';
+    $line[3]=isset($word['#data']['cpos'])?$word['#data']['cpos']:'_';
+    $line[4]=isset($word['#data']['pos'])?$word['#data']['pos']:'_';
+    $line[5]=isset($word['#data']['feat'])?conllFeatures($word['#data']['feat']):'_';
+  }
+  foreach($data['graph']['links'] as $link){
+    if($link['target']==0 || (isset($ref_ids[$link['target']]) && $ref_ids[$link['target']]!=null)){
+      $line = &$ref_ids[$link['target']];
+      if(isset($line[6]) && $line[6] != null){ // case append
+        $line[6] .= '|' . $link['source'];
+        $line[7] .= '|' . $link['label'];
+      }else{ // case create
+        $line[6] = $link['source'];
+        $line[7] = $link['label'];
+      }
+    }else{
+      throw new Exception('Couldn\'t find word with id : ' . $link['target']);
+    }
+  }
+  foreach($lines as &$line){
+    $line = implode("\t",$line);
+  }
+  return implode("\n",$lines);
+}
+
 
 /**
  * Create feature cell of conll format from depgraph feat attribute of words
