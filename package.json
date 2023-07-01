@@ -4,7 +4,8 @@
   "description": "Dependency Graphs Visualising and Edition",
   "main": "depgraph.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "./node_modules/.bin/grunt style build_all"
   },
   "repository": {
     "type": "git",
