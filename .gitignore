@@ -3,6 +3,8 @@ tmp/*
 build/*
 doc/*
 
+node_modules
+
 # Sublime project files
 *.sublime-project
 *.sublime-workspace
